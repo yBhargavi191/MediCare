@@ -1,0 +1,10 @@
+node_modules/
+.npm-cache/
+www/
+functions/node_modules/
+functions/.env
+android/.gradle/
+android/build/
+android/app/build/
+
+.vercel

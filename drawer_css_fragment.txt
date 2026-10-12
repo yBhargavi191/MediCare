@@ -1,0 +1,19 @@
+﻿.drawer-trigger { position: fixed; top: 18px; left: 18px; z-index: 20; width: 46px; height: 46px; border: 0; border-radius: 14px; background: rgba(23, 107, 135, 0.12); color: var(--primary-dark); font-size: 24px; cursor: pointer; box-shadow: 0 8px 18px rgba(15, 76, 92, 0.12); }
+.drawer-backdrop { position: fixed; inset: 0; z-index: 30; background: rgba(16, 42, 48, 0.45); }
+.drawer { position: fixed; top: 0; left: 0; z-index: 40; width: min(84vw, 320px); height: 100vh; padding: 18px 16px 20px; background: linear-gradient(180deg, #f8fdfd 0%, #edf7f6 100%); box-shadow: 18px 0 40px rgba(15, 76, 92, 0.15); border-right: 1px solid rgba(23, 107, 135, 0.08); transform: translateX(-110%); transition: transform 0.25s ease; }
+.drawer.open { transform: translateX(0); }
+.drawer-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.drawer-brand { display: flex; align-items: center; gap: 12px; }
+.drawer-logo { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; font-weight: 800; }
+.drawer-brand strong { display: block; font-size: 17px; color: var(--primary-dark); }
+.drawer-brand small { display: block; color: var(--muted); font-size: 11px; }
+.drawer-close { width: 34px; height: 34px; border: 0; border-radius: 10px; background: #e7f3f3; color: var(--primary-dark); font-size: 26px; line-height: 1; cursor: pointer; }
+.drawer-nav { display: flex; flex-direction: column; gap: 10px; }
+.drawer-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 12px; border: 1px solid transparent; border-radius: 12px; background: rgba(255, 255, 255, 0.5); color: var(--text); font-weight: 700; text-align: left; cursor: pointer; }
+.drawer-item, .drawer-item *, .drawer-nav a.drawer-item:link, .drawer-nav a.drawer-item:visited, .drawer-nav a.drawer-item:hover, .drawer-nav a.drawer-item:active, .drawer-nav a.drawer-item:focus, .drawer-nav a.drawer-item:focus-visible { text-decoration: none !important; text-decoration-line: none !important; -webkit-text-decoration: none !important; }
+.drawer-item span:first-child { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: #eaf5f5; font-size: 18px; flex-shrink: 0; }
+.drawer-item div { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; line-height: 1.2; }
+.drawer-item strong { font-size: 15px; color: var(--primary-dark); text-decoration: none !important; overflow-wrap: anywhere; }
+.drawer-item small { color: var(--muted); font-size: 11px; text-decoration: none !important; overflow-wrap: anywhere; }
+.drawer-item.active { border-color: rgba(31, 168, 154, 0.38); background: linear-gradient(135deg, #e8faf6, #f0faf8); color: var(--primary-dark); }
+.drawer-footer { position: absolute; left: 16px; right: 16px; bottom: 18px; padd

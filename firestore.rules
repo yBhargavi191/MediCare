@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Hackathon / demo rules: open read+write so the app keeps working the
+    // same way it did in Firestore "Test mode" (which expires after 30 days).
+    //
+    // NOTE: This is intentionally permissive for a public demo. For a real
+    // deployment, replace this with per-user auth checks, e.g.:
+    //   allow read, write: if request.auth != null;
+    // and restructure the care-taker / admin-bootstrap flows to run signed in.
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

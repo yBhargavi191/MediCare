@@ -1,0 +1,26 @@
+﻿<main class="container patient-dashboard">
+    <header class="topbar"><div><h2>Good <span id="timeOfDay">day</span></h2><div class="greet" id="patientName">Loading...</div></div><button class="icon-btn" onclick="logout()">Log out</button></header>
+    <section class="card"><strong>Today's adherence</strong><div class="progress-bar-bg"><div class="progress-bar-fill" id="adherenceFill" style="width:0%"></div></div><div style="text-align:right;font-size:12px;color:var(--muted);margin-top:4px;" id="adherenceText">0%</div><div class="stat-grid"><div class="stat-box"><div class="num" id="statVerified">0</div><div class="lbl">Verified</div></div><div class="stat-box"><div class="num" id="statMissed">0</div><div class="lbl">Missed</div></div><div class="stat-box"><div class="num" id="statUpcoming">0</div><div class="lbl">Upcoming</div></div></div></section>
+    <section class="wallet-box"><div style="font-size:12px;color:#cbd5e1;">Accountability balance</div><div class="bal">â‚¹<span id="walletBalance">--</span></div><div class="row"><span>â‚¹10 deducted automatically on a missed dose</span></div></section>
+    <section class="card alerts-card">
+      <div class="alerts-head">
+        <div class="alerts-icon">ðŸ””</div>
+        <div class="alerts-copy">
+          <strong>Medication alerts</strong>
+          <span>Get a reminder when it's time for your medicine.</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="enableNotificationsBtn" onchange="enableMedicationAlerts()">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+      <p id="notificationStatus" class="alerts-status">Checking alert permissionâ€¦</p>
+      <button id="enableUrgentAlertsBtn" class="secondary" style="display:none;margin-top:8px;" onclick="enableUrgentAndroidAlerts()">Enable alarm alerts</button>
+      <button id="testAlarmBtn" class="secondary" style="margin-top:8px;" onclick="testAlarmSound()">Test alarm sound</button>
+      <button id="testScheduleBtn" class="secondary" style="margin-top:8px;margin-left:6px;" onclick="testScheduledAlarm()">Test closed-app alarm</button>
+      <button id="batteryBtn" class="secondary" style="margin-top:8px;margin-left:6px;" onclick="allowBackgroundAlarm()">Allow background</button>
+      <button id="alarmDiagnosticsBtn" class="secondary" style="margin-top:8px;margin-left:6px;" onclick="showAlarmDiagnostics()">Alarm help</button>
+    </section>
+    <section class="card"><div class="section-heading"><strong>Today's medicines</strong><button class="icon-btn" onclick="toggleAddMed()">+ Add</button></div><div id="medList" style="margin-top:6px;"><div class="empty-state">Loading medicines...</div></div></section>
+    <section class="card"><strong>Caregiver alerts</strong><div id="alertList"><div class="empty-state">No alerts yet</div></div></section>
+  </main>

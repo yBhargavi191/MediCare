@@ -1,0 +1,30 @@
+{
+  "name": "MediCare — Smart Health Reminders",
+  "short_name": "MediCare",
+  "description": "Medication reminders for patients, with automatic care-taker alerts when a dose is missed.",
+  "id": "/index.html",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "prefer_related_applications": false,
+  "orientation": "portrait",
+  "lang": "en",
+  "dir": "ltr",
+  "background_color": "#f4f8f8",
+  "theme_color": "#176b87",
+  "categories": ["medical", "health", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "screenshots/home.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow", "label": "Sign in to MediCare" },
+    { "src": "screenshots/dashboard.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow", "label": "Today's medication and care-taker alerts" }
+  ],
+  "shortcuts": [
+    { "name": "Care taker alerts", "short_name": "Care taker", "url": "care-taker.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Verify medicine", "short_name": "Verify", "url": "verify.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+  ]
+}

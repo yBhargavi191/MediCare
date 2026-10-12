@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#176b87">
+  <title>MediCare — Patient Profile</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/fitness-pages.css">
+  <style>
+    body{visibility:hidden}.profile-hero{display:flex;align-items:center;gap:16px;padding:18px;border-radius:16px;background:linear-gradient(135deg,#edf8f6,#f2f7ff)}
+    .profile-avatar{display:grid;place-items:center;width:62px;height:62px;flex:0 0 auto;border-radius:20px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-size:26px;font-weight:800}
+    .profile-hero h2{margin:0;color:var(--primary-dark)}.profile-hero p{margin:4px 0 0;color:var(--muted);overflow-wrap:anywhere}
+    .profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-top:16px}
+    .profile-field{min-width:0;padding:14px;border:1px solid var(--border);border-radius:12px;background:#fff}.profile-field span{display:block;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}.profile-field strong{display:block;margin-top:6px;overflow-wrap:anywhere}
+  </style>
+</head>
+<body>
+  <button class="drawer-trigger" id="fitnessMenuTrigger" type="button" aria-label="Open navigation menu" aria-expanded="false">☰</button>
+  <div class="drawer-backdrop" id="fitnessMenuBackdrop" hidden></div>
+  <aside class="drawer" id="fitnessPageDrawer" aria-label="Patient pages" aria-hidden="true">
+    <div class="drawer-header"><div class="drawer-brand"><div class="drawer-logo">M</div><div><strong>MediCare</strong><small>Patient menu</small></div></div><button class="drawer-close" id="fitnessMenuClose" type="button" aria-label="Close menu">×</button></div>
+    <nav class="drawer-nav" aria-label="Page navigation">
+      <a class="drawer-item" href="patient-dashboard.html"><span>🏠</span><div><strong>Dashboard</strong><small>Patient overview</small></div></a>
+      <a class="drawer-item" href="medication-reminders.html"><span>💊</span><div><strong>Medication Reminders</strong><small>Today's doses and alerts</small></div></a>
+      <a class="drawer-item" href="nearby-hospitals.html"><span>🏥</span><div><strong>Nearby Hospitals</strong><small>Search health facilities</small></div></a>
+      <a class="drawer-item" href="fitness-checking.html"><span>🌿</span><div><strong>Fitness &amp; Wellness</strong><small>Guided wellness plan</small></div></a>
+      <a class="drawer-item" href="appointments.html"><span>📅</span><div><strong>Appointments</strong><small>Plan a care visit</small></div></a>
+      <a class="drawer-item" href="health-records.html"><span>📋</span><div><strong>Health Records</strong><small>Medicines and dose history</small></div></a>
+      <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
+      <a class="drawer-item active" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
+      <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+    </nav>
+  </aside>
+  <main class="fitness-page">
+    <header class="topbar"><div><h1>Profile</h1><div class="greet">Your patient information</div></div><div><button class="icon-btn" id="fitnessBackButton" type="button">← Back</button><button class="icon-btn" type="button" onclick="auth.signOut().then(function(){location.href='index.html';})">Log out</button></div></header>
+    <section class="card">
+      <div class="profile-hero"><div class="profile-avatar" id="profileAvatar" aria-hidden="true">P</div><div><h2 id="profileName">Loading profile…</h2><p id="profileEmail">Loading email…</p></div></div>
+      <div class="profile-grid">
+        <div class="profile-field"><span>Account type</span><strong>Patient</strong></div>
+        <div class="profile-field"><span>Phone</span><strong id="profilePhone">Not provided</strong></div>
+        <div class="profile-field"><span>Caregiver contact</span><strong id="profileCaregiver">Not provided</strong></div>
+        <div class="profile-field"><span>Account status</span><strong id="profileStatus">Active</strong></div>
+        <div class="profile-field"><span>Accountability balance</span><strong id="profileBalance">Not available</strong></div>
+        <div class="profile-field"><span>Member since</span><strong id="profileCreated">Not available</strong></div>
+      </div>
+    </section>
+  </main>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/fitness-page-nav.js"></script>
+  <script>
+    auth.onAuthStateChanged(async function(user) {
+      if (!user) { location.href = 'index.html'; return; }
+      try {
+        const snapshot = await db.collection('users').doc(user.uid).get();
+        if (!snapshot.exists || snapshot.data().role !== 'patient' || snapshot.data().status === 'archived') { location.href = 'index.html'; return; }
+        const data = snapshot.data();
+        const name = data.name || user.displayName || 'Patient';
+        const contacts = data.relativeContacts || (data.relativePhone ? [{ name: 'Caregiver', phone: data.relativePhone }] : []);
+        document.getElementById('profileName').textContent = name;
+        document.getElementById('profileEmail').textContent = user.email || data.email || 'Email not available';
+        document.getElementById('profileAvatar').textContent = name.trim().charAt(0).toUpperCase() || 'P';
+        document.getElementById('profilePhone').textContent = data.phone || 'Not provided';
+        document.getElementById('profileCaregiver').textContent = contacts.length ? contacts.map(function(contact) { return [contact.name, contact.phone].filter(Boolean).join(' — '); }).join(', ') : 'Not provided';
+        document.getElementById('profileStatus').textContent = data.status || 'Active';
+        document.getElementById('profileBalance').textContent = typeof data.walletBalance === 'number' ? '₹' + data.walletBalance.toFixed(2) : 'Not available';
+        const createdAt = data.createdAt && typeof data.createdAt.toDate === 'function' ? data.createdAt.toDate() : data.createdAt ? new Date(data.createdAt) : null;
+        document.getElementById('profileCreated').textContent = createdAt && !Number.isNaN(createdAt.getTime()) ? createdAt.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not available';
+        document.body.style.visibility = 'visible';
+      } catch (error) {
+        console.error('Unable to load patient profile:', error);
+        document.getElementById('profileName').textContent = 'Unable to load profile';
+        document.getElementById('profileEmail').textContent = 'Please return to the dashboard and try again.';
+        document.body.style.visibility = 'visible';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "appId": "com.lifeline.medications",
+  "appName": "MediCare",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  }
+}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MediCare — Verify Medication</title><link rel="stylesheet" href="css/style.css"><style>
+    .verify-steps{display:none;gap:8px;margin:10px 0 2px;font-size:12px;font-weight:700;}
+    .vstep{padding:5px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.4);white-space:nowrap;}
+    .vstep-pending{opacity:.55;}
+    .vstep-active{background:#fff;color:#b91c1c;border-color:#fff;}
+    .vstep-done{background:#22c55e;border-color:#22c55e;color:#052e16;}
+  </style><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#176b87">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MediCare">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+</head>
+<body>
+  <script src="js/loading.js"></script>
+  <main class="alert-screen" id="alertScreen">
+    <div class="pulse-icon" id="pulseIcon">!</div><h2 id="headline">MEDICATION TIME</h2><div id="medNameDisplay" style="font-size:20px;font-weight:700;"></div><div style="font-size:13px;opacity:.85;margin-top:4px;">Please verify your medication before time runs out</div><div class="countdown" id="countdown">--</div>
+    <div class="verify-steps" id="verifySteps"><span class="vstep vstep-pending" id="stepShow">1 · Show medicine</span><span class="vstep vstep-pending" id="stepTake">2 · Take it</span><span class="vstep vstep-pending" id="stepDone">3 · Confirmed</span></div>
+    <div id="modelNotice" style="display:none;background:#fef3c7;color:#92400e;font-size:12px;padding:8px 14px;border-radius:10px;margin-top:10px;max-width:420px;">⚠️ Generic AI mode active — tablets may show as "bottle". For accurate tablet/tonic detection, train your free custom model (10 min): <strong>TRAINING_GUIDE.md</strong></div>
+    <div class="camera-wrap" id="cameraWrap" style="display:none;"><video id="video" autoplay playsinline muted></video><canvas class="overlay" id="overlay"></canvas><button id="flipCameraBtn" type="button" onclick="switchCamera()" style="position:absolute;top:8px;right:8px;z-index:3;border:0;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;font-weight:800;padding:7px 12px;cursor:pointer;">Flip camera</button></div><div class="verify-status wait" id="verifyStatus" style="display:none;">Show your tablet or medicine strip to verify.</div><div class="reward-banner" id="rewardBanner" style="display:none;">💰 You saved <span id="rewardAmount">₹10</span>!</div><button class="btn-white" id="startCameraBtn" onclick="startVerification()">Verify medication</button><button class="btn-white" id="manualConfirmBtn" style="display:none;" onclick="manualConfirm()">I took it — confirm ✓</button><a class="btn-ghost" id="backToDashboardLink" href="./patient-dashboard.html" style="display:none;text-decoration:none;">Back to dashboard</a>
+  </main>
+  <script src="js/theme.js"></script><script src="js/vendor/firebase-app-compat.js"></script><script src="js/vendor/firebase-auth-compat.js"></script><script src="js/vendor/firebase-firestore-compat.js"></script><script src="js/firebase-config.js"></script><script src="js/ml-loader.js"></script><script src="js/medicine-match.js"></script><script src="js/notifications.js"></script><script src="js/verify.js"></script><script src="js/pwa.js"></script>
+</body>
+</html>

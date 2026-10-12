@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#176b87">
+  <title>MediCare — Appointments</title>
+  <link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/fitness-pages.css">
+  <style>
+    body{visibility:hidden}.appointment-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.appointment-field{min-width:0}.appointment-field.full{grid-column:1/-1}.appointment-field label{display:block;margin-bottom:5px;color:var(--primary-dark);font-size:12px;font-weight:700}.appointment-field input,.appointment-field textarea{width:100%;margin:0;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font:inherit}.appointment-field textarea{min-height:82px;resize:vertical}.appointment-form button{grid-column:1/-1;width:auto;justify-self:start}.appointment-list{display:grid;gap:10px}.appointment-item{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--border);border-radius:13px;background:#fbfdfd}.appointment-item h2{margin:0 0 5px;color:var(--primary-dark);font-size:15px}.appointment-item p{margin:3px 0;color:var(--muted);font-size:12px}.appointment-item button{flex:0 0 auto}.page-empty{padding:22px;text-align:center;color:var(--muted);background:#f7faf9;border-radius:12px}@media(max-width:520px){.appointment-form{grid-template-columns:1fr}.appointment-field.full,.appointment-form button{grid-column:auto}.appointment-item{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <button class="drawer-trigger" id="fitnessMenuTrigger" type="button" aria-label="Open navigation menu" aria-expanded="false">☰</button><div class="drawer-backdrop" id="fitnessMenuBackdrop" hidden></div>
+  <aside class="drawer" id="fitnessPageDrawer" aria-label="Patient pages" aria-hidden="true">
+    <div class="drawer-header"><div class="drawer-brand"><div class="drawer-logo">M</div><div><strong>MediCare</strong><small>Patient menu</small></div></div><button class="drawer-close" id="fitnessMenuClose" type="button" aria-label="Close menu">×</button></div>
+    <nav class="drawer-nav" aria-label="Page navigation">
+      <a class="drawer-item" href="patient-dashboard.html"><span>🏠</span><div><strong>Dashboard</strong><small>Patient overview</small></div></a>
+      <a class="drawer-item" href="medication-reminders.html"><span>💊</span><div><strong>Medication Reminders</strong><small>Today's doses and alerts</small></div></a>
+      <a class="drawer-item" href="nearby-hospitals.html"><span>🏥</span><div><strong>Nearby Hospitals</strong><small>Search health facilities</small></div></a>
+      <a class="drawer-item" href="fitness-checking.html"><span>🌿</span><div><strong>Fitness &amp; Wellness</strong><small>Guided wellness plan</small></div></a>
+      <a class="drawer-item active" href="appointments.html"><span>📅</span><div><strong>Appointments</strong><small>Plan a care visit</small></div></a>
+      <a class="drawer-item" href="health-records.html"><span>📋</span><div><strong>Health Records</strong><small>Medicines and dose history</small></div></a>
+      <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
+      <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
+      <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+    </nav>
+  </aside>
+  <main class="fitness-page">
+    <header class="topbar"><div><h1>Appointments</h1><div class="greet">Keep upcoming care visits in one place.</div></div><div><button class="icon-btn" id="fitnessBackButton" type="button">← Back</button><button class="icon-btn" type="button" onclick="auth.signOut().then(function(){location.href='index.html';})">Log out</button></div></header>
+    <section class="card"><h2 style="margin:0 0 14px;color:var(--primary-dark);font-size:17px;">Add an appointment</h2>
+      <form id="appointmentForm" class="appointment-form">
+        <div class="appointment-field"><label for="appointmentProvider">Doctor or clinic</label><input id="appointmentProvider" name="provider" maxlength="100" required placeholder="Doctor or clinic name"></div>
+        <div class="appointment-field"><label for="appointmentType">Visit type</label><input id="appointmentType" name="type" maxlength="80" placeholder="e.g. Check-up"></div>
+        <div class="appointment-field"><label for="appointmentDate">Date</label><input id="appointmentDate" name="date" type="date" required></div>
+        <div class="appointment-field"><label for="appointmentTime">Time</label><input id="appointmentTime" name="time" type="time" required></div>
+        <div class="appointment-field full"><label for="appointmentLocation">Location (optional)</label><input id="appointmentLocation" name="location" maxlength="160" placeholder="Clinic address"></div>
+        <div class="appointment-field full"><label for="appointmentNotes">Notes (optional)</label><textarea id="appointmentNotes" name="notes" maxlength="500" placeholder="Anything you want to remember"></textarea></div>
+        <button class="primary" id="saveAppointment" type="submit">Save appointment</button>
+      </form><p id="appointmentMessage" class="alerts-status" aria-live="polite"></p>
+    </section>
+    <section class="card"><h2 style="margin:0 0 14px;color:var(--primary-dark);font-size:17px;">Your appointments</h2><div class="appointment-list" id="appointmentList"><div class="page-empty">Loading appointments…</div></div></section>
+  </main>
+  <script src="js/vendor/firebase-app-compat.js"></script><script src="js/vendor/firebase-auth-compat.js"></script><script src="js/vendor/firebase-firestore-compat.js"></script><script src="js/firebase-config.js"></script><script src="js/fitness-page-nav.js"></script>
+  <script>
+    var appointmentUser = null;
+    var appointmentUnsubscribe = null;
+    function renderAppointments(snapshot) {
+      var host = document.getElementById('appointmentList');
+      var items = snapshot.docs.map(function(doc){return {id:doc.id,...doc.data()};}).filter(function(item){return item.status !== 'cancelled';}).sort(function(a,b){return (a.date+' '+a.time).localeCompare(b.date+' '+b.time);});
+      host.replaceChildren();
+      if (!items.length) { host.innerHTML='<div class="page-empty">No appointments saved yet. Add an upcoming appointment above.</div>'; return; }
+      items.forEach(function(item){
+        var article=document.createElement('article'); article.className='appointment-item';
+        var info=document.createElement('div');
+        var title=document.createElement('h2'); title.textContent=item.provider || 'Appointment';
+        var detail=document.createElement('p'); detail.textContent=[item.type,item.date,item.time].filter(Boolean).join(' · ');
+        info.append(title,detail);
+        if(item.location){var location=document.createElement('p');location.textContent=item.location;info.appendChild(location);}
+        if(item.notes){var notes=document.createElement('p');notes.textContent=item.notes;info.appendChild(notes);}
+        var cancel=document.createElement('button');cancel.type='button';cancel.className='icon-btn';cancel.textContent='Cancel';cancel.addEventListener('click',async function(){try{await db.collection('appointments').doc(item.id).update({status:'cancelled'});}catch(error){document.getElementById('appointmentMessage').textContent='Could not cancel this appointment. Try again.';}});
+        article.append(info,cancel);host.appendChild(article);
+      });
+    }
+    auth.onAuthStateChanged(async function(user){
+      if(!user){location.href='index.html';return;}
+      try{var account=await db.collection('users').doc(user.uid).get();if(!account.exists||account.data().role!=='patient'||account.data().status==='archived'){location.href='index.html';return;}appointmentUser=user;document.body.style.visibility='visible';appointmentUnsubscribe=db.collection('appointments').where('patientId','==',user.uid).onSnapshot(renderAppointments,function(error){console.error('Appointment load failed:',error);document.getElementById('appointmentList').innerHTML='<div class="page-empty">Appointments are temporarily unavailable.</div>';});}
+      catch(error){console.error('Appointment page auth failed:',error);location.href='index.html';}
+    });
+    document.getElementById('appointmentForm').addEventListener('submit',async function(event){
+      event.preventDefault();if(!appointmentUser)return;
+      var form=event.currentTarget;if(!form.reportValidity())return;
+      var date=form.elements.date.value;var time=form.elements.time.value;
+      if(new Date(date+'T'+time)<new Date()){document.getElementById('appointmentMessage').textContent='Choose a future date and time.';return;}
+      var button=document.getElementById('saveAppointment');button.disabled=true;document.getElementById('appointmentMessage').textContent='Saving…';
+      try{await db.collection('appointments').add({patientId:appointmentUser.uid,provider:form.elements.provider.value.trim(),type:form.elements.type.value.trim(),date:date,time:time,location:form.elements.location.value.trim(),notes:form.elements.notes.value.trim(),status:'scheduled',createdAt:firebase.firestore.FieldValue.serverTimestamp()});form.reset();document.getElementById('appointmentMessage').textContent='Appointment saved.';}
+      catch(error){console.error('Appointment save failed:',error);document.getElementById('appointmentMessage').textContent='Could not save the appointment. Check your connection and retry.';}
+      finally{button.disabled=false;}
+    });
+    window.addEventListener('pagehide',function(){if(appointmentUnsubscribe)appointmentUnsubscribe();});
+  </script>
+</body>
+</html>

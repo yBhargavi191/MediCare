@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#176b87">
+  <title>MediCare — Patient Settings</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/fitness-pages.css">
+  <style>
+    body{visibility:hidden}.settings-list{display:grid;gap:12px}.settings-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;border:1px solid var(--border);border-radius:14px;background:#fff}
+    .settings-item-copy{min-width:0}.settings-item-copy strong{display:block;color:var(--primary-dark)}.settings-item-copy p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .settings-icon{display:grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border-radius:13px;background:#eaf5f5;font-size:20px}.settings-item .icon-btn{flex:0 0 auto;text-decoration:none}.settings-status{margin-top:16px;padding:14px;border-radius:12px;background:#f3f8f8;color:var(--muted);font-size:13px}
+    .permission-card{margin-bottom:14px;padding:16px;border:1px solid var(--border);border-radius:14px;background:#fbfdfd}.permission-head{display:flex;align-items:center;justify-content:space-between;gap:14px}.permission-head strong{color:var(--primary-dark)}.permission-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.permission-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.permission-actions button{width:auto;min-height:42px;padding:9px 12px}.permission-status{margin:12px 0 0;color:var(--muted);font-size:13px;line-height:1.5}.switch{position:relative;display:inline-block;width:50px;height:30px;flex:0 0 auto}.switch input{position:absolute;opacity:0;width:1px;height:1px}.switch-slider{position:absolute;inset:0;border-radius:999px;background:#cbd5db;cursor:pointer;transition:.2s}.switch-slider:before{position:absolute;content:"";width:24px;height:24px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0004;transition:.2s}.switch input:checked+.switch-slider{background:var(--primary)}.switch input:checked+.switch-slider:before{transform:translateX(20px)}.switch input:disabled+.switch-slider{opacity:.5;cursor:not-allowed}
+    @media(max-width:480px){.settings-item{align-items:flex-start;flex-wrap:wrap}.settings-item .icon-btn{margin-left:56px}}
+  </style>
+</head>
+<body>
+  <button class="drawer-trigger" id="fitnessMenuTrigger" type="button" aria-label="Open navigation menu" aria-expanded="false">☰</button>
+  <div class="drawer-backdrop" id="fitnessMenuBackdrop" hidden></div>
+  <aside class="drawer" id="fitnessPageDrawer" aria-label="Patient pages" aria-hidden="true">
+    <div class="drawer-header"><div class="drawer-brand"><div class="drawer-logo">M</div><div><strong>MediCare</strong><small>Patient menu</small></div></div><button class="drawer-close" id="fitnessMenuClose" type="button" aria-label="Close menu">×</button></div>
+    <nav class="drawer-nav" aria-label="Page navigation">
+      <a class="drawer-item" href="patient-dashboard.html"><span>🏠</span><div><strong>Dashboard</strong><small>Patient overview</small></div></a>
+      <a class="drawer-item" href="medication-reminders.html"><span>💊</span><div><strong>Medication Reminders</strong><small>Today's doses and alerts</small></div></a>
+      <a class="drawer-item" href="nearby-hospitals.html"><span>🏥</span><div><strong>Nearby Hospitals</strong><small>Search health facilities</small></div></a>
+      <a class="drawer-item" href="fitness-checking.html"><span>🌿</span><div><strong>Fitness &amp; Wellness</strong><small>Guided wellness plan</small></div></a>
+      <a class="drawer-item" href="appointments.html"><span>📅</span><div><strong>Appointments</strong><small>Plan a care visit</small></div></a>
+      <a class="drawer-item" href="health-records.html"><span>📋</span><div><strong>Health Records</strong><small>Medicines and dose history</small></div></a>
+      <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
+      <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
+      <a class="drawer-item active" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+    </nav>
+  </aside>
+  <main class="fitness-page">
+    <header class="topbar"><div><h1>Settings</h1><div class="greet">Manage app and patient preferences</div></div><div><button class="icon-btn" id="fitnessBackButton" type="button">← Back</button><button class="icon-btn" type="button" onclick="auth.signOut().then(function(){location.href='index.html';})">Log out</button></div></header>
+    <section class="card" aria-labelledby="permissionSettingsTitle">
+      <h2 id="permissionSettingsTitle" style="margin:0 0 14px;">Notification &amp; alarm permissions</h2>
+      <div class="permission-card">
+        <div class="permission-head"><div><strong>Medication notifications</strong><p>Allow MediCare to notify you when a dose is due.</p></div><label class="switch"><input type="checkbox" id="enableNotificationsBtn" onchange="enableMedicationAlerts()"><span class="switch-slider"></span></label></div>
+        <p id="notificationStatus" class="permission-status" aria-live="polite">Checking notification permission…</p>
+        <button id="enableUrgentAlertsBtn" class="icon-btn" type="button" style="display:none;margin-top:10px;" onclick="enableUrgentAndroidAlerts()">Enable alarm access</button>
+      </div>
+      <div class="permission-card"><div class="permission-head"><div><strong>Test and troubleshoot alarm</strong><p>Check alarm sound, background operation, and Android permissions.</p></div><span class="settings-icon" aria-hidden="true">⏰</span></div>
+        <div class="permission-actions"><button id="testAlarmBtn" class="icon-btn" type="button" onclick="testAlarmSound()">Test alarm sound</button><button id="testScheduleBtn" class="icon-btn" type="button" onclick="testScheduledAlarm()">Test closed-app alarm</button><button id="batteryBtn" class="icon-btn" type="button" onclick="requestBatteryExemption()">Allow background</button><button id="alarmDiagnosticsBtn" class="icon-btn" type="button" onclick="showAlarmDiagnostics()">Alarm help</button></div>
+      </div>
+    </section>
+    <section class="card"><div class="settings-list">
+      <div class="settings-item"><div class="settings-icon" aria-hidden="true">🌙</div><div class="settings-item-copy"><strong>Dark mode</strong><p>Use a darker appearance across MediCare.</p></div><label class="switch"><input type="checkbox" id="themeToggle" aria-label="Enable dark mode"><span class="switch-slider"></span></label></div>
+      <div class="settings-item"><div class="settings-icon" aria-hidden="true">💊</div><div class="settings-item-copy"><strong>Medicine schedule</strong><p>Review today's scheduled doses and update your medicines.</p></div><a class="icon-btn" href="medication-reminders.html">Manage medicines</a></div>
+      <div class="settings-item"><div class="settings-icon" aria-hidden="true">👤</div><div class="settings-item-copy"><strong>Patient profile</strong><p>View your account and caregiver information.</p></div><a class="icon-btn" href="profile.html">Open profile</a></div>
+      <div class="settings-item"><div class="settings-icon" aria-hidden="true">🚪</div><div class="settings-item-copy"><strong>Sign out</strong><p>Sign out of your patient account on this device.</p></div><button class="icon-btn" type="button" onclick="auth.signOut().then(function(){location.href='index.html';})">Log out</button></div>
+    </div><p class="settings-status">Some alarm permissions are only available in the installed Android app. Browser notification permission is managed by your browser.</p></section>
+  </main>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/vendor/firebase-messaging-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/push-notifications.js"></script>
+  <script src="js/fitness-page-nav.js"></script>
+  <script src="js/patient.js"></script>
+</body>
+</html>
