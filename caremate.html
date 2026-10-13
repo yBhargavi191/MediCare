@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#60a5fa">
+  <title>AI Assistant — Your calm health companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --teal: #60a5fa;
+      --teal-dark: #3b82f6;
+      --teal-soft: #eff4ff;
+      --blue: #60a5fa;
+      --blue-soft: #eaf0ff;
+      --line: #e8eef9;
+      --card: #ffffff;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --sys: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-family: var(--sys);
+      color: var(--ink);
+      background: #f7faff;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, strong { font-family: "Plus Jakarta Sans", "DM Sans", sans-serif; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; min-width: 320px; }
+    button, input { font: inherit; }
+
+    .stage {
+      display: grid;
+      place-items: center;
+      min-height: 100dvh;
+      padding: 24px 14px;
+      background: var(--bg);
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      width: min(100%, 470px);
+      height: min(860px, calc(100dvh - 48px));
+      min-height: 480px;
+      overflow: hidden;
+      border: 1px solid rgba(158, 175, 213, .45);
+      border-radius: 26px;
+      background: var(--card);
+      box-shadow: 0 24px 60px -18px rgba(47, 67, 111, .35);
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .86);
+      backdrop-filter: blur(6px);
+    }
+    .avatar { width: 46px; height: 46px; flex: 0 0 46px; border-radius: 50%; overflow: hidden; }
+    .avatar .avatar-img, .mini-avatar .avatar-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .brand-block { flex: 1; min-width: 0; }
+    .brand-block h1 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .status { display: flex; align-items: center; gap: 6px; margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+    .status .dot { width: 8px; height: 8px; border-radius: 50%; background: #4cbd9d; box-shadow: 0 0 0 3px #d9e1f3; }
+    .ghost {
+      display: grid; place-items: center;
+      width: 34px; height: 34px;
+      border: 1px solid var(--line); border-radius: 10px;
+      color: var(--muted); background: #fff;
+      font-size: 16px; cursor: pointer;
+    }
+    .ghost:hover { border-color: #b9c5df; color: var(--teal); }
+    .lang-select {
+      height: 34px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      background: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+    }
+    .lang-select:focus { border-color: #8c9fc9; }
+
+    /* ── Thread ─────────────────────────────────────────────────────── */
+    .thread {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 18px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+    .row { display: flex; gap: 8px; align-items: flex-end; }
+    .row.user { justify-content: flex-end; }
+    .mini-avatar {
+      width: 28px; height: 28px; flex: 0 0 28px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 2px 6px rgba(47, 67, 111, .18);
+      overflow: hidden;
+    }
+    .bubble {
+      max-width: min(80%, 340px);
+      padding: 11px 14px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+    .bubble > :first-child { margin-top: 0; }
+    .bubble > :last-child { margin-bottom: 0; }
+    .bubble p { margin: 8px 0; }
+    .bubble ul { margin: 8px 0; padding-left: 18px; }
+    .bubble li { margin: 3px 0; }
+    .bubble.assistant {
+      background: #f3f5fa;
+      border: 1px solid #dce0ea;
+      border-bottom-left-radius: 6px;
+      color: var(--ink);
+    }
+    .bubble.user {
+      background:var(--teal-dark);
+      border-bottom-right-radius: 6px;
+      color: #fff;
+    }
+    .bubble.sos {
+      max-width: 100%;
+      background: var(--danger-soft);
+      border: 1px solid #f2cfca;
+      color: #7c3934;
+    }
+    .bubble .who { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--teal); }
+    .row.user .bubble .who { color: rgba(255,255,255,.85); }
+    .bubble.sos .who { color: var(--danger); }
+
+    .assist-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 10px; padding: 9px 14px; border-radius: 999px;
+      text-decoration: none; font-size: 13.5px; font-weight: 700;
+      color: #fff; background: var(--teal);
+      box-shadow: 0 6px 16px rgba(15, 48, 118,.28);
+    }
+    .assist-link::after { content: '\2192'; font-weight: 700; }
+    .assist-link:hover { filter: brightness(1.07); }
+    .assist-link:active { transform: translateY(1px); }
+    .bubble.sos .assist-link { background: var(--danger); box-shadow: 0 6px 16px rgba(220,38,38,.3); }
+
+    .typing { display: inline-flex; align-items: center; gap: 5px; padding: 14px 16px; }
+    .typing span {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #8fa0c6;
+      animation: bounce 1.25s infinite ease-in-out both;
+    }
+    .typing span:nth-child(2) { animation-delay: .18s; }
+    .typing span:nth-child(3) { animation-delay: .36s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: .5; } 40% { transform: translateY(-5px); opacity: 1; } }
+
+    .row .bubble.in, .typing.in { animation: pop .26s ease-out both; }
+    @keyframes pop { from { opacity: 0; transform: translateY(7px) scale(.97); } to { opacity: 1; transform: none; } }
+
+    /* ── Emergency flag ─────────────────────────────────────────────── */
+    .sos-flag {
+      display: none;
+      margin: 0 14px 4px;
+      padding: 10px 12px;
+      border: 1px solid #f2cfca;
+      border-radius: 14px;
+      background: var(--danger-soft);
+      color: #7c3934;
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+    .sos-flag.show { display: block; animation: pop .26s ease-out both; }
+
+    /* ── Quick replies ──────────────────────────────────────────────── */
+    .chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 14px 12px;
+      scrollbar-width: none;
+    }
+    .chips::-webkit-scrollbar { display: none; }
+    .chips button {
+      flex: 0 0 auto;
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid #cfd7e8;
+      border-radius: 999px;
+      color: #3b82f6;
+      background: #f4f7fc;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background .15s ease, transform .1s ease, border-color .15s ease;
+    }
+    .chips button:hover { background: var(--teal-soft); border-color: #a7b6d6; transform: translateY(-1px); }
+    .chips button:active { transform: scale(.97); }
+    .chips button.danger { color: #a04a44; background: #fdf3f2; border-color: #f2cfca; }
+    .chips button.done { color: var(--teal-dark); background: var(--teal-soft); border-color: #a7b6d6; cursor: default; transform: none; }
+    .chips button:disabled { opacity: .85; }
+
+    /* ── Composer ───────────────────────────────────────────────────── */
+    .composer-wrap { padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); background: #fff; }
+    .composer { display: flex; gap: 8px; }
+    .composer input {
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 46px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: #f7f9fc;
+      font-size: 14px;
+      outline: none;
+    }
+    .composer input:focus { border-color: #8c9fc9; background: #fff; box-shadow: 0 0 0 3px rgba(47, 82, 158, .14); }
+    .composer input::placeholder { color: #9aa4ba; }
+    .mic,
+    .send {
+      display: grid; place-items: center;
+      width: 46px; height: 46px; flex: 0 0 46px;
+      border: 0; border-radius: 50%;
+      color: #fff;
+      background:var(--teal-dark);
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 6px 14px -4px rgba(47, 82, 158, .55);
+      transition: transform .1s ease, opacity .15s ease;
+    }
+    .mic {
+      background: #eef4ff;
+      color: var(--teal-dark);
+      font-size: 16px;
+      box-shadow: none;
+    }
+    .mic.listening {
+      background: #fef2f2;
+      color: #dc2626;
+      animation: mic-pulse 1.2s infinite;
+    }
+    @keyframes mic-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, .35); }
+      70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    .send:hover { transform: translateY(-1px); }
+    .send:active { transform: scale(.95); }
+    .send:disabled { opacity: .55; cursor: default; transform: none; }
+    .fineprint { margin: 9px 6px 0; color: var(--muted); font-size: 11px; line-height: 1.5; text-align: center; }
+    .fineprint b { color: var(--teal-dark); }
+    .link-btn { padding: 0 2px; margin-left: 2px; border: 0; color:var(--teal-dark); background: none; font-size: 11px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+
+    .name-form { display: flex; gap: 6px; margin-top: 9px; }
+    .name-form input {
+      flex: 1 1 auto; min-width: 0; height: 38px; padding: 0 12px;
+      border: 1px solid var(--line); border-radius: 10px;
+      color: var(--ink); background: #fff; font-size: 13px; outline: none;
+    }
+    .name-form input:focus { border-color: #8c9fc9; box-shadow: 0 0 0 3px rgba(47, 82, 158, .14); }
+    .name-form button {
+      flex: 0 0 auto; height: 38px; padding: 0 14px;
+      border: 0; border-radius: 10px; color: #fff;
+      background:var(--teal-dark);
+      font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+
+    /* ── Mobile: make the app fill the screen ───────────────────────── */
+    @media (max-width: 560px) {
+      .stage { padding: 0; }
+      .app { width: 100%; height: 100dvh; min-height: 0; border: 0; border-radius: 0; box-shadow: none; }
+      .thread { padding-top: 14px; }
+    }
+    @media (max-width: 380px) {
+      .topbar { gap: 8px; padding: 12px 10px; }
+      .lang-select { padding: 0 6px; font-size: 11px; max-width: 88px; }
+      .brand-block h1 { font-size: 17px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="app" role="region" aria-label="AI Assistant chat">
+      <header class="topbar">
+        <div class="avatar" id="avatar" aria-hidden="true"></div>
+        <div class="brand-block">
+          <h1>AI Assistant</h1>
+          <p class="status"><span class="dot"></span> <span id="status-text">Here for you</span></p>
+        </div>
+        <select class="lang-select" id="lang" aria-label="Language"></select>
+        <button class="ghost" id="ttsToggle" type="button" title="Toggle voice reply" aria-label="Toggle voice reply" aria-pressed="false">🔊</button>
+        <button class="ghost" id="reset" type="button" title="Start a new chat" aria-label="Start a new chat">↺</button>
+      </header>
+
+      <div class="thread" id="thread" role="log" aria-live="polite"></div>
+
+      <div class="sos-flag" id="sos-flag" role="alert">🚨 If this may be a medical emergency, call <b>112</b> (or <b>108</b> for an ambulance in India) now — do not wait.</div>
+
+      <div class="chips" id="chips" aria-label="Quick replies"></div>
+
+      <div class="composer-wrap">
+        <form class="composer" id="form" novalidate>
+          <input id="input" type="text" autocomplete="off" placeholder="Type a message…" aria-label="Your message">
+          <button class="mic" id="micBtn" type="button" aria-label="Speak" title="Voice input">🎤</button>
+          <button class="send" id="send" type="submit" aria-label="Send message" disabled>➤</button>
+        </form>
+        <p class="fineprint" id="fineprint">General information only — not medical advice. In an emergency, call <b>112</b> or <b>108</b>.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict'
+
+      /* ── Avatar: the AI Assistant logo ─────────────────────────────── */
+      var AVATAR_HTML = '<img class="avatar-img" src="icons/ai-assistant-logo.jpeg" alt="AI Assistant logo">'
+
+      /* ── Settings ──────────────────────────────────────────────────── */
+      // Where the assistant server lives. Override by setting
+      // window.PULSE_ASSISTANT_ENDPOINT before this script loads.
+      // Locally we hit the dev server on :3001; in production we call the
+      // MediCare relay on Vercel, so typed chat works on the deployed site.
+      function isLocalHost() {
+        return /^(localhost|127\.0\.0\.1|\[::1\]|)$/.test(window.location.hostname)
+      }
+      var ENDPOINT = window.PULSE_ASSISTANT_ENDPOINT ||
+        (isLocalHost() ? 'http://localhost:3001/api/chat'
+                       : 'https://medicare-alerts.vercel.app/api/chat')
+      var MAX_HISTORY = 10
+      var REQUEST_TIMEOUT_MS = 45000
+
+      var EMERGENCY_PATTERN = new RegExp([
+        'chest pain', 'chest tightness', 'pain in (my )?chest',
+        "can'?t breathe", 'cannot breathe', 'difficulty breathing',
+        'trouble breathing', 'shortness of breath', 'breathless',
+        'unresponsive', 'unconscious', 'passed out',
+        'severe bleeding', 'bleeding heavily', 'gushing',
+        'stroke', 'face droop', 'arm weakness', 'slurred speech',
+        'overdose', 'suicide', 'kill myself', 'self[- ]?harm', 'want to die',
+        'choking', 'anaphylaxis', 'severe allergic reaction',
+        'heart attack', 'cardiac arrest'
+      ].join('|'), 'i')
+
+      /* ── Translations (English · తెలుగు · हिन्दी · தமிழ்) ──────── */
+      // All fixed UI text and scripted quick replies live here. {name} is
+      // replaced with the user's own name (never hardcoded). The chosen
+      // language is remembered in localStorage.
+      var LANGS = {
+        en: {
+          name: 'English',
+          ui: {
+            langLabel: 'Language',
+            title: 'AI Assistant — Your calm health companion',
+            status: 'Here for you',
+            placeholder: 'Type a message…',
+            sendLabel: 'Send message',
+            resetTitle: 'Start a new chat',
+            namePrompt: 'Before we start — how should I call you? 👋',
+            namePlaceholder: 'Your name',
+            save: 'Save',
+            welcome: 'Hello {name} 👋, how can I support your health today?',
+            welcomeSub: 'I\'m here for you — pick a quick reply or type a question.',
+            friend: 'friend',
+            fineprint: 'General information only — not medical advice. In an emergency, call 112 or 108.',
+            changeName: 'Change name',
+            offline: 'Couldn\'t reach my care service just now. 💙\n\nStart the server (`npm start` in the ai-health-assistant folder) and try again — or use a quick reply above, which works offline.',
+            medsDone: 'Reminder set for 9 PM ✓',
+            sosBanner: '🚨 If this may be a medical emergency, call <b>112</b> (or <b>108</b> for an ambulance in India) now — do not wait.'
+          },
+          replies: [
+            { id: 'meds', label: 'Medication Reminder 💊', reply: 'Don\'t worry, I\'ll remind you at **9 PM**. 💙\n\nTake it exactly as prescribed, then tick it off.\n\nWhich medicine and dose? I\'ll note it down.' },
+            { id: 'fitness', label: 'Fitness Tips 🏃', reply: 'Steady beats hard, {name}! 🌿\n\n**Start with one:** 15‑min walk after meals · stretch every hour · 4‑4‑6 breathing.' },
+            { id: 'doctor', label: 'Doctor Connect 🩺', reply: 'Of course, {name}. 🩺\n\n**Next step:** call your regular GP or clinic — list your symptoms, duration, and medicines. Many offer video calls.\n\nWant a short note to send them?' },
+            { id: 'sos', label: 'Emergency SOS 🚨', danger: true, reply: 'If this is an emergency **right now**, {name}: call **112** (or **108** for an ambulance in India) immediately — don\'t wait. 💛\n\nYou matter, and help is close. Please reach out now.' }
+          ]
+        },
+
+        te: {
+          name: 'తెలుగు',
+          ui: {
+            langLabel: 'భాష',
+            title: 'AI అసిస్టెంట్ — మీ ఆరోగ్య సహచరుడు',
+            status: 'మీ కోసం ఇక్కడ ఉన్నాను',
+            placeholder: 'మెసేజ్ టైప్ చేయండి…',
+            sendLabel: 'మెసేజ్ పంపండి',
+            resetTitle: 'కొత్త చాట్ ప్రారంభించండి',
+            namePrompt: 'మొదలు పెట్టే ముందు — మిమ్మల్ని ఏమని పిలవాలి? 👋',
+            namePlaceholder: 'మీ పేరు',
+            save: 'సేవ్',
+            welcome: 'హలో {name} 👋, మీ ఆరోగ్యానికి నేను ఎలా సహాయం చేయగలను?',
+            welcomeSub: 'నేను మీ కోసం ఇక్కడ ఉన్నాను — క్రింది క్విక్ రిప్లై ఎంచుకోండి లేదా ప్రశ్న టైప్ చేయండి.',
+            friend: 'మిత్రమా',
+            fineprint: 'సాధారణ సమాచారం మాత్రమే — వైద్య సలహా కాదు. అత్యవసరంగా 112 లేదా 108 కాల్ చేయండి.',
+            changeName: 'పేరు మార్చండి',
+            offline: 'ప్రస్తుతం నా సేవను చేరుకోలేకపోయాను. 💙\n\nసర్వర్ స్టార్ట్ చేసి (ai-health-assistant లో `npm start`) మళ్లీ ప్రయత్నించండి — లేదా పై క్విక్ రిప్లై ఉపయోగించండి.',
+            medsDone: '9 PM రిమైండర్ సెట్ చేయబడింది ✓',
+            sosBanner: '🚨 ఇది అత్యవసర వైద్య పరిస్థితి అయితే, ఇప్పుడే <b>112</b> (లేదా భారతదేశంలో అంబులెన్స్ కోసం <b>108</b>) కు కాల్ చేయండి — ఆగకండి.'
+          },
+          replies: [
+            { id: 'meds', label: 'మందుల రిమైండర్ 💊', reply: 'చింతించకండి, **9 PM**కి మిమ్మల్ని రిమైండ్ చేస్తాను. 💙\n\nడాక్టర్ చెప్పినట్లే తీసుకోండి, తీసుకున్నాక టిక్ చేయండి.\n\nఏ మందు, ఎంత మోతాదు? నోట్ చేసుకుంటాను.' },
+            { id: 'fitness', label: 'ఫిట్నెస్ చిట్కాలు 🏃', reply: 'స్థిరంగా చేస్తేనే ఫలితం {name}! 🌿\n\n**ఒకటితో మొదలుపెట్టండి:** భోజనం తర్వాత 15 నిమిషాల నడక · ప్రతి గంటకు స్ట్రెచ్ · 4‑4‑6 శ్వాస వ్యాయామం.' },
+            { id: 'doctor', label: 'డాక్టర్ సంప్రదించండి 🩺', reply: 'తప్పకుండా, {name}. 🩺\n\n**తదుపరి దశ:** మీ రెగ్యులర్ GP లేదా క్లినిక్కు కాల్ చేయండి — లక్షణాలు, ఎంతకాలం, మందుల జాబితా. చాలా చోట్ల వీడియో కాల్ ఉంటుంది.\n\nవారికి పంపడానికి చిన్న నోట్ కావాలా?' },
+            { id: 'sos', label: 'అత్యవసర SOS 🚨', danger: true, reply: 'ఇప్పుడే అత్యవసర పరిస్థితి అయితే, {name}: వెంటనే **112** (లేదా యాంబులెన్స్ కోసం **108**) కాల్ చేయండి — ఆగకండి. 💛\n\nమీరు ముఖ్యం. సహాయం దగ్గరే ఉంది.' }
+          ]
+        },
+
+        hi: {
+          name: 'हिन्दी',
+          ui: {
+            langLabel: 'भाषा',
+            title: 'AI असिस्टेंट — आपका स्वास्थ्य साथी',
+            status: 'आपके लिए हाज़िर हूँ',
+            placeholder: 'संदेश लिखें…',
+            sendLabel: 'संदेश भेजें',
+            resetTitle: 'नई चैट शुरू करें',
+            namePrompt: 'शुरू करने से पहले — मैं आपको क्या बुलाऊँ? 👋',
+            namePlaceholder: 'आपका नाम',
+            save: 'सेव करें',
+            welcome: 'नमस्ते {name} 👋, मैं आपके स्वास्थ्य में कैसे मदद करूँ?',
+            welcomeSub: 'मैं यहाँ हूँ — नीचे कोई त्वरित उत्तर चुनें या प्रश्न लिखें।',
+            friend: 'दोस्त',
+            fineprint: 'केवल सामान्य जानकारी — चिकित्सकीय सलाह नहीं। आपात स्थिति में 112 या 108 पर कॉल करें।',
+            changeName: 'नाम बदलें',
+            offline: 'अभी मेरी सेवा तक नहीं पहुँच सका। 💙\n\nसर्वर शुरू करें (ai-health-assistant में `npm start`) और फिर कोशिश करें — या ऊपर त्वरित उत्तर उपयोग करें।',
+            medsDone: '9 PM रिमाइंडर सेट ✓',
+            sosBanner: '🚨 यदि यह कोई आपातकालीन चिकित्सा स्थिति हो सकती है, तो अभी <b>112</b> (या भारत में एम्बुलेंस के लिए <b>108</b>) पर कॉल करें — देर न करें।'
+          },
+          replies: [
+            { id: 'meds', label: 'दवा रिमाइंडर 💊', reply: 'चिंता न करें, मैं **9 PM** पर याद दिलाऊँगा। 💙\n\nडॉक्टर के कहने के अनुसार लें, और लेने के बाद टिक करें।\n\nकौन सी दवा और कितनी मात्रा? मैं नोट कर लूँगा।' },
+            { id: 'fitness', label: 'फिटनेस टिप्स 🏃', reply: 'लगातार करना ही असली जीत है, {name}! 🌿\n\n**एक से शुरू करें:** खाने के बाद 15 मिनट की सैर · हर घंटे स्ट्रेच · 4‑4‑6 साँस व्यायाम।' },
+            { id: 'doctor', label: 'डॉक्टर से संपर्क 🩺', reply: 'ज़रूर, {name}. 🩺\n\n**अगला कदम:** अपने नियमित GP या क्लिनिक को कॉल करें — लक्षण, अवधि और दवाओं की सूची बताएँ। कई जगह वीडियो कॉल मिलती है।\n\nउन्हें भेजने के लिए छोटा नोट चाहिए?' },
+            { id: 'sos', label: 'आपातकालीन SOS 🚨', danger: true, reply: 'अगर यह अभी आपात स्थिति है, {name}: तुरंत **112** (या एम्बुलेंस के लिए **108**) पर कॉल करें — देर न करें। 💛\n\nआप महत्वपूर्ण हैं, और मदद पास में है।' }
+          ]
+        },
+
+        ta: {
+          name: 'தமிழ்',
+          ui: {
+            langLabel: 'மொழி',
+            title: 'AI உதவியாளர் — உங்கள் ஆரோக்கிய துணை',
+            status: 'உங்களுக்காக இங்கே இருக்கிறேன்',
+            placeholder: 'செய்தியைத் தட்டச்சு செய்க…',
+            sendLabel: 'செய்தி அனுப்பு',
+            resetTitle: 'புதிய அரட்டை தொடங்கு',
+            namePrompt: 'தொடங்கும் முன் — உங்களை என்ன அழைக்கலாம்? 👋',
+            namePlaceholder: 'உங்கள் பெயர்',
+            save: 'சேமி',
+            welcome: 'வணக்கம் {name} 👋, உங்கள் ஆரோக்கியத்திற்கு நான் எப்படி உதவ முடியும்?',
+            welcomeSub: 'நான் இங்கே இருக்கிறேன் — கீழே ஒரு விரைவு பதிலைத் தேர்வுசெய்யவும் அல்லது கேள்வியைத் தட்டச்சு செய்யவும்.',
+            friend: 'நண்பரே',
+            fineprint: 'பொது தகவல் மட்டுமே — மருத்துவ ஆலோசனை அல்ல. அவசரத்தில் 112 அல்லது 108 ஐ அழைக்கவும்.',
+            changeName: 'பெயரை மாற்று',
+            offline: 'இப்போது எனது சேவையை அடைய முடியவில்லை. 💙\n\nசர்வரைத் தொடங்கி (ai-health-assistant இல் `npm start`) மீண்டும் முயற்சிக்கவும் — அல்லது மேலே உள்ள விரைவு பதிலைப் பயன்படுத்தவும்.',
+            medsDone: '9 PM நினைவூட்டல் அமைக்கப்பட்டது ✓',
+            sosBanner: '🚨 இது மருத்துவ அவசரநிலையாக இருக்கலாம் என்றால், இப்போதே <b>112</b> (அல்லது இந்தியாவில் ஆம்புலன்ஸுக்கு <b>108</b>) ஐ அழைக்கவும் — காத்திருக்க வேண்டாம்.'
+          },
+          replies: [
+            { id: 'meds', label: 'மருந்து நினைவூட்டல் 💊', reply: 'கவலை வேண்டாம், **9 PM** க்கு நினைவூட்டுகிறேன். 💙\n\nமருத்துவர் சொல்படி எடுத்துக்கொள்ளுங்கள், எடுத்த பிறகு டிக் செய்யுங்கள்.\n\nஎந்த மருந்து, எவ்வளவு? குறித்துக்கொள்கிறேன்.' },
+            { id: 'fitness', label: 'உடற்பயிற்சி குறிப்புகள் 🏃', reply: 'நிலையான முயற்சியே வெற்றி, {name}! 🌿\n\n**ஒன்றில் தொடங்குங்கள்:** சாப்பிட்ட பின் 15 நிமிட நடை · ஒவ்வொரு மணிநேரமும் ஸ்ட்ரெட்ச் · 4‑4‑6 மூச்சுப் பயிற்சி.' },
+            { id: 'doctor', label: 'மருத்துவர் தொடர்பு 🩺', reply: 'நிச்சயமாக, {name}. 🩺\n\n**அடுத்த படி:** உங்கள் வழக்கமான GP அல்லது கிளினிக்கை அழைக்கவும் — அறிகுறிகள், காலம், மருந்துகளின் பட்டியல். பல இடங்களில் வீடியோ அழைப்பு உள்ளது.\n\nஅவர்களுக்கு அனுப்ப ஒரு சிறு குறிப்பு வேண்டுமா?' },
+            { id: 'sos', label: 'அவசர SOS 🚨', danger: true, reply: 'இது இப்போது அவசரமாக இருந்தால், {name}: உடனே **112** (அல்லது ஆம்புலன்ஸுக்கு **108**) அழைக்கவும் — காத்திருக்க வேண்டாம். 💛\n\nநீங்கள் முக்கியம், உதவி அருகில் உள்ளது.' }
+          ]
+        }
+      }
+
+      /* ── Language helpers ──────────────────────────────────────────── */
+      var LANG_KEY = 'aiAssistantLang'
+      var NAME_KEY = 'aiAssistantUserName'
+
+      function langCode() {
+        var value = ''
+        try { value = (localStorage.getItem(LANG_KEY) || '').trim() } catch (err) {}
+        return LANGS[value] ? value : 'en'
+      }
+
+      function ui(code) {
+        return (LANGS[code] || LANGS.en).ui
+      }
+
+      function t(key) {
+        return ui(langCode())[key] || LANGS.en.ui[key] || key
+      }
+
+      function getReplies() {
+        return (LANGS[langCode()] || LANGS.en).replies
+      }
+
+      function storedName() {
+        try { return (localStorage.getItem(NAME_KEY) || '').trim() } catch (err) { return '' }
+      }
+
+      // Replaces the {name} token in texts with the user's own name.
+      function personalize(text) {
+        var name = storedName() || t('friend')
+        return String(text).split('{name}').join(name)
+      }
+
+      /* ── Elements ──────────────────────────────────────────────────── */
+      var thread = document.getElementById('thread')
+      var form = document.getElementById('form')
+      var input = document.getElementById('input')
+      var sendBtn = document.getElementById('send')
+      var resetBtn = document.getElementById('reset')
+      var chipsEl = document.getElementById('chips')
+      var sosFlag = document.getElementById('sos-flag')
+      var statusText = document.getElementById('status-text')
+      var langSelect = document.getElementById('lang')
+      document.getElementById('avatar').innerHTML = AVATAR_HTML
+
+      var ttsToggle = document.getElementById('ttsToggle')
+      var micBtn = document.getElementById('micBtn')
+      var history = []
+      var busy = false
+      var ttsEnabled = (function () {
+        try { return localStorage.getItem('aiAssistantTts') !== 'false' } catch (err) { return true }
+      })()
+      var recognition = null
+      var speaking = false
+
+      function updateTts() {
+        if (ttsToggle) {
+          ttsToggle.setAttribute('aria-pressed', ttsEnabled ? 'true' : 'false')
+          ttsToggle.textContent = ttsEnabled ? '🔊' : '🔈'
+          ttsToggle.title = ttsEnabled ? 'Voice replies: ON' : 'Voice replies: OFF'
+        }
+      }
+      updateTts()
+      if (ttsToggle) ttsToggle.addEventListener('click', function () {
+        ttsEnabled = !ttsEnabled
+        try { localStorage.setItem('aiAssistantTts', ttsEnabled ? 'on' : 'false') } catch (err) {}
+        updateTts()
+      })
+
+      function stopSpeaking() {
+        try { if (window.speechSynthesis) window.speechSynthesis.cancel() } catch (err) {}
+        speaking = false
+      }
+
+      function speak(text) {
+        if (!ttsEnabled) return
+        try {
+          if (!window.speechSynthesis) return
+          stopSpeaking()
+          var utter = new window.SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim())
+          var voices = window.speechSynthesis.getVoices()
+          var lang = langCode()
+          var map = { en: 'en-US', te: 'te-IN', hi: 'hi-IN', ta: 'ta-IN' }
+          var vname = map[lang] || 'en-US'
+          var voice = voices.find(function (v) { return v.lang === vname || v.lang.startsWith(vname.slice(0,2)) }) || voices[0]
+          if (voice) utter.voice = voice
+          utter.lang = vname
+          utter.rate = 0.98
+          utter.pitch = 1.0
+          utter.onend = function () { speaking = false }
+          utter.onstart = function () { speaking = true }
+          window.speechSynthesis.speak(utter)
+        } catch (err) {}
+      }
+
+      /* ── Helpers ───────────────────────────────────────────────────── */
+      function esc(value) {
+        return String(value)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+      }
+
+      // Light formatting: bold **text**, italic *text* — applied AFTER escaping.
+      function format(text) {
+        return esc(text)
+          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      }
+
+      function bubble(rowClass, who, content, className) {
+        var row = document.createElement('div')
+        row.className = 'row ' + rowClass
+
+        var wrapper = document.createElement('div')
+        wrapper.className = 'bubble ' + className
+        wrapper.classList.add('in')
+
+        if (who) {
+          var tag = document.createElement('span')
+          tag.className = 'who'
+          tag.textContent = who
+          wrapper.appendChild(tag)
+        }
+
+        if (content && content.nodeType) wrapper.appendChild(content)
+        else if (content) {
+          var html = document.createElement('div')
+          html.innerHTML = format(content)
+          wrapper.appendChild(html)
+        }
+
+        row.appendChild(wrapper)
+        thread.appendChild(row)
+        thread.scrollTop = thread.scrollHeight
+        return row
+      }
+
+      function addUser(text) {
+        bubble('user', 'You', text, 'user')
+      }
+
+      function addAssistant(text, opts) {
+        opts = opts || {}
+        var row = document.createElement('div')
+        row.className = 'row assistant'
+        var mini = document.createElement('div')
+        mini.className = 'mini-avatar'
+        mini.innerHTML = AVATAR_HTML
+        row.appendChild(mini)
+
+        var wrapper = document.createElement('div')
+        wrapper.className = 'bubble ' + (opts.emergency ? 'sos' : 'assistant')
+        wrapper.classList.add('in')
+        var tag = document.createElement('span')
+        tag.className = 'who'
+        tag.textContent = 'AI Assistant'
+        wrapper.appendChild(tag)
+        var html = document.createElement('div')
+        html.innerHTML = format(text)
+        wrapper.appendChild(html)
+        if (opts.link && opts.link.url) {
+          var pageLink = document.createElement('a')
+          pageLink.className = 'assist-link'
+          pageLink.href = opts.link.url
+          pageLink.textContent = opts.link.label || 'Open'
+          wrapper.appendChild(pageLink)
+        }
+        row.appendChild(wrapper)
+        thread.appendChild(row)
+        thread.scrollTop = thread.scrollHeight
+        if (opts.emergency) sosFlag.classList.add('show')
+        speak(text)
+        return row
+      }
+
+      function setTyping(on) {
+        var existing = thread.querySelector('.typing')
+        if (!on) {
+          if (existing) existing.remove()
+          return
+        }
+        if (existing) return
+        var typing = document.createElement('div')
+        typing.className = 'row typing'
+        typing.innerHTML = '<div class="bubble assistant typing in"><span></span><span></span><span></span></div>'
+        thread.appendChild(typing)
+        thread.scrollTop = thread.scrollHeight
+      }
+
+      function delay(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms) }) }
+
+      function withTimeout(ms) {
+        if (typeof AbortController === 'undefined') return undefined
+        var controller = new AbortController()
+        setTimeout(function () { controller.abort() }, ms)
+        return controller.signal
+      }
+
+      /* ── Chip rendering ────────────────────────────────────────────── */
+      var medsDone = false
+
+      function renderChips() {
+        chipsEl.innerHTML = ''
+        getReplies().forEach(function (reply) {
+          var button = document.createElement('button')
+          button.type = 'button'
+          button.dataset.id = reply.id
+          if (reply.danger) button.classList.add('danger')
+          if (reply.id === 'meds' && medsDone) {
+            button.classList.add('done')
+            button.disabled = true
+          }
+          button.textContent = reply.id === 'meds' && medsDone ? t('medsDone') : reply.label
+          button.addEventListener('click', function () { onQuick(reply) })
+          chipsEl.appendChild(button)
+        })
+      }
+
+      /* ── Quick-reply flows ─────────────────────────────────────────── */
+      async function onQuick(reply) {
+        if (busy) return
+        busy = true
+        addUser(reply.label)
+
+        if (reply.id === 'meds') {
+          medsDone = true
+          renderChips()
+        }
+
+        setTyping(true)
+        await delay(reply.id === 'sos' ? 350 : 900)
+
+        var isEmergency = reply.id === 'sos' || EMERGENCY_PATTERN.test(reply.label)
+        var replyText = personalize(reply.reply)
+        setTyping(false)
+        addAssistant(replyText, { emergency: isEmergency })
+        history.push({ role: 'user', content: reply.label })
+        history.push({ role: 'assistant', content: replyText })
+        speak(replyText)
+        busy = false
+        input.focus()
+      }
+
+      /* ── Typed questions (sent to the assistant server) ────────────── */
+      async function sendTyped(rawText) {
+        var text = (rawText || '').trim()
+        if (!text || busy) return
+        busy = true
+        input.value = ''
+        sendBtn.disabled = true
+
+        var isEmergency = EMERGENCY_PATTERN.test(text)
+        addUser(text)
+        setTyping(true)
+
+        var prior = history.slice(-MAX_HISTORY)
+        history.push({ role: 'user', content: text })
+
+        try {
+          var response = await fetch(ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, history: prior }),
+            signal: withTimeout(REQUEST_TIMEOUT_MS)
+          })
+          if (!response.ok) throw new Error('Request failed with status ' + response.status)
+          var data = await response.json()
+          var content = data && typeof data.content === 'string' ? data.content.trim() : ''
+          if (!content) throw new Error('Empty answer')
+
+          setTyping(false)
+          addAssistant(content, { emergency: isEmergency, link: data.link })
+          history.push({ role: 'assistant', content: content })
+          speak(content)
+        } catch (error) {
+          setTyping(false)
+          var off = t('offline')
+          addAssistant(off, { emergency: false })
+          speak(off)
+        } finally {
+          busy = false
+          sendBtn.disabled = true
+          input.focus()
+        }
+      }
+
+      /* ── Welcome + reset ───────────────────────────────────────────── */
+      // Greets the user by name (in the chosen language). On a first visit,
+      // asks for the name once (saved in localStorage) so every user is
+      // greeted by their own name — never a hardcoded one.
+      function showWelcome() {
+        var name = storedName()
+        if (name) {
+          var w = personalize(t('welcome') + '\n\n' + t('welcomeSub'))
+          addAssistant(w, { emergency: false })
+          speak(w)
+        } else {
+          askForName()
+        }
+        updateFineprint()
+      }
+
+      function askForName(prefill) {
+        var row = document.createElement('div')
+        row.className = 'row assistant'
+        var mini = document.createElement('div')
+        mini.className = 'mini-avatar'
+        mini.innerHTML = AVATAR_HTML
+        row.appendChild(mini)
+
+        var wrapper = document.createElement('div')
+        wrapper.className = 'bubble assistant in'
+        var tag = document.createElement('span')
+        tag.className = 'who'
+        tag.textContent = 'AI Assistant'
+        wrapper.appendChild(tag)
+        var prompt = document.createElement('p')
+        prompt.textContent = t('namePrompt')
+        wrapper.appendChild(prompt)
+
+        var nameForm = document.createElement('form')
+        nameForm.className = 'name-form'
+        var nameInput = document.createElement('input')
+        nameInput.type = 'text'
+        nameInput.maxLength = 24
+        nameInput.placeholder = t('namePlaceholder')
+        nameInput.setAttribute('aria-label', t('namePlaceholder'))
+        nameInput.value = prefill || ''
+        var saveBtn = document.createElement('button')
+        saveBtn.type = 'submit'
+        saveBtn.textContent = t('save')
+        nameForm.appendChild(nameInput)
+        nameForm.appendChild(saveBtn)
+        wrapper.appendChild(nameForm)
+        row.appendChild(wrapper)
+        thread.appendChild(row)
+        thread.scrollTop = thread.scrollHeight
+        nameInput.focus()
+
+        nameForm.addEventListener('submit', function (event) {
+          event.preventDefault()
+          var name = nameInput.value.trim()
+          if (!name) { nameInput.focus(); return }
+          try { localStorage.setItem(NAME_KEY, name) } catch (err) {}
+          row.remove()
+          showWelcome()
+        })
+      }
+
+      // Keeps the footer disclaimer in the current language and adds a small
+      // "Change name" link once a name is stored.
+      function updateFineprint() {
+        var fp = document.getElementById('fineprint')
+        if (!fp) return
+        var name = storedName()
+        if (name) {
+          fp.innerHTML = esc(t('fineprint')) + ' · <button class="link-btn" id="rename-btn" type="button">' + esc(t('changeName')) + '</button>'
+          var renameBtn = document.getElementById('rename-btn')
+          if (renameBtn) {
+            renameBtn.addEventListener('click', function () { askForName(name) })
+          }
+        } else {
+          fp.textContent = t('fineprint')
+        }
+      }
+
+      // Applies the current language to all static UI (title, status,
+      // placeholder, buttons) and re-renders the quick replies + footer.
+      function applyUi() {
+        var code = langCode()
+        var ui = LANGS[code].ui
+        document.title = ui.title
+        if (statusText) statusText.textContent = ui.status
+        input.placeholder = ui.placeholder
+        input.setAttribute('aria-label', ui.placeholder)
+        sendBtn.setAttribute('aria-label', ui.sendLabel)
+        resetBtn.title = ui.resetTitle
+        resetBtn.setAttribute('aria-label', ui.resetTitle)
+        langSelect.setAttribute('aria-label', ui.langLabel)
+        if (ui.sosBanner) sosFlag.innerHTML = ui.sosBanner
+        renderChips()
+        updateFineprint()
+      }
+
+      function populateLangSelect() {
+        langSelect.innerHTML = ''
+        Object.keys(LANGS).forEach(function (code) {
+          var option = document.createElement('option')
+          option.value = code
+          option.textContent = LANGS[code].name
+          langSelect.appendChild(option)
+        })
+        langSelect.value = langCode()
+      }
+
+      function reset() {
+        history = []
+        medsDone = false
+        stopSpeaking()
+        thread.innerHTML = ''
+        sosFlag.classList.remove('show')
+        applyUi()
+        showWelcome()
+        input.focus()
+      }
+
+      /* ── Wiring ────────────────────────────────────────────────────── */
+      form.addEventListener('submit', function (event) {
+        event.preventDefault()
+        sendTyped(input.value)
+      })
+      input.addEventListener('input', function () {
+        sendBtn.disabled = busy || !input.value.trim()
+      })
+      resetBtn.addEventListener('click', reset)
+      if (micBtn) micBtn.addEventListener('click', function () {
+        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+          alert('Voice input is not supported in this browser')
+          return
+        }
+        stopSpeaking()
+        var SR = window.SpeechRecognition || window.webkitSpeechRecognition
+        if (recognition) {
+          try { recognition.stop() } catch (err) {}
+          recognition = null
+          micBtn.classList.remove('listening')
+          return
+        }
+        recognition = new SR()
+        recognition.lang = (function (code) { return ({ en: 'en-US', te: 'te-IN', hi: 'hi-IN', ta: 'ta-IN' })[code] || 'en-US' })(langCode())
+        recognition.interimResults = false
+        recognition.maxAlternatives = 1
+        micBtn.classList.add('listening')
+        recognition.onresult = function (e) {
+          var txt = e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript
+          micBtn.classList.remove('listening')
+          recognition = null
+          if (txt) {
+            input.value = txt
+            sendTyped(txt)
+          }
+        }
+        recognition.onerror = function () {
+          micBtn.classList.remove('listening')
+          recognition = null
+        }
+        recognition.onend = function () {
+          micBtn.classList.remove('listening')
+          recognition = null
+        }
+        try { recognition.start() } catch (err) {}
+      })
+      langSelect.addEventListener('change', function () {
+        try { localStorage.setItem(LANG_KEY, langSelect.value) } catch (err) {}
+        reset()
+      })
+
+      /* ── Boot ──────────────────────────────────────────────────────── */
+      populateLangSelect()
+      applyUi()
+      showWelcome()
+      input.focus()
+    })()
+  </script>
+</body>
+</html>
+

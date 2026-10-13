@@ -7,7 +7,7 @@
     .vstep-active{background:#fff;color:#b91c1c;border-color:#fff;}
     .vstep-done{background:#22c55e;border-color:#22c55e;color:#052e16;}
   </style><link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#176b87">
+<meta name="theme-color" content="#60a5fa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="MediCare">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -21,5 +21,6 @@
     <div class="camera-wrap" id="cameraWrap" style="display:none;"><video id="video" autoplay playsinline muted></video><canvas class="overlay" id="overlay"></canvas><button id="flipCameraBtn" type="button" onclick="switchCamera()" style="position:absolute;top:8px;right:8px;z-index:3;border:0;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;font-weight:800;padding:7px 12px;cursor:pointer;">Flip camera</button></div><div class="verify-status wait" id="verifyStatus" style="display:none;">Show your tablet or medicine strip to verify.</div><div class="reward-banner" id="rewardBanner" style="display:none;">💰 You saved <span id="rewardAmount">₹10</span>!</div><button class="btn-white" id="startCameraBtn" onclick="startVerification()">Verify medication</button><button class="btn-white" id="manualConfirmBtn" style="display:none;" onclick="manualConfirm()">I took it — confirm ✓</button><a class="btn-ghost" id="backToDashboardLink" href="./patient-dashboard.html" style="display:none;text-decoration:none;">Back to dashboard</a>
   </main>
   <script src="js/theme.js"></script><script src="js/vendor/firebase-app-compat.js"></script><script src="js/vendor/firebase-auth-compat.js"></script><script src="js/vendor/firebase-firestore-compat.js"></script><script src="js/firebase-config.js"></script><script src="js/ml-loader.js"></script><script src="js/medicine-match.js"></script><script src="js/notifications.js"></script><script src="js/verify.js"></script><script src="js/pwa.js"></script>
+<script src="js/i18n.js"></script>
 </body>
 </html>

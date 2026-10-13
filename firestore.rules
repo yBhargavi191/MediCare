@@ -1,15 +1,140 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Hackathon / demo rules: open read+write so the app keeps working the
-    // same way it did in Firestore "Test mode" (which expires after 30 days).
+
+    // =====================================================================
+    // MediCare Firestore security rules — hardened (October 2026)
+    // =====================================================================
+    // Replaces the old "open read+write for everyone" demo rules.
     //
-    // NOTE: This is intentionally permissive for a public demo. For a real
-    // deployment, replace this with per-user auth checks, e.g.:
-    //   allow read, write: if request.auth != null;
-    // and restructure the care-taker / admin-bootstrap flows to run signed in.
-    match /{document=**} {
-      allow read, write: if true;
+    // Locked down now:
+    //   * EVERY write requires a signed-in user, an admin, or the one narrow
+    //     anonymous care-taker token-merge below.
+    //   * medicines / doses / alerts / healthRecords are unreadable by the
+    //     public. Owners see theirs; admins see all.
+    //
+    // Deliberate trade-offs (the care-taker page is intentionally
+    // "no login required"):
+    //   * users docs stay readable by anyone so care takers can find a
+    //     patient by email and read their live state.
+    //   * doses stay readable by anyone for the same care-taker live view.
+    //   * anonymous care takers may only MERGE a caregiverWebPushTokens
+    //     entry + updatedAt into a patient's doc — nothing else.
+    // See the notes under /users before deploying.
+    // =====================================================================
+
+    function signedIn() {
+      return request.auth != null;
     }
+
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // The signed-in user owns the existing doc (resource) as the patient.
+    function ownsPatientDoc() {
+      return signedIn() && resource.data.patientId == request.auth.uid;
+    }
+
+    // The signed-in user is creating/updating a doc for themselves (create
+    // path: resource does not exist yet, so read the request body instead).
+    function createsOwnPatientDoc() {
+      return signedIn() && request.resource.data.patientId == request.auth.uid;
+    }
+
+    // Anonymous care-taker may only append their own push token to the
+    // patient's caregiverWebPushTokens list (plus a timestamp). It never
+    // shrinks the list or clears it, and no other field may be touched.
+    // (Handles the first enable too, when the field does not exist yet.)
+    function isCaregiverTokenMerge() {
+      return !signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['caregiverWebPushTokens', 'updatedAt'])
+        && request.resource.data.caregiverWebPushTokens is list
+        && (resource.data.caregiverWebPushTokens == null
+            || (resource.data.caregiverWebPushTokens is list
+                && request.resource.data.caregiverWebPushTokens.hasAll(resource.data.caregiverWebPushTokens)
+                && request.resource.data.caregiverWebPushTokens.size()
+                   >= resource.data.caregiverWebPushTokens.size()));
+    }
+
+    // =====================================================================
+    // users — one Firestore doc per Firebase Auth account
+    // =====================================================================
+    match /users/{uid} {
+      // Kept open on purpose: the anonymous care-taker flow looks a patient
+      // up by email and renders their live status. NOTE: this means any
+      // user doc whose id is known can be read anonymously. The proper fix
+      // is logging care takers in and reading the patient practice through
+      // caregiverUids — deferred.
+      allow read: if true;
+
+      // Sign-up writes its own doc. 'admin' is denied here so a stranger
+      // cannot self-promote. See the bootstrap note at the bottom.
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role != 'admin';
+
+      // Owners can edit their own doc but never their role.
+      // Admins can edit anyone (archive, relativeContacts, etc.).
+      // Anonymous care takers can only do the token merge above.
+      allow update: if (signedIn()
+            && request.auth.uid == uid
+            && (!('role' in request.resource.data)
+                || request.resource.data.role == resource.data.role))
+        || isAdmin()
+        || isCaregiverTokenMerge();
+    }
+
+    // =====================================================================
+    // medicines
+    // =====================================================================
+    match /medicines/{docId} {
+      allow read, update, delete: if ownsPatientDoc() || isAdmin();
+      allow create: if createsOwnPatientDoc() || isAdmin();
+    }
+
+    // =====================================================================
+    // doses — anonymous read kept for the care-taker live dose view
+    // =====================================================================
+    match /doses/{docId} {
+      allow read: if ownsPatientDoc() || isAdmin()
+        || (!signedIn() && resource.data.patientId != null);
+      allow create, update, delete: if ownsPatientDoc() || isAdmin();
+    }
+
+    // =====================================================================
+    // alerts — patients see/create their own; admins manage everything
+    // =====================================================================
+    match /alerts/{docId} {
+      allow read: if ownsPatientDoc() || isAdmin();
+      allow create: if createsOwnPatientDoc() || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // =====================================================================
+    // healthRecords — patients read/write their own; admins manage all
+    // =====================================================================
+    match /healthRecords/{docId} {
+      allow read: if ownsPatientDoc() || isAdmin();
+      allow create: if createsOwnPatientDoc() || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // =====================================================================
+    // First-admin bootstrap:
+    // Denying 'admin' on create means a brand-new empty database cannot
+    // bootstrap its first admin through the web app alone. verimed-6b92d
+    // already has its admin account (created under the earlier open rules),
+    // so this is safe here. For a FRESH database, create the first admin
+    // one of these ways:
+    //   1. Firebase Console > Firestore: set the first user doc's role
+    //      field to 'admin' by hand, or
+    //   2. temporarily replace `role != 'admin'` below with `role in
+    //      ['patient','admin']`, create the admin, then re-lock the rule.
+    // Long-term fix: make 'admin' a custom claim set by a Cloud Function,
+    // then use request.auth.token.admin.
+    // =====================================================================
   }
 }

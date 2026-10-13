@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f8f8">
+  <meta name="theme-color" content="#60a5fa">
   <title>MediCare — Nearby Hospitals</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/fitness-pages.css">
@@ -17,26 +17,26 @@
     .hospital-intro{max-width:680px;margin:10px 0 23px;color:var(--hospital-muted);font-size:13px;line-height:1.65}
     .hospital-controls{display:flex;align-items:stretch;gap:9px;flex-wrap:wrap;margin-bottom:13px;min-width:0}
     #hospitalApp button,#hospitalApp input{min-height:42px;border-radius:10px;font:inherit}
-    #hospitalApp button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;border:1px solid var(--hospital-blue);color:white;background:var(--hospital-blue);font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 5px 12px rgba(23,107,135,.12)}
+    #hospitalApp button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;border:1px solid var(--hospital-blue);color:white;background:var(--hospital-blue);font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 5px 12px rgba(59,130,246,.12)}
     #hospitalApp button:hover{background:var(--primary-dark)}#hospitalApp button:disabled{opacity:.65;cursor:wait}
     #hospitalLocate{flex:0 0 auto;height:42px;margin:0;white-space:nowrap}
     #hospitalApp form{display:flex;align-items:stretch;flex:1 1 360px;gap:8px;min-width:0;min-height:42px;margin:0}
     #hospitalApp input{display:block;flex:1;width:100%;height:42px;min-height:42px;min-width:0;margin:0;padding:0 12px;border:1px solid var(--hospital-line);border-radius:10px;color:var(--hospital-ink);background:#fff;font-size:12px;line-height:normal}
-    #hospitalApp input:focus{outline:2px solid rgba(31,168,154,.45);outline-offset:1px}
+    #hospitalApp input:focus{outline:2px solid rgba(96,165,250,.45);outline-offset:1px}
     #hospitalApp form button{flex:0 0 auto;height:42px;min-height:42px;margin:0;white-space:nowrap}
     .hospital-status{min-height:21px;margin:0 0 12px;color:var(--hospital-muted);font-size:11px;line-height:1.5}
     .hospital-workspace{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.8fr);gap:13px;align-items:start}
     .hospital-map-column,.hospital-results{min-width:0}
-    #hospitalMap{width:100%;height:min(65vh,570px);min-height:360px;border:1px solid var(--hospital-line);border-radius:14px;background:#e9f3f1;z-index:0;box-shadow:0 8px 24px rgba(25,70,79,.06)}
+    #hospitalMap{width:100%;height:min(65vh,570px);min-height:360px;border:1px solid var(--hospital-line);border-radius:14px;background:#eef5ff;z-index:0;box-shadow:0 8px 24px rgba(15,23,42,.06)}
     .hospital-attribution{margin:7px 0 0;color:var(--hospital-muted);font-size:10px}
-    .hospital-results{max-height:min(65vh,570px);overflow-y:auto;border:1px solid var(--hospital-line);border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(25,70,79,.06)}
+    .hospital-results{max-height:min(65vh,570px);overflow-y:auto;border:1px solid var(--hospital-line);border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.06)}
     .hospital-results-heading{position:sticky;top:0;z-index:1;margin:0;padding:14px 15px;border-bottom:1px solid var(--hospital-line);background:#fff;color:var(--primary-dark);font:700 17px 'Plus Jakarta Sans','DM Sans',sans-serif}
     .hospital-empty{margin:0;padding:16px;color:var(--hospital-muted);font-size:12px;line-height:1.6}
     .hospital-empty a,.hospital-result a{display:inline-block;margin-top:8px;color:var(--hospital-blue);font-size:11px;font-weight:700;text-decoration:none}
     .hospital-result{padding:13px 15px;border-bottom:1px solid var(--hospital-line);cursor:pointer}
     .hospital-result h2{margin:0 0 5px;font:700 15px/1.3 'Plus Jakarta Sans','DM Sans',sans-serif;color:var(--primary-dark)}
     .hospital-result p{margin:0;color:var(--hospital-muted);font-size:11px;line-height:1.55}
-    .hospital-result:hover{background:#f4f9f8}
+    .hospital-result:hover{background:#f5f9ff}
     .hospital-safety{margin:17px 0 0;padding:13px 15px;border:1px solid #eadbb8;border-radius:12px;color:#695426;background:#fff9e9;font-size:11px;line-height:1.55}
     @media(max-width:720px){.hospital-page{padding-top:26px}.hospital-workspace{grid-template-columns:1fr}#hospitalMap{height:52vh;min-height:280px}.hospital-results{max-height:360px}#hospitalLocate,#hospitalApp form{flex:1 1 100%;width:100%}}
     @media(max-width:430px){.hospital-controls{gap:8px}.hospital-controls>#hospitalLocate{width:100%}#hospitalApp form{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}#hospitalApp form button{width:100%}}
@@ -58,6 +58,7 @@
       <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
       <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
       <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+      <a class="drawer-item" href="caremate.html"><span>🤖</span><div><strong>AI Assistant</strong></div></a>
     </nav>
   </aside>
   <main class="fitness-page hospital-page" id="hospitalApp">
@@ -240,5 +241,6 @@
       }
     });
   </script>
+<script src="js/i18n.js"></script>
 </body>
 </html>

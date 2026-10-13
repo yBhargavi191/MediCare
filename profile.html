@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#176b87">
+  <meta name="theme-color" content="#60a5fa">
   <title>MediCare — Patient Profile</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/fitness-pages.css">
   <style>
-    body{visibility:hidden}.profile-hero{display:flex;align-items:center;gap:16px;padding:18px;border-radius:16px;background:linear-gradient(135deg,#edf8f6,#f2f7ff)}
-    .profile-avatar{display:grid;place-items:center;width:62px;height:62px;flex:0 0 auto;border-radius:20px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-size:26px;font-weight:800}
+    body{visibility:hidden}.profile-hero{display:flex;align-items:center;gap:16px;padding:18px;border-radius:16px;background:var(--primary-soft)}
+    .profile-avatar{display:grid;place-items:center;width:62px;height:62px;flex:0 0 auto;border-radius:20px;background:var(--primary);color:#fff;font-size:26px;font-weight:800}
     .profile-hero h2{margin:0;color:var(--primary-dark)}.profile-hero p{margin:4px 0 0;color:var(--muted);overflow-wrap:anywhere}
     .profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-top:16px}
     .profile-field{min-width:0;padding:14px;border:1px solid var(--border);border-radius:12px;background:#fff}.profile-field span{display:block;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}.profile-field strong{display:block;margin-top:6px;overflow-wrap:anywhere}
@@ -30,6 +30,7 @@
       <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
       <a class="drawer-item active" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
       <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+      <a class="drawer-item" href="caremate.html"><span>🤖</span><div><strong>AI Assistant</strong></div></a>
     </nav>
   </aside>
   <main class="fitness-page">
@@ -78,5 +79,6 @@
       }
     });
   </script>
+<script src="js/i18n.js"></script>
 </body>
 </html>

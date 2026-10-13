@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MediCare — Patient Dashboard</title><link rel="stylesheet" href="css/style.css"><link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#176b87">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MediCare — Patient Dashboard</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/app-shell.css"><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#60a5fa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="MediCare">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
   .alerts-head{ display:flex; align-items:center; gap:12px; }
-  .alerts-icon{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#eef6f6; font-size:20px; flex:0 0 auto; }
+  .alerts-icon{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#eef1f6; font-size:20px; flex:0 0 auto; }
   .alerts-copy{ flex:1; min-width:0; }
   .alerts-copy strong{ display:block; font-size:15px; }
   .alerts-copy span{ display:block; font-size:12px; color:var(--muted); margin-top:2px; }
   .alerts-status{ margin:12px 0 0; font-size:12px; color:var(--muted); }
   .switch{ position:relative; display:inline-block; width:50px; height:30px; flex:0 0 auto; }
   .switch input{ opacity:0; width:0; height:0; }
-  .switch-slider{ position:absolute; inset:0; background:#cbd5db; border-radius:999px; transition:.2s; cursor:pointer; }
+  .switch-slider{ position:absolute; inset:0; background:#cbd0db; border-radius:999px; transition:.2s; cursor:pointer; }
   .switch-slider::before{ content:""; position:absolute; height:24px; width:24px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.3); }
   .switch input:checked + .switch-slider{ background:var(--primary); }
   .switch input:checked + .switch-slider::before{ transform:translateX(20px); }
   .switch input:disabled + .switch-slider{ opacity:.5; cursor:not-allowed; }
-  .patient-dashboard .card{padding:clamp(16px,2.5vw,22px);margin-bottom:16px;border-radius:16px;box-shadow:0 5px 18px rgba(25,70,79,.045);}
+  .patient-dashboard .card{padding:clamp(16px,2.5vw,22px);margin-bottom:16px;border-radius:16px;box-shadow:0 5px 18px rgba(25, 42, 79,.045);}
   .patient-dashboard .topbar{margin-bottom:20px;}
   .daily-overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px;}
-  .daily-overview-panel{min-width:0;padding:13px;border:1px solid var(--border);border-radius:12px;background:#fbfdfd;}
+  .daily-overview-panel{min-width:0;padding:13px;border:1px solid var(--border);border-radius:12px;background:#fbfcfd;}
   .daily-overview-label{color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
   .daily-overview-value{display:block;margin-top:5px;color:var(--primary-dark);font-size:20px;font-weight:800;}
   .daily-overview-copy{margin:6px 0 0;color:var(--muted);font-size:13px;}
   .daily-diet-list{display:grid;gap:5px;margin:9px 0 0;padding:0;list-style:none;}
-  .daily-diet-list li{padding-top:5px;border-top:1px solid #edf3f2;font-size:12px;overflow-wrap:anywhere;}
+  .daily-diet-list li{padding-top:5px;border-top:1px solid #edeff3;font-size:12px;overflow-wrap:anywhere;}
   .daily-diet-list strong{color:var(--primary-dark);}
-  .patient-dashboard .wallet-box{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding:15px 18px;border-radius:15px;box-shadow:0 6px 18px rgba(16,76,91,.1);}
+  .patient-dashboard .wallet-box{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding:15px 18px;border-radius:15px;box-shadow:0 6px 18px rgba(16, 40, 91,.1);}
   .patient-dashboard .wallet-box .bal{margin:0;font-size:25px;white-space:nowrap;}
   .patient-dashboard .wallet-box .row{margin:0;text-align:right;}
   @media(max-width:480px){.patient-dashboard .wallet-box{align-items:flex-start;flex-direction:column}.patient-dashboard .wallet-box .row{text-align:left}}
@@ -61,6 +61,10 @@
       <a class="drawer-item" href="medication-reminders.html" style="text-decoration:none;">
         <span>⏰</span>
         <div><strong>Medication Reminders</strong><small>Today's schedule and alerts</small></div>
+      </a>
+      <a class="drawer-item" href="caremate.html" style="text-decoration:none;">
+        <span>🤖</span>
+        <div><strong>AI Assistant</strong></div>
       </a>
       <a class="drawer-item" href="nearby-hospitals.html" style="text-decoration:none;">
         <span>🏥</span>
@@ -102,10 +106,11 @@
     <header class="topbar dashboard-topbar">
       <div class="welcome">
         <p class="dashboard-kicker" id="dashboardDate">YOUR CARE, TODAY</p>
-        <h1>Good <span id="timeOfDay">Evening</span>, <span id="patientName">Bhargavi</span> <span aria-hidden="true">🌙</span></h1>
+        <h1>Good <span id="timeOfDay">Evening</span>, <span id="patientName">Bhargavi</span></h1>
         <p class="welcome-copy">A clear view of your care plan, one dose at a time.</p>
       </div>
       <div class="dashboard-topbar-actions">
+        <a class="notification-shortcut" href="caremate.html" aria-label="Open AI Assistant"><span aria-hidden="true">🤖</span><span>AI Assistant</span></a>
         <a class="notification-shortcut" href="settings.html" aria-label="Open notification settings"><span aria-hidden="true">🔔</span><span>Notifications</span></a>
         <a class="profile-chip" href="profile.html"><span class="profile-avatar" id="profileInitials" aria-hidden="true">B</span><span class="profile-chip-copy"><small>PROFILE</small><strong id="profileDisplayName">Bhargavi</strong></span></a>
         <button class="icon-btn" type="button" onclick="logout()">Log out</button>
@@ -224,6 +229,7 @@
     });
   </script>
 
-  <script src="js/theme.js"></script><script src="js/vendor/firebase-app-compat.js"></script><script src="js/vendor/firebase-auth-compat.js"></script><script src="js/vendor/firebase-firestore-compat.js"></script><script src="js/vendor/firebase-messaging-compat.js"></script><script src="js/firebase-config.js"></script><script src="js/notifications.js"></script><script src="js/push-notifications.js"></script><script src="js/patient.js"></script><script src="js/pwa.js"></script>
+  <script src="js/theme.js"></script><script src="js/vendor/firebase-app-compat.js"></script><script src="js/vendor/firebase-auth-compat.js"></script><script src="js/vendor/firebase-firestore-compat.js"></script><script src="js/vendor/firebase-messaging-compat.js"></script><script src="js/firebase-config.js"></script><script src="js/app-shell.js"></script><script src="js/notifications.js"></script><script src="js/push-notifications.js"></script><script src="js/patient.js"></script><script src="js/pwa.js"></script>
+<script src="js/i18n.js"></script>
 </body>
 </html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#60a5fa">
+  <title>MediCare Admin — Reports</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin-pages.css">
+  <link rel="stylesheet" href="css/app-shell.css">
+</head>
+<body data-admin-page="reports">
+  <main class="admin-page-shell">
+    <header class="topbar admin-page-topbar">
+      <div><h1>Reports</h1><p id="adminName">Loading admin profile…</p></div>
+      <div class="admin-page-actions"><button class="icon-btn" type="button" onclick="logout()">Log out</button></div>
+    </header>
+    <nav class="admin-page-nav" aria-label="Admin navigation">
+      <a href="admin-dashboard.html">Dashboard</a>
+      <a href="admin-alerts.html">Alert Center</a>
+      <a href="admin-reports.html" aria-current="page">Reports</a>
+      <a href="admin-settings.html">Settings</a>
+    </nav>
+    <p class="admin-page-intro">Medication adherence and missed-dose summaries for active patients.</p>
+    <section class="admin-page-card" aria-labelledby="reportTitle">
+      <div class="panel-heading"><div><h2 id="reportTitle">Medication summary</h2><p id="reportRangeLabel">Choose a reporting period.</p></div>
+        <div class="admin-filter-row" style="margin:0;">
+          <label for="reportRange">Date range<select id="reportRange"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></label>
+          <button class="icon-btn" id="exportReportBtn" type="button">Export CSV</button>
+        </div>
+      </div>
+      <p id="reportStatus" class="admin-status-message" role="status" aria-live="polite">Loading report…</p>
+      <div class="admin-metric-grid" aria-label="Report totals">
+        <div class="admin-metric"><strong id="reportPatients">—</strong><span>Active patients</span></div>
+        <div class="admin-metric"><strong id="reportDoses">—</strong><span>Scheduled doses</span></div>
+        <div class="admin-metric"><strong id="reportTaken">—</strong><span>Verified doses</span></div>
+        <div class="admin-metric"><strong id="reportMissed">—</strong><span>Missed doses</span></div>
+      </div>
+      <h2 style="margin:18px 0 10px;font-size:16px;">Patient adherence</h2>
+      <div class="admin-table-wrap"><table class="admin-data-table"><thead><tr><th>Patient</th><th>Doses</th><th>Taken</th><th>Missed</th><th>Completion</th></tr></thead><tbody id="patientReportRows"><tr><td colspan="5">Loading report…</td></tr></tbody></table></div>
+      <h2 style="margin:20px 0 10px;font-size:16px;">Daily totals</h2>
+      <div class="admin-table-wrap"><table class="admin-data-table"><thead><tr><th>Date</th><th>Doses</th><th>Taken</th><th>Missed</th><th>Completion</th></tr></thead><tbody id="dailyReportRows"><tr><td colspan="5">Loading report…</td></tr></tbody></table></div>
+    </section>
+  </main>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app-shell.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/admin-pages.js"></script>
+<script src="js/i18n.js"></script>
+</body>
+</html>

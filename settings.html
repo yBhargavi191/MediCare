@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#176b87">
+  <meta name="theme-color" content="#60a5fa">
   <title>MediCare — Patient Settings</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/fitness-pages.css">
   <style>
     body{visibility:hidden}.settings-list{display:grid;gap:12px}.settings-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;border:1px solid var(--border);border-radius:14px;background:#fff}
     .settings-item-copy{min-width:0}.settings-item-copy strong{display:block;color:var(--primary-dark)}.settings-item-copy p{margin:4px 0 0;color:var(--muted);font-size:13px}
-    .settings-icon{display:grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border-radius:13px;background:#eaf5f5;font-size:20px}.settings-item .icon-btn{flex:0 0 auto;text-decoration:none}.settings-status{margin-top:16px;padding:14px;border-radius:12px;background:#f3f8f8;color:var(--muted);font-size:13px}
-    .permission-card{margin-bottom:14px;padding:16px;border:1px solid var(--border);border-radius:14px;background:#fbfdfd}.permission-head{display:flex;align-items:center;justify-content:space-between;gap:14px}.permission-head strong{color:var(--primary-dark)}.permission-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.permission-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.permission-actions button{width:auto;min-height:42px;padding:9px 12px}.permission-status{margin:12px 0 0;color:var(--muted);font-size:13px;line-height:1.5}.switch{position:relative;display:inline-block;width:50px;height:30px;flex:0 0 auto}.switch input{position:absolute;opacity:0;width:1px;height:1px}.switch-slider{position:absolute;inset:0;border-radius:999px;background:#cbd5db;cursor:pointer;transition:.2s}.switch-slider:before{position:absolute;content:"";width:24px;height:24px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0004;transition:.2s}.switch input:checked+.switch-slider{background:var(--primary)}.switch input:checked+.switch-slider:before{transform:translateX(20px)}.switch input:disabled+.switch-slider{opacity:.5;cursor:not-allowed}
+    .settings-icon{display:grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border-radius:13px;background:#eaf5f5;font-size:20px}.settings-item .icon-btn{flex:0 0 auto;text-decoration:none}.settings-status{margin-top:16px;padding:14px;border-radius:12px;background:#f5f9ff;color:var(--muted);font-size:13px}
+    .permission-card{margin-bottom:14px;padding:16px;border:1px solid var(--border);border-radius:14px;background:#fbfdff}.permission-head{display:flex;align-items:center;justify-content:space-between;gap:14px}.permission-head strong{color:var(--primary-dark)}.permission-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.permission-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.permission-actions button{width:auto;min-height:42px;padding:9px 12px}.permission-status{margin:12px 0 0;color:var(--muted);font-size:13px;line-height:1.5}.switch{position:relative;display:inline-block;width:50px;height:30px;flex:0 0 auto}.switch input{position:absolute;opacity:0;width:1px;height:1px}.switch-slider{position:absolute;inset:0;border-radius:999px;background:#cbd5db;cursor:pointer;transition:.2s}.switch-slider:before{position:absolute;content:"";width:24px;height:24px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0004;transition:.2s}.switch input:checked+.switch-slider{background:var(--primary)}.switch input:checked+.switch-slider:before{transform:translateX(20px)}.switch input:disabled+.switch-slider{opacity:.5;cursor:not-allowed}
     @media(max-width:480px){.settings-item{align-items:flex-start;flex-wrap:wrap}.settings-item .icon-btn{margin-left:56px}}
   </style>
 </head>
@@ -30,6 +30,7 @@
       <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
       <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
       <a class="drawer-item active" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+      <a class="drawer-item" href="caremate.html"><span>🤖</span><div><strong>AI Assistant</strong></div></a>
     </nav>
   </aside>
   <main class="fitness-page">
@@ -62,5 +63,6 @@
   <script src="js/push-notifications.js"></script>
   <script src="js/fitness-page-nav.js"></script>
   <script src="js/patient.js"></script>
+<script src="js/i18n.js"></script>
 </body>
 </html>

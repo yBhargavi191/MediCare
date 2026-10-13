@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#176b87">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#60a5fa">
   <title>MediCare — Appointments</title>
   <link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/fitness-pages.css">
   <style>
-    body{visibility:hidden}.appointment-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.appointment-field{min-width:0}.appointment-field.full{grid-column:1/-1}.appointment-field label{display:block;margin-bottom:5px;color:var(--primary-dark);font-size:12px;font-weight:700}.appointment-field input,.appointment-field textarea{width:100%;margin:0;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font:inherit}.appointment-field textarea{min-height:82px;resize:vertical}.appointment-form button{grid-column:1/-1;width:auto;justify-self:start}.appointment-list{display:grid;gap:10px}.appointment-item{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--border);border-radius:13px;background:#fbfdfd}.appointment-item h2{margin:0 0 5px;color:var(--primary-dark);font-size:15px}.appointment-item p{margin:3px 0;color:var(--muted);font-size:12px}.appointment-item button{flex:0 0 auto}.page-empty{padding:22px;text-align:center;color:var(--muted);background:#f7faf9;border-radius:12px}@media(max-width:520px){.appointment-form{grid-template-columns:1fr}.appointment-field.full,.appointment-form button{grid-column:auto}.appointment-item{flex-direction:column}}
+    body{visibility:hidden}.appointment-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.appointment-field{min-width:0}.appointment-field.full{grid-column:1/-1}.appointment-field label{display:block;margin-bottom:5px;color:var(--primary-dark);font-size:12px;font-weight:700}.appointment-field input,.appointment-field textarea{width:100%;margin:0;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font:inherit}.appointment-field textarea{min-height:82px;resize:vertical}.appointment-form button{grid-column:1/-1;width:auto;justify-self:start}.appointment-list{display:grid;gap:10px}.appointment-item{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--border);border-radius:13px;background:#fbfdff}.appointment-item h2{margin:0 0 5px;color:var(--primary-dark);font-size:15px}.appointment-item p{margin:3px 0;color:var(--muted);font-size:12px}.appointment-item button{flex:0 0 auto}.page-empty{padding:22px;text-align:center;color:var(--muted);background:#f7faf9;border-radius:12px}@media(max-width:520px){.appointment-form{grid-template-columns:1fr}.appointment-field.full,.appointment-form button{grid-column:auto}.appointment-item{flex-direction:column}}
   </style>
 </head>
 <body>
@@ -22,6 +22,7 @@
       <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
       <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
       <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+      <a class="drawer-item" href="caremate.html"><span>🤖</span><div><strong>AI Assistant</strong></div></a>
     </nav>
   </aside>
   <main class="fitness-page">
@@ -77,5 +78,6 @@
     });
     window.addEventListener('pagehide',function(){if(appointmentUnsubscribe)appointmentUnsubscribe();});
   </script>
+<script src="js/i18n.js"></script>
 </body>
 </html>

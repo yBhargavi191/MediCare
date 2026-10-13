@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f8fc">
+  <title>Connected Monitoring</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17283b;
+      --muted: #66788b;
+      --paper: #f5f8fc;
+      --white: #fff;
+      --line: #e1e9f2;
+      --blue: #1769aa;
+      --blue-dark: #123451;
+      --red: #b74839;
+      --red-light: #faece8;
+      --amber: #946413;
+      --amber-light: #f8f0dd;
+      --green: #2f7d4f;
+      --green-light: #e7f4ec;
+      /* App shell tokens (used by css/app-shell.css) */
+      --primary: #60a5fa;
+      --primary-dark: #3b82f6;
+      --primary-soft: #eff6ff;
+      --bg: #f7faff;
+      --card: #ffffff;
+      --text: #0f172a;
+      --border: #e8eef9;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--paper);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+    :root[data-theme="dark"] {
+      --primary: #93c5fd;
+      --primary-dark: #93c5fd;
+      --primary-soft: #1b2740;
+      --bg: #171f30;
+      --card: #1e273c;
+      --text: #e6ebf5;
+      --border: #313d58;
+      --ink: #e6ebf5;
+      --muted: #94a3b8;
+      --paper: #171f30;
+      --white: #1e273c;
+      --line: #313d58;
+      --blue: #93c5fd;
+      --blue-dark: #93c5fd;
+      --red-light: #3a2320;
+      --amber-light: #3a2f1a;
+      --green-light: #1a2f24;
+    }
+    * { box-sizing: border-box; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; }
+    button, input, select { font: inherit; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 62px; padding: 0 clamp(16px, 5vw, 64px); border-bottom: 1px solid var(--line); background: var(--white); }
+    .brand { color: var(--blue-dark); font-family: var(--serif); font-size: 22px; text-decoration: none; }
+    .top-right { display: flex; align-items: center; gap: 12px; }
+    .back-link { color: var(--blue); font-size: 12px; font-weight: 700; text-decoration: none; }
+    .back-link:hover { text-decoration: underline; }
+    .mode-pill { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid #e5d9b7; border-radius: 3px; color: #75551b; background: #fff9e9; font-size: 11px; font-weight: 700; }
+    .mode-pill::before { width: 7px; height: 7px; border-radius: 50%; background: #c28a22; content: ""; }
+    .mode-pill.live { border-color: #bfe0cb; color: #22603c; background: var(--green-light); }
+    .mode-pill.live::before { background: var(--green); }
+    main { width: min(1180px, 100%); margin: 0 auto; padding: 32px clamp(16px, 5vw, 64px) 60px; }
+    .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    /* Keep breathing room for content when the app shell sidebar is present */
+    main.fitness-page.app-main { padding-left: clamp(16px, 2.5vw, 30px); padding-right: clamp(16px, 2.5vw, 30px); }
+    .eyebrow { margin: 0 0 8px; color: var(--blue); font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+    h1 { margin: 0; font: 400 clamp(29px, 4vw, 39px)/1.1 var(--serif); }
+    .intro { max-width: 720px; margin: 10px 0 18px; color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .banner { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 20px; padding: 13px 15px; border: 1px solid #eadbb8; border-radius: 4px; color: #695426; background: #fff9e9; font-size: 11px; line-height: 1.55; }
+    .banner strong { display: block; margin-bottom: 2px; }
+    .banner .ico { flex: 0 0 auto; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, .85fr); gap: 14px; align-items: start; }
+    .col { display: grid; gap: 14px; min-width: 0; }
+    .panel { min-width: 0; border: 1px solid var(--line); border-radius: 5px; background: var(--white); }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 18px 12px; border-bottom: 1px solid #eef0ec; }
+    .panel-head h2 { margin: 0; font-family: var(--serif); font-size: 19px; font-weight: 400; }
+    .subtle { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+    .panel-body { padding: 16px 18px 18px; }
+    .device-list { display: grid; gap: 9px; }
+    .device-row { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 4px; }
+    .device-row .ico { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border-radius: 4px; color: var(--blue); background: #e9f2fa; font-size: 16px; }
+    .device-row .info { min-width: 0; flex: 1; }
+    .device-row .info strong { display: block; font-size: 13px; font-weight: 600; }
+    .device-row .info small { color: var(--muted); font-size: 10px; }
+    .device-row .actions { display: flex; gap: 6px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: var(--white); font-size: 12px; font-weight: 600; cursor: pointer; }
+    .btn:hover { border-color: #a6bdd2; }
+    .btn.primary { border-color: var(--blue); color: #fff; background: var(--blue); }
+    .btn.primary:hover { background: #125487; }
+    .btn:disabled { opacity: .6; cursor: wait; }
+    .btn.small { min-height: 30px; padding: 0 9px; font-size: 11px; }
+    .status { min-height: 18px; margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #9aa49e; }
+    .dot.on { background: var(--green); }
+    .dot.warn { background: #c38c23; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+    .field { display: grid; gap: 5px; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: var(--ink); font-size: 11px; font-weight: 600; }
+    .field input, .field select { min-height: 38px; width: 100%; min-width: 0; padding: 0 10px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: #fff; font-size: 12px; }
+    .field input:focus, .field select:focus { outline: 2px solid #9bc8ec; outline-offset: 1px; }
+    .form-actions { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; margin-top: 13px; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
+    th, td { padding: 12px 15px; border-top: 1px solid #eef0ec; font-size: 12px; }
+    th { color: var(--muted); background: #f7f9fc; font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+    td strong { font-weight: 600; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 7px; border-radius: 3px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .badge.green { color: #22603c; background: var(--green-light); }
+    .badge.amber { color: #735719; background: var(--amber-light); }
+    .badge.red { color: #8a2f22; background: var(--red-light); }
+    .badge.gray { color: var(--muted); background: #eef1f5; }
+    .empty { margin: 0; padding: 8px 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .profile-list { display: grid; gap: 0; }
+    .profile-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid #eef0ec; font-size: 12px; }
+    .profile-row:first-child { border-top: 0; }
+    .profile-row span:first-child { color: var(--muted); }
+    .profile-row span:last-child { text-align: right; font-weight: 600; }
+    .settings { margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--line); }
+    details.settings summary { color: var(--blue); font-size: 12px; font-weight: 700; cursor: pointer; }
+    .settings .form-grid { margin-top: 12px; }
+    .tag { display: inline-block; margin: 0 4px 6px 0; padding: 4px 7px; border-radius: 3px; color: #285f88; background: #e9f2fa; font-size: 10px; font-weight: 600; }
+    .assess { display: grid; gap: 10px; }
+    .assess .level { padding: 12px 13px; border-left: 3px solid #9aa49e; background: #f7f9fc; font-size: 12px; line-height: 1.6; }
+    .assess .level.green { border-color: var(--green); background: var(--green-light); }
+    .assess .level.amber { border-color: #c38c23; background: var(--amber-light); }
+    .assess .level.red { border-color: var(--red); background: var(--red-light); }
+    .assess .level strong { display: block; margin-bottom: 3px; }
+    .ai-output { margin-top: 12px; }
+    .ai-output h3 { margin: 0 0 6px; font-family: var(--serif); font-size: 16px; font-weight: 400; }
+    .ai-output p { margin: 0 0 9px; color: #52615a; font-size: 12px; line-height: 1.7; }
+    .ai-output ul { margin: 0 0 10px; padding-left: 18px; color: #52615a; font-size: 12px; line-height: 1.7; }
+    .ai-source { margin-top: 8px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .skeleton { padding: 12px; color: var(--muted); font-size: 12px; }
+    .stub { padding: 14px; border: 1px dashed #cdd7e2; border-radius: 4px; background: #f9fbfd; }
+    .stub p { margin: 0 0 9px; color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .stub p:last-child { margin-bottom: 0; }
+    .fine-print { margin: 18px 0 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+    .toast { position: fixed; right: 20px; bottom: 18px; z-index: 5; max-width: calc(100vw - 32px); padding: 12px 15px; border-radius: 4px; color: #fff; background: #123451; box-shadow: 0 5px 22px #162b2530; font-size: 12px; opacity: 0; transform: translateY(8px); transition: .18s ease; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .device-row { flex-wrap: wrap; }
+      .device-row .actions { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+  </style>
+  <link rel="stylesheet" href="css/app-shell.css">
+</head>
+<body>
+  <main class="fitness-page">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">Health workspace · connected monitoring</p>
+        <h1>Connected monitoring</h1>
+      </div>
+      <span class="mode-pill" id="mode-pill">SAMPLE MODE</span>
+    </div>
+    <p class="intro">Connect a standard Bluetooth health device to record blood pressure, glucose, heart rate, or oxygen readings, or add a reading manually. Your profile is loaded from your configured website source. A safety rules engine and an AI agent explain what the readings may mean and what to do next.</p>
+
+    <div class="banner" role="note">
+      <span class="ico" aria-hidden="true">!</span>
+      <div>
+        <strong>Not a medical device and not continuously monitored</strong>
+        This module reads from consumer Bluetooth devices you pair yourself. It does not connect to a pacemaker. The AI explains readings using clinician-approved wording only — it never diagnoses, never changes medication or device settings, and never says it is safe to delay urgent care. For any emergency, use your local emergency number.
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- LEFT COLUMN -->
+      <div class="col">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Devices</h2>
+              <p class="subtle">Standard Bluetooth (GATT) health services only</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="device-list" id="device-list"></div>
+            <p class="status" id="device-status" role="status" aria-live="polite">No device connected yet. Pair a device, then it will stream readings into the table below.</p>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Add a reading manually</h2>
+              <p class="subtle">Use this for a cuff, meter, or clinic result</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <form id="manual-form">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="m-type">Measurement</label>
+                  <select id="m-type">
+                    <option value="bp">Blood pressure</option>
+                    <option value="glucose">Blood glucose</option>
+                    <option value="hr">Heart rate</option>
+                    <option value="spo2">Blood oxygen (SpO&#8322;)</option>
+                  </select>
+                </div>
+                <div class="field" id="m-context-field" hidden>
+                  <label for="m-context">Glucose context</label>
+                  <select id="m-context">
+                    <option value="fasting">Fasting</option>
+                    <option value="post-meal">After a meal</option>
+                    <option value="random">Random</option>
+                  </select>
+                </div>
+                <div class="field" id="m-sys-field">
+                  <label for="m-sys">Systolic (mmHg)</label>
+                  <input id="m-sys" type="number" inputmode="numeric" min="40" max="300" placeholder="120">
+                </div>
+                <div class="field" id="m-dia-field">
+                  <label for="m-dia">Diastolic (mmHg)</label>
+                  <input id="m-dia" type="number" inputmode="numeric" min="20" max="200" placeholder="80">
+                </div>
+                <div class="field" id="m-value-field" hidden>
+                  <label for="m-value">Value</label>
+                  <input id="m-value" type="number" inputmode="decimal" step="any" placeholder="0">
+                </div>
+                <div class="field" id="m-unit-field" hidden>
+                  <label for="m-unit">Unit</label>
+                  <select id="m-unit"></select>
+                </div>
+                <div class="field full">
+                  <label for="m-when">When was it taken?</label>
+                  <input id="m-when" type="datetime-local">
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn primary" type="submit">Save reading</button>
+                <button class="btn" type="button" id="clear-all">Clear all readings</button>
+              </div>
+            </form>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Recorded readings</h2>
+              <p class="subtle">Newest first · source and freshness shown for each row</p>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Measurement</th><th>Value</th><th>Recorded</th><th>Source</th><th>Assessment</th></tr>
+              </thead>
+              <tbody id="reading-rows"></tbody>
+            </table>
+          </div>
+          <div class="panel-body" id="readings-empty">
+            <p class="empty">No readings yet. Pair a device or add one manually.</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Your profile</h2>
+              <p class="subtle" id="profile-source">Sample profile (no website source configured)</p>
+            </div>
+            <button class="btn small" type="button" id="reload-profile">Reload</button>
+          </div>
+          <div class="panel-body">
+            <div class="profile-list" id="profile-list"></div>
+            <div class="settings">
+              <details>
+                <summary>Website data source settings</summary>
+                <div class="form-grid">
+                  <div class="field full">
+                    <label for="s-profile-api">Profile API URL (from your website)</label>
+                    <input id="s-profile-api" type="url" placeholder="https://example.com/api/patient/profile">
+                  </div>
+                  <div class="field full">
+                    <label for="s-profile-token">Access token (sent as Authorization: Bearer …)</label>
+                    <input id="s-profile-token" type="password" placeholder="optional">
+                  </div>
+                  <div class="field full">
+                    <label for="s-ai-proxy">AI agent proxy URL (server-side)</label>
+                    <input id="s-ai-proxy" type="url" placeholder="https://example.com/api/health/explain">
+                  </div>
+                  <div class="field full" style="flex-direction:row; display:flex; gap:9px; align-items:center;">
+                    <button class="btn primary" type="button" id="save-settings">Save settings</button>
+                    <span class="subtle" id="settings-note">Stored only in this browser.</span>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Safety assessment</h2>
+              <p class="subtle">Deterministic rules · not a diagnosis</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="assess" id="assess-output"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>AI explanation</h2>
+              <p class="subtle">Educational text from your readings and approved content</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <button class="btn primary" type="button" id="explain-btn">Explain my readings</button>
+            <div class="ai-output" id="ai-output" aria-live="polite"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Pacemaker</h2>
+              <p class="subtle">Authorized integration required</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="stub">
+              <p><strong>Not connected.</strong> A pacemaker cannot be paired from a web page or over standard Bluetooth. Its readings come from the manufacturer's monitoring platform (for example Medtronic CareLink, Abbott Merlin.net, Boston Scientific Latitude, or Biotronik Home Monitoring) or your clinic's device-check service.</p>
+              <p>To enable this section, your care provider must set up an authorized, consented data feed. Until then no pacemaker data is shown, and nothing here is inferred from your other readings.</p>
+              <button class="btn small" type="button" id="pacemaker-doc">What integration is needed?</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <p class="fine-print">This prototype stores readings in your browser only and does not send anything to a clinician. Bluetooth access needs a supported browser (Chrome or Edge) and a secure context. Thresholds and wording here are placeholders and must be replaced and signed off by a qualified clinician before any real use.</p>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    "use strict";
+
+    /* ------------------------------------------------------------------
+       Configuration (PLACEHOLDERS — must be replaced and signed off by a
+       qualified clinician before real use). The rules engine below is the
+       only thing that decides an alert level. The AI never sets it.
+    ------------------------------------------------------------------ */
+    const THRESHOLDS = {
+      bp:      { redHighSys: 180, redHighDia: 120, redLowSys: 90, redLowDia: 60, amberHighSys: 140, amberHighDia: 90 },
+      glucose: { redLow: 54, redHigh: 250, amberLow: 70, amberHigh: 180 },
+      hr:      { redLow: 40, redHigh: 130, amberLow: 50, amberHigh: 100 },
+      spo2:    { redLow: 90, amberLow: 94 }
+    };
+
+    const UNIT_OPTIONS = {
+      glucose: [["mg/dL", "mg/dL"], ["mmol/L", "mmol/L"]],
+      hr: [["bpm", "bpm"]],
+      spo2: [["%", "%"]]
+    };
+
+    const STORAGE_READINGS = "pulse.monitor.readings.v1";
+    const STORAGE_SETTINGS = "pulse.monitor.settings.v1";
+
+    const SAMPLE_PROFILE = {
+      patientId: "sample-0001",
+      displayName: "Sample Patient",
+      age: 68,
+      sex: "female",
+      heightCm: 163,
+      weightKg: 71,
+      conditions: ["High blood pressure", "Type 2 diabetes"],
+      medications: ["As recorded by your clinic"],
+      allergies: ["None recorded"],
+      pacemaker: { present: true, manufacturer: "Not disclosed in sample", model: "—", source: "care-provider", lastInterrogation: "2026-09-01" },
+      baselines: { bp: "122/78", restingHr: 70 },
+      careTeam: { name: "Sample care team", phone: "—", instructions: "Follow the instructions your clinic provided." },
+      emergencyNumber: "Your local emergency number"
+    };
+
+    let state = {
+      readings: [],
+      settings: { profileApi: "", profileToken: "", aiProxy: "" },
+      profile: null,
+      profileIsSample: true,
+      connected: {} // type -> { device, characteristic, label }
+    };
+
+    /* ---------------------------- utilities --------------------------- */
+    const $ = id => document.getElementById(id);
+    const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const uid = () => "r_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    const fmt = n => Number.isFinite(n) ? Math.round(n * 10) / 10 : n;
+
+    let toastTimer;
+    function toast(message) {
+      const el = $("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 2800);
+    }
+
+    function load() {
+      try { state.readings = JSON.parse(localStorage.getItem(STORAGE_READINGS) || "[]"); } catch { state.readings = []; }
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_SETTINGS) || "{}");
+        state.settings = { ...state.settings, ...saved };
+      } catch { /* ignore */ }
+    }
+    function saveReadings() { localStorage.setItem(STORAGE_READINGS, JSON.stringify(state.readings)); }
+    function saveSettings() { localStorage.setItem(STORAGE_SETTINGS, JSON.stringify(state.settings)); }
+
+    /* ------------------------ assessment engine ----------------------- */
+    function assess(reading) {
+      const t = THRESHOLDS;
+      if (reading.type === "bp") {
+        const { systolic: s, diastolic: d } = reading;
+        if (!Number.isFinite(s) || !Number.isFinite(d)) return { level: "gray", reason: "Incomplete blood pressure value — cannot be assessed." };
+        if (s >= t.bp.redHighSys || d >= t.bp.redHighDia) return { level: "red", reason: "Very high blood pressure reading. Contact a clinician promptly or emergency services if you also have symptoms." };
+        if (s < t.bp.redLowSys || d < t.bp.redLowDia) return { level: "red", reason: "Very low blood pressure reading. Seek medical advice promptly." };
+        if (s >= t.bp.amberHighSys || d >= t.bp.amberHighDia) return { level: "amber", reason: "Above your expected range. Recheck and contact your care team if it stays high." };
+        return { level: "green", reason: "Within the configured reference range." };
+      }
+      if (reading.type === "glucose") {
+        const v = reading.value;
+        if (!Number.isFinite(v)) return { level: "gray", reason: "Incomplete glucose value — cannot be assessed." };
+        if (v < t.glucose.redLow || v > t.glucose.redHigh) return { level: "red", reason: "Glucose outside the safe reference range. Follow your clinician's instructions; seek urgent help for severe symptoms." };
+        if (v < t.glucose.amberLow || v > t.glucose.amberHigh) return { level: "amber", reason: "Glucose outside the target range for this context. Recheck and contact your care team if it persists." };
+        return { level: "green", reason: "Within the configured reference range." };
+      }
+      if (reading.type === "hr") {
+        const v = reading.value;
+        if (!Number.isFinite(v)) return { level: "gray", reason: "Incomplete heart rate — cannot be assessed." };
+        if (v < t.hr.redLow || v > t.hr.redHigh) return { level: "red", reason: "Heart rate is very unusual at rest. Get medical advice; call emergency services if you feel unwell." };
+        if (v < t.hr.amberLow || v > t.hr.amberHigh) return { level: "amber", reason: "Heart rate is outside the usual resting range. Rest, recheck, and contact your care team if it continues." };
+        return { level: "green", reason: "Within the configured reference range." };
+      }
+      if (reading.type === "spo2") {
+        const v = reading.value;
+        if (!Number.isFinite(v)) return { level: "gray", reason: "Incomplete oxygen reading — cannot be assessed." };
+        if (v < t.spo2.redLow) return { level: "red", reason: "Low blood oxygen reading. Seek medical advice promptly." };
+        if (v < t.spo2.amberLow) return { level: "amber", reason: "Blood oxygen a little below usual. Rest and recheck." };
+        return { level: "green", reason: "Within the configured reference range." };
+      }
+      return { level: "gray", reason: "Unknown measurement type." };
+    }
+
+    const LEVEL_LABEL = { green: "Within range", amber: "Watch", red: "Needs attention", gray: "Not assessed" };
+    const LEVEL_ORDER = { red: 3, amber: 2, green: 1, gray: 0 };
+
+    function labelFor(reading) {
+      switch (reading.type) {
+        case "bp": return "Blood pressure";
+        case "glucose": return "Blood glucose";
+        case "hr": return "Heart rate";
+        case "spo2": return "Blood oxygen";
+        default: return "Measurement";
+      }
+    }
+    function valueText(reading) {
+      switch (reading.type) {
+        case "bp": return `${fmt(reading.systolic)}/${fmt(reading.diastolic)} mmHg`;
+        case "glucose": return `${fmt(reading.value)} ${reading.unit}`;
+        case "hr": return `${fmt(reading.value)} bpm`;
+        case "spo2": return `${fmt(reading.value)} %`;
+        default: return String(reading.value);
+      }
+    }
+    function timeText(iso) {
+      const d = new Date(iso);
+      if (isNaN(d)) return "Unknown time";
+      return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    }
+    function freshness(iso) {
+      const d = new Date(iso).getTime();
+      if (!Number.isFinite(d)) return "unknown freshness";
+      const mins = (Date.now() - d) / 60000;
+      if (mins < 1) return "just now";
+      if (mins < 60) return Math.round(mins) + " min ago";
+      if (mins < 1440) return Math.round(mins / 60) + " h ago";
+      return Math.round(mins / 1440) + " d ago";
+    }
+
+    /* ------------------------------- render --------------------------- */
+    function renderReadings() {
+      const rows = $("reading-rows");
+      const empty = $("readings-empty");
+      const sorted = [...state.readings].sort((a, b) => new Date(b.measuredAt) - new Date(a.measuredAt));
+      if (!sorted.length) { rows.innerHTML = ""; empty.hidden = false; return; }
+      empty.hidden = true;
+      rows.innerHTML = sorted.map(r => {
+        const a = assess(r);
+        return `<tr>
+          <td><strong>${esc(labelFor(r))}</strong></td>
+          <td>${esc(valueText(r))}</td>
+          <td>${esc(timeText(r.measuredAt))}<br><small style="color:var(--muted)">${esc(freshness(r.measuredAt))}</small></td>
+          <td>${esc(r.source)}${r.sourceId ? `<br><small style="color:var(--muted)">${esc(r.sourceId)}</small>` : ""}</td>
+          <td><span class="badge ${a.level}">${esc(LEVEL_LABEL[a.level])}</span></td>
+        </tr>`;
+      }).join("");
+    }
+
+    function renderAssessment() {
+      const out = $("assess-output");
+      if (!state.readings.length) { out.innerHTML = '<p class="empty">Add a reading to see an assessment.</p>'; return; }
+      const byType = {};
+      state.readings.forEach(r => {
+        const a = assess(r);
+        const prev = byType[r.type];
+        if (!prev || LEVEL_ORDER[a.level] > LEVEL_ORDER[prev.level]) byType[r.type] = { reading: r, ...a };
+      });
+      const order = ["bp", "glucose", "hr", "spo2"];
+      const overall = Object.values(byType).reduce((max, x) => Math.max(max, LEVEL_ORDER[x.level]), 0);
+      const overallLevel = ["gray", "green", "amber", "red"][overall];
+      const overallText = {
+        green: "All recorded readings are within the configured reference range. This does not rule out a problem.",
+        amber: "At least one reading is outside the usual range. Recheck and follow your care team's instructions.",
+        red: "At least one reading needs prompt attention. Use the guidance below and contact your care team or emergency services.",
+        gray: "Not enough complete readings to assess."
+      }[overallLevel];
+
+      out.innerHTML = `<div class="level ${overallLevel}"><strong>Overall: ${esc(LEVEL_LABEL[overallLevel])}</strong>${esc(overallText)}</div>` +
+        order.filter(type => byType[type]).map(type => {
+          const item = byType[type];
+          return `<div class="level ${item.level}"><strong>${esc(labelFor(item.reading))} — ${esc(LEVEL_LABEL[item.level])}</strong>${esc(item.reason)}</div>`;
+        }).join("");
+    }
+
+    function renderProfile() {
+      const p = state.profile || {};
+      $("profile-source").textContent = state.profileIsSample
+        ? "Sample profile (no website source configured)"
+        : "Loaded from your configured website source";
+      const rows = [
+        ["Name", p.displayName],
+        ["Age / sex", [p.age, p.sex].filter(Boolean).join(" / ")],
+        ["Height / weight", [p.heightCm && p.heightCm + " cm", p.weightKg && p.weightKg + " kg"].filter(Boolean).join(" / ")],
+        ["Baseline BP", p.baselines && p.baselines.bp],
+        ["Resting heart rate", p.baselines && p.baselines.restingHr && p.baselines.restingHr + " bpm"],
+        ["Care team", p.careTeam && (p.careTeam.name || p.careTeam.phone)],
+        ["Emergency number", p.emergencyNumber]
+      ];
+      let html = rows.filter(r => r[1]).map(r => `<div class="profile-row"><span>${esc(r[0])}</span><span>${esc(r[1])}</span></div>`).join("");
+      if (p.conditions && p.conditions.length) html += `<div class="profile-row" style="display:block"><span>Conditions</span><div style="margin-top:6px">${p.conditions.map(c => `<span class="tag">${esc(c)}</span>`).join("")}</div></div>`;
+      if (p.medications && p.medications.length) html += `<div class="profile-row" style="display:block"><span>Medications</span><div style="margin-top:6px">${p.medications.map(c => `<span class="tag">${esc(c)}</span>`).join("")}</div></div>`;
+      $("profile-list").innerHTML = html || '<p class="empty">No profile loaded.</p>';
+      updateMode();
+    }
+
+    function updateMode() {
+      const pill = $("mode-pill");
+      const anyLive = !state.profileIsSample || Object.keys(state.connected).length > 0;
+      pill.textContent = anyLive ? "LIVE DATA" : "SAMPLE MODE";
+      pill.classList.toggle("live", anyLive);
+    }
+
+    /* -------------------------- profile loading ----------------------- */
+    async function loadProfile() {
+      const { profileApi, profileToken } = state.settings;
+      if (!profileApi) {
+        state.profile = SAMPLE_PROFILE;
+        state.profileIsSample = true;
+        renderProfile();
+        return;
+      }
+      $("profile-source").textContent = "Loading profile from your website…";
+      try {
+        const headers = { "Accept": "application/json" };
+        if (profileToken) headers["Authorization"] = "Bearer " + profileToken;
+        const res = await fetch(profileApi, { headers });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        state.profile = data && typeof data === "object" ? data : SAMPLE_PROFILE;
+        state.profileIsSample = false;
+        renderProfile();
+        toast("Profile loaded from your website source.");
+      } catch (error) {
+        state.profile = SAMPLE_PROFILE;
+        state.profileIsSample = true;
+        renderProfile();
+        toast("Could not load profile (" + error.message + "). Showing sample instead.");
+      }
+    }
+
+    /* --------------------------- manual entry ------------------------- */
+    function syncManualForm() {
+      const type = $("m-type").value;
+      $("m-context-field").hidden = type !== "glucose";
+      $("m-sys-field").hidden = type !== "bp";
+      $("m-dia-field").hidden = type !== "bp";
+      $("m-value-field").hidden = type === "bp";
+      $("m-unit-field").hidden = !UNIT_OPTIONS[type];
+      if (UNIT_OPTIONS[type]) {
+        $("m-unit").innerHTML = UNIT_OPTIONS[type].map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join("");
+      }
+    }
+
+    function defaultWhenValue() {
+      const d = new Date();
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      return d.toISOString().slice(0, 16);
+    }
+
+    $("manual-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const type = $("m-type").value;
+      const measuredAt = $("m-when").value ? new Date($("m-when").value).toISOString() : new Date().toISOString();
+      let reading = { id: uid(), type, measuredAt, source: "Manual entry", sourceId: "" };
+      if (type === "bp") {
+        const s = Number($("m-sys").value), d = Number($("m-dia").value);
+        if (!Number.isFinite(s) || !Number.isFinite(d) || s <= 0 || d <= 0) { toast("Enter both systolic and diastolic values."); return; }
+        reading.systolic = s; reading.diastolic = d;
+      } else {
+        const v = Number($("m-value").value);
+        if (!Number.isFinite(v) || v <= 0) { toast("Enter a value."); return; }
+        reading.value = v;
+        reading.unit = $("m-unit") ? $("m-unit").value : "";
+        if (type === "glucose") reading.context = $("m-context").value;
+      }
+      state.readings.push(reading);
+      saveReadings();
+      renderReadings(); renderAssessment();
+      $("manual-form").reset();
+      $("m-when").value = defaultWhenValue();
+      syncManualForm();
+      toast("Reading saved locally.");
+    });
+
+    $("clear-all").addEventListener("click", () => {
+      if (!state.readings.length) { toast("There are no readings to clear."); return; }
+      if (!confirm("Remove all readings from this browser?")) return;
+      state.readings = [];
+      saveReadings(); renderReadings(); renderAssessment();
+      toast("All readings cleared.");
+    });
+
+    $("m-type").addEventListener("change", syncManualForm);
+
+    /* ----------------------- Bluetooth (Web Bluetooth) ---------------- */
+    const DEVICE_TYPES = [
+      { type: "bp", label: "Blood pressure monitor", hint: "GATT service 0x1810", service: 0x1810, characteristic: 0x2a35, parse: parseBP },
+      { type: "glucose", label: "Glucose meter", hint: "GATT service 0x1808", service: 0x1808, characteristic: 0x2a18, parse: parseGlucose },
+      { type: "hr", label: "Heart rate monitor", hint: "GATT service 0x180D", service: 0x180d, characteristic: 0x2a37, parse: parseHR },
+      { type: "spo2", label: "Pulse oximeter", hint: "GATT service 0x1822", service: 0x1822, characteristics: [0x2a5f, 0x2a5e], parse: parsePLX }
+    ];
+
+    function renderDevices() {
+      const btSupported = typeof navigator !== "undefined" && !!navigator.bluetooth;
+      $("device-list").innerHTML = DEVICE_TYPES.map(d => {
+        const on = !!state.connected[d.type];
+        return `<div class="device-row">
+          <span class="ico" aria-hidden="true">${d.type === "bp" ? "↕" : d.type === "glucose" ? "◉" : d.type === "hr" ? "♡" : "◎"}</span>
+          <div class="info">
+            <strong>${esc(d.label)}</strong>
+            <small><span class="dot ${on ? "on" : ""}"></span> ${on ? "Connected · " + esc(state.connected[d.type].label) : "Not connected"} · ${esc(d.hint)}</small>
+          </div>
+          <div class="actions">
+            ${on
+              ? `<button class="btn small" type="button" data-disconnect="${d.type}">Disconnect</button>`
+              : `<button class="btn small primary" type="button" data-connect="${d.type}" ${btSupported ? "" : "disabled"}>Connect</button>`}
+          </div>
+        </div>`;
+      }).join("");
+      if (!btSupported) {
+        $("device-status").textContent = "This browser does not support Web Bluetooth. Use Chrome or Edge on a secure (https or localhost) page, or add readings manually.";
+      }
+      updateMode();
+    }
+
+    function decodeSFLOAT(dv, offset) {
+      const raw = dv.getUint16(offset, true);
+      const mantissaRaw = raw & 0x0fff;
+      let exponent = (raw >> 12) & 0x0f;
+      if (exponent >= 8) exponent -= 16;
+      if (mantissaRaw === 0x07ff || mantissaRaw === 0x0800 || mantissaRaw === 0x0801) return NaN;
+      if (mantissaRaw === 0x07fe) return Infinity;
+      if (mantissaRaw === 0x0802) return -Infinity;
+      const mantissa = mantissaRaw >= 0x0800 ? mantissaRaw - 0x1000 : mantissaRaw;
+      return mantissa * Math.pow(10, exponent);
+    }
+
+    function parseBP(dv, label) {
+      const flags = dv.getUint8(0);
+      const systolic = decodeSFLOAT(dv, 1);
+      const diastolic = decodeSFLOAT(dv, 3);
+      let pulse = null, offset = 7; // flags + 3 SFLOATs
+      const hasTimestamp = flags & 0x02;
+      const hasPulse = flags & 0x04;
+      if (hasTimestamp) offset += 7;
+      if (hasPulse) pulse = decodeSFLOAT(dv, offset);
+      const out = [{ type: "bp", systolic, diastolic, source: "Bluetooth · " + label, sourceId: "0x2A35 BP Measurement", measuredAt: new Date().toISOString() }];
+      if (pulse && Number.isFinite(pulse) && pulse > 0) out.push({ type: "hr", value: pulse, unit: "bpm", source: "Bluetooth · " + label, sourceId: "BP cuff pulse", measuredAt: new Date().toISOString() });
+      return out;
+    }
+
+    function parseHR(dv, label) {
+      const flags = dv.getUint8(0);
+      const is16 = flags & 0x01;
+      const value = is16 ? dv.getUint16(1, true) : dv.getUint8(1);
+      return [{ type: "hr", value, unit: "bpm", source: "Bluetooth · " + label, sourceId: "0x2A37 Heart Rate", measuredAt: new Date().toISOString() }];
+    }
+
+    function parsePLX(dv, label) {
+      const flags = dv.getUint8(0);
+      const spo2 = decodeSFLOAT(dv, 1);
+      const pulse = decodeSFLOAT(dv, 3);
+      const out = [];
+      if (Number.isFinite(spo2)) out.push({ type: "spo2", value: spo2, unit: "%", source: "Bluetooth · " + label, sourceId: "0x2A5F SpO2", measuredAt: new Date().toISOString() });
+      if (Number.isFinite(pulse) && pulse > 0) out.push({ type: "hr", value: pulse, unit: "bpm", source: "Bluetooth · " + label, sourceId: "0x2A5F pulse", measuredAt: new Date().toISOString() });
+      return out;
+    }
+
+    function parseGlucose(dv, label) {
+      const flags = dv.getUint8(0);
+      let offset = 3; // flags + sequence number
+      const year = dv.getUint16(offset, true); offset += 2;
+      const month = dv.getUint8(offset); offset += 1;
+      const day = dv.getUint8(offset); offset += 1;
+      const hours = dv.getUint8(offset); offset += 1;
+      const minutes = dv.getUint8(offset); offset += 1;
+      const seconds = dv.getUint8(offset); offset += 1;
+      if (flags & 0x01) offset += 2; // time offset
+      let measuredAt = new Date().toISOString();
+      if (year >= 2000) {
+        const d = new Date(year, (month || 1) - 1, day || 1, hours || 0, minutes || 0, seconds || 0);
+        if (!isNaN(d)) measuredAt = d.toISOString();
+      }
+      if (!(flags & 0x02)) return [];
+      const raw = decodeSFLOAT(dv, offset); offset += 2;
+      const typeLoc = dv.getUint8(offset);
+      const isMolPerL = !!(flags & 0x04);
+      const value = isMolPerL ? raw * 18.0182 : raw; // kg/L -> mg/dL is not standard; assume mg/dL otherwise
+      return [{ type: "glucose", value, unit: "mg/dL", context: (typeLoc & 0x0f) ? "random" : "random", source: "Bluetooth · " + label, sourceId: "0x2A18 Glucose", measuredAt }];
+    }
+
+    async function connect(type) {
+      if (!navigator.bluetooth) { toast("Web Bluetooth is not available in this browser."); return; }
+      const spec = DEVICE_TYPES.find(d => d.type === type);
+      if (!spec) return;
+      const status = $("device-status");
+      status.textContent = "Looking for a " + spec.label.toLowerCase() + "… choose it in the browser prompt.";
+      try {
+        const optional = [spec.service];
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: [spec.service] }],
+          optionalServices: optional
+        });
+        const label = device.name || "Unnamed device";
+        status.textContent = "Connecting to " + label + "…";
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService(spec.service);
+        const charUuids = spec.characteristics || [spec.characteristic];
+        let characteristic = null;
+        for (const uuid of charUuids) {
+          try { characteristic = await service.getCharacteristic(uuid); break; } catch { /* try next */ }
+        }
+        if (!characteristic) throw new Error("Required measurement characteristic not found on this device.");
+        await characteristic.startNotifications();
+        characteristic.addEventListener("characteristicvaluechanged", event => {
+          try {
+            const readings = spec.parse(event.target.value, label);
+            readings.filter(r => Number.isFinite(r.value ?? r.systolic)).forEach(r => {
+              r.id = uid();
+              state.readings.push(r);
+            });
+            if (readings.length) { saveReadings(); renderReadings(); renderAssessment(); toast("New reading received from " + label + "."); }
+          } catch (error) { toast("Could not read a value from " + label + "."); }
+        });
+        device.addEventListener("gattserverdisconnected", () => {
+          delete state.connected[type];
+          renderDevices();
+          $("device-status").textContent = label + " disconnected.";
+        });
+        state.connected[type] = { device, characteristic, label };
+        renderDevices();
+        status.textContent = "Connected to " + label + ". Waiting for a measurement — take one on the device.";
+      } catch (error) {
+        status.textContent = "Connection cancelled or failed (" + error.message + ").";
+        toast("No device connected.");
+      }
+    }
+
+    async function disconnect(type) {
+      const entry = state.connected[type];
+      if (!entry) return;
+      try { await entry.characteristic.stopNotifications(); } catch { /* ignore */ }
+      try { entry.device.gatt.disconnect(); } catch { /* ignore */ }
+      delete state.connected[type];
+      renderDevices();
+      $("device-status").textContent = "Disconnected from " + entry.label + ".";
+    }
+
+    $("device-list").addEventListener("click", event => {
+      const connectBtn = event.target.closest("[data-connect]");
+      const disconnectBtn = event.target.closest("[data-disconnect]");
+      if (connectBtn) connect(connectBtn.dataset.connect);
+      if (disconnectBtn) disconnect(disconnectBtn.dataset.disconnect);
+    });
+
+    /* ----------------------------- AI agent --------------------------- */
+    function aiPayload() {
+      const p = state.profile || {};
+      return {
+        profile: {
+          age: p.age, sex: p.sex, conditions: p.conditions || [], medications: p.medications || [],
+          baselines: p.baselines || {}, pacemakerPresent: !!(p.pacemaker && p.pacemaker.present),
+          careTeamInstructions: (p.careTeam && p.careTeam.instructions) || "", emergencyNumber: p.emergencyNumber || "your local emergency number"
+        },
+        readings: state.readings.slice(-40).map(r => ({
+          type: r.type, label: labelFor(r), measuredAt: r.measuredAt, source: r.source,
+          value: r.value, unit: r.unit, systolic: r.systolic, diastolic: r.diastolic, context: r.context
+        })),
+        assessments: state.readings.slice(-40).map(r => ({ type: r.type, level: assess(r).level }))
+      };
+    }
+
+    function localExplanation() {
+      if (!state.readings.length) return { explanation: "There are no readings yet. Add or connect a device first, then ask again.", actions: [], whenToSeekCare: [], disclaimer: "Educational only." };
+      const byType = {};
+      state.readings.forEach(r => { const a = assess(r); if (!byType[r.type] || LEVEL_ORDER[a.level] > LEVEL_ORDER[byType[r.type].level]) byType[r.type] = { reading: r, ...a }; });
+      const worst = Object.values(byType).sort((a, b) => LEVEL_ORDER[b.level] - LEVEL_ORDER[a.level])[0];
+      const summary = Object.values(byType).map(x => `${labelFor(x.reading)} ${valueText(x.reading)} (${LEVEL_LABEL[x.level].toLowerCase()})`).join("; ");
+      const prof = state.profile || {};
+      const context = [];
+      if (prof.conditions && prof.conditions.length) context.push("your recorded conditions (" + prof.conditions.join(", ") + ")");
+      if (prof.pacemaker && prof.pacemaker.present) context.push("your pacemaker");
+      const actions = [];
+      const whenToSeekCare = [];
+      if (worst.level === "red") {
+        actions.push("Recheck the reading using the same method after a few minutes of rest if you are able.");
+        actions.push("Contact your care team now using the instructions they provided.");
+        whenToSeekCare.push("Call " + (prof.emergencyNumber || "your local emergency number") + " if you have chest pain, severe shortness of breath, fainting, confusion, or feel very unwell.");
+      } else if (worst.level === "amber") {
+        actions.push("Rest for a few minutes and recheck the reading.");
+        actions.push("Record how you feel and share the reading with your care team at your next contact.");
+        whenToSeekCare.push("Seek care sooner if the reading worsens or you develop new symptoms.");
+      } else {
+        actions.push("Keep measuring at your usual times and keep your device and cuff in good condition.");
+        whenToSeekCare.push("Even within range, contact your care team if you feel unwell or notice new symptoms.");
+      }
+      actions.push("Do not change any medication or pacemaker setting based on this page.");
+      const explanation = "Based on your most recent recorded readings (" + summary + ")" + (context.length ? ", considered alongside " + context.join(" and ") : "") + ", this explanation is educational only. " +
+        "Values are compared against placeholder reference ranges, not a personal target set by your clinician.";
+      return { explanation, actions, whenToSeekCare, disclaimer: "This is not a diagnosis or treatment advice. It does not replace your clinician." };
+    }
+
+    function renderAI(result, fromProxy) {
+      const out = $("ai-output");
+      const parts = [];
+      if (result.explanation) parts.push(`<p>${esc(result.explanation)}</p>`);
+      if (Array.isArray(result.actions) && result.actions.length) parts.push(`<h3>What you can do</h3><ul>${result.actions.map(a => `<li>${esc(a)}</li>`).join("")}</ul>`);
+      if (Array.isArray(result.whenToSeekCare) && result.whenToSeekCare.length) parts.push(`<h3>When to get help</h3><ul>${result.whenToSeekCare.map(a => `<li>${esc(a)}</li>`).join("")}</ul>`);
+      if (result.disclaimer) parts.push(`<p class="ai-source">${esc(result.disclaimer)}</p>`);
+      parts.push(`<p class="ai-source">Source: ${fromProxy ? "server AI agent (clinician-constrained)" : "built-in offline explainer"}. Generated ${new Date().toLocaleString()}. Not a diagnosis.</p>`);
+      out.innerHTML = parts.join("");
+    }
+
+    async function explain() {
+      const out = $("ai-output");
+      const btn = $("explain-btn");
+      btn.disabled = true;
+      out.innerHTML = '<p class="skeleton">Preparing an explanation…</p>';
+      try {
+        if (state.settings.aiProxy) {
+          const res = await fetch(state.settings.aiProxy, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(aiPayload())
+          });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const data = await res.json();
+          renderAI(data, true);
+        } else {
+          await new Promise(r => setTimeout(r, 400));
+          renderAI(localExplanation(), false);
+        }
+      } catch (error) {
+        renderAI({ ...localExplanation(), disclaimer: "The AI agent could not be reached (" + error.message + "). Showing the built-in offline explanation instead. It is not a diagnosis." }, false);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /* ------------------------------ settings -------------------------- */
+    function fillSettings() {
+      $("s-profile-api").value = state.settings.profileApi || "";
+      $("s-profile-token").value = state.settings.profileToken || "";
+      $("s-ai-proxy").value = state.settings.aiProxy || "";
+    }
+    function readSettings() {
+      state.settings.profileApi = $("s-profile-api").value.trim();
+      state.settings.profileToken = $("s-profile-token").value.trim();
+      state.settings.aiProxy = $("s-ai-proxy").value.trim();
+    }
+
+    $("save-settings").addEventListener("click", async () => {
+      readSettings();
+      saveSettings();
+      $("settings-note").textContent = "Saved in this browser.";
+      toast("Settings saved.");
+      await loadProfile();
+    });
+    $("reload-profile").addEventListener("click", loadProfile);
+    $("explain-btn").addEventListener("click", explain);
+    $("pacemaker-doc").addEventListener("click", () => {
+      toast("Pacemaker data needs an authorized manufacturer/clinic feed. See CONNECTED-MONITORING.md.");
+    });
+
+    /* -------------------------------- init ---------------------------- */
+    load();
+    fillSettings();
+    state.profile = SAMPLE_PROFILE;
+    renderProfile();
+    renderDevices();
+    renderReadings();
+    renderAssessment();
+    $("m-when").value = defaultWhenValue();
+    syncManualForm();
+    loadProfile();
+
+    window.__healthMonitor = { state, assess, localExplanation, THRESHOLDS };
+  </script>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/app-shell.js"></script>
+  <script src="js/i18n.js"></script>
+</body>
+</html>

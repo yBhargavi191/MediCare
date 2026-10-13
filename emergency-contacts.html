@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#176b87">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#60a5fa">
   <title>MediCare — Emergency Contacts</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/fitness-pages.css">
   <style>
-    body{visibility:hidden}.emergency-note{margin-bottom:16px;padding:14px 16px;border:1px solid #efd8d3;border-radius:13px;background:#fff8f6;color:#784b42;font-size:13px;line-height:1.5}.contact-list{display:grid;gap:10px}.emergency-contact{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--border);border-radius:13px;background:#fbfdfd}.contact-person{display:flex;align-items:center;gap:12px;min-width:0}.contact-avatar{display:grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border-radius:13px;background:#eaf5f3;color:var(--primary-dark);font-weight:800}.contact-person strong{display:block;color:var(--primary-dark)}.contact-person small{display:block;margin-top:3px;color:var(--muted)}.contact-actions{display:flex;flex-wrap:wrap;gap:7px}.contact-actions a,.contact-actions button{min-height:38px;text-decoration:none}.contact-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}.contact-form input{min-width:0;margin:0}.contact-form button{grid-column:1/-1;justify-self:start;width:auto}.contact-empty{padding:20px;text-align:center;border-radius:12px;background:#f7faf9;color:var(--muted)}#contactsMessage{min-height:18px;color:var(--muted);font-size:12px}@media(max-width:480px){.emergency-contact{align-items:flex-start;flex-direction:column}.contact-form{grid-template-columns:1fr}.contact-form button{grid-column:auto}}
+    body{visibility:hidden}.emergency-note{margin-bottom:16px;padding:14px 16px;border:1px solid #efd8d3;border-radius:13px;background:#fff8f6;color:#784b42;font-size:13px;line-height:1.5}.contact-list{display:grid;gap:10px}.emergency-contact{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--border);border-radius:13px;background:#fbfdff}.contact-person{display:flex;align-items:center;gap:12px;min-width:0}.contact-avatar{display:grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border-radius:13px;background:#eef5ff;color:var(--primary-dark);font-weight:800}.contact-person strong{display:block;color:var(--primary-dark)}.contact-person small{display:block;margin-top:3px;color:var(--muted)}.contact-actions{display:flex;flex-wrap:wrap;gap:7px}.contact-actions a,.contact-actions button{min-height:38px;text-decoration:none}.contact-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}.contact-form input{min-width:0;margin:0}.contact-form button{grid-column:1/-1;justify-self:start;width:auto}.contact-empty{padding:20px;text-align:center;border-radius:12px;background:#f7faf9;color:var(--muted)}#contactsMessage{min-height:18px;color:var(--muted);font-size:12px}@media(max-width:480px){.emergency-contact{align-items:flex-start;flex-direction:column}.contact-form{grid-template-columns:1fr}.contact-form button{grid-column:auto}}
   </style>
 </head>
 <body>
@@ -21,6 +21,7 @@
       <a class="drawer-item active" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
       <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
       <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+      <a class="drawer-item" href="caremate.html"><span>🤖</span><div><strong>AI Assistant</strong></div></a>
     </nav>
   </aside>
   <main class="fitness-page">
@@ -38,5 +39,6 @@
     auth.onAuthStateChanged(async function(user){if(!user){location.href='index.html';return;}try{var snapshot=await db.collection('users').doc(user.uid).get();if(!snapshot.exists||snapshot.data().role!=='patient'||snapshot.data().status==='archived'){location.href='index.html';return;}contactUser=user;contactData=snapshot.data();renderEmergencyContacts();document.body.style.visibility='visible';}catch(error){console.error('Unable to load emergency contacts:',error);document.getElementById('emergencyContactList').innerHTML='<div class="contact-empty">Contacts are temporarily unavailable.</div>';document.body.style.visibility='visible';}});
     document.getElementById('emergencyContactForm').addEventListener('submit',async function(event){event.preventDefault();if(!contactUser||!event.currentTarget.reportValidity())return;var contacts=(contactData.relativeContacts||(contactData.relativePhone?[{name:'Caregiver',phone:contactData.relativePhone}]:[])).slice();contacts.push({name:document.getElementById('emergencyContactName').value.trim(),phone:document.getElementById('emergencyContactPhone').value.trim()});try{await persistContacts(contacts);event.currentTarget.reset();document.getElementById('contactsMessage').textContent='Emergency contact saved.';}catch(error){console.error('Unable to save emergency contact:',error);document.getElementById('contactsMessage').textContent='Could not save the contact. Please retry.';}});
   </script>
+<script src="js/i18n.js"></script>
 </body>
 </html>

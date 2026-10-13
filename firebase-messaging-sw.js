@@ -11,7 +11,7 @@ messaging.onBackgroundMessage(payload => {
   });
 });
 
-const PWA_CACHE = 'medicare-pwa-v3';
+const PWA_CACHE = 'medicare-pwa-v4';
 const PWA_SHELL = [
   './', 'index.html', 'patient-dashboard.html', 'verify.html', 'patient-details.html',
   'css/style.css', 'js/firebase-config.js', 'js/ml-loader.js', 'js/notifications.js',
@@ -27,6 +27,7 @@ const PWA_VENDOR = [
 ];
 
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(PWA_CACHE).then(cache => {
       const add = url => cache.add(url).catch(() => {});

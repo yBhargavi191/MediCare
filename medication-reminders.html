@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#176b87">
+  <meta name="theme-color" content="#60a5fa">
   <title>MediCare — Medication Reminders</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/fitness-pages.css">
   <style>
     .dose-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}.dose-summary .stat-box{min-width:0}
-    .alerts-head{display:flex;align-items:center;gap:12px}.alerts-icon{display:grid;place-items:center;width:44px;height:44px;flex:0 0 auto;border-radius:12px;background:#eef6f6;font-size:20px}
+    .alerts-head{display:flex;align-items:center;gap:12px}.alerts-icon{display:grid;place-items:center;width:44px;height:44px;flex:0 0 auto;border-radius:12px;background:#eff5ff;font-size:20px}
     .alerts-copy{flex:1;min-width:0}.alerts-copy strong{display:block}.alerts-copy span{display:block;margin-top:2px;color:var(--muted);font-size:12px}.alerts-status{margin:12px 0;color:var(--muted);font-size:12px}
     .switch{position:relative;display:inline-block;width:50px;height:30px;flex:0 0 auto}.switch input{position:absolute;opacity:0;width:1px;height:1px}.switch-slider{position:absolute;inset:0;border-radius:999px;background:#cbd5db;cursor:pointer;transition:.2s}.switch-slider:before{position:absolute;content:"";width:24px;height:24px;left:3px;top:3px;border-radius:50%;background:white;box-shadow:0 1px 3px #0004;transition:.2s}.switch input:checked+.switch-slider{background:var(--primary)}.switch input:checked+.switch-slider:before{transform:translateX(20px)}
     .time-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.time-row select{margin-bottom:0}.day-choices{display:flex;flex-wrap:wrap;gap:8px}.day-choices label{display:flex;align-items:center;gap:5px;padding:6px 9px;border-radius:8px;background:#f1f5f9;font-size:13px}
@@ -32,6 +32,7 @@
       <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
       <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
       <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+      <a class="drawer-item" href="caremate.html"><span>🤖</span><div><strong>AI Assistant</strong></div></a>
     </nav>
   </aside>
   <main class="fitness-page">
@@ -63,5 +64,6 @@
   <script src="js/push-notifications.js"></script>
   <script src="js/fitness-page-nav.js"></script>
   <script src="js/patient.js"></script>
+<script src="js/i18n.js"></script>
 </body>
 </html>

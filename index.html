@@ -3,157 +3,149 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MediCare — Smart Health Reminders</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#176b87">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="MediCare">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <title>MediCare — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8faff;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e6eaf5;
+      --primary: #2563eb;
+      --primary-2: #1d4ed8;
+      --accent-bg: radial-gradient(120% 120% at 10% 10%, #2563eb 0%, #1e3a8a 100%);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; font: 400 14px/1.6 'DM Sans', sans-serif; color: var(--text); background: var(--bg); }
+    a { color: inherit; }
+    .login-shell { min-height: 100%; display: grid; grid-template-columns: minmax(320px, 1fr) minmax(320px, 520px); gap: 0; }
+    .login-hero { position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: clamp(32px, 6vw, 56px); color: #fff; background: var(--accent-bg); overflow: hidden; }
+    .login-hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(140% 140% at 50% 120%, rgba(255,255,255,.18) 0%, rgba(15,23,42,0) 70%); pointer-events: none; }
+    .hero-brand { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; }
+    .hero-brand-mark { width: 52px; height: 52px; border-radius: 14px; box-shadow: 0 18px 40px -18px rgba(15,23,42,.9); }
+    .hero-brand-name { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; font-size: 13px; }
+    .hero-content { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 14px; max-width: 520px; }
+    .hero-kicker { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.16); backdrop-filter: blur(6px); width: fit-content; font-size: 12px; text-transform: uppercase; letter-spacing: .18em; }
+    .hero-title { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: clamp(36px, 6vw, 56px); line-height: 1.08; letter-spacing: -.02em; }
+    .hero-subtitle { margin: 0; max-width: 460px; color: rgba(255,255,255,.85); font-size: clamp(14px, 1.6vw, 16px); }
+    .hero-foot { position: relative; z-index: 1; color: rgba(255,255,255,.7); font-size: 12px; }
+    .login-panel { display: flex; align-items: center; justify-content: center; padding: clamp(24px, 6vw, 48px); background: var(--bg); }
+    .login-card { width: min(420px, 100%); display: flex; flex-direction: column; gap: 20px; padding: clamp(26px, 4vw, 38px); border: 1px solid var(--border); border-radius: 22px; background: var(--panel); box-shadow: 0 30px 60px -40px rgba(15,23,42,.6); }
+    .card-head { display: flex; flex-direction: column; gap: 6px; }
+    .card-head h1 { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: clamp(22px, 3vw, 28px); letter-spacing: -.01em; }
+    .card-head p { margin: 0; color: var(--muted); }
+    .role-toggle { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 6px; border-radius: 999px; background: #eef2ff; }
+    .role-toggle button { border: 0; background: transparent; padding: 9px 12px; border-radius: 999px; font-weight: 700; color: #1e3a8a; cursor: pointer; }
+    .role-toggle button.active { background: #fff; box-shadow: 0 6px 16px -10px rgba(30,64,175,.9); }
+    .form-grid { display: flex; flex-direction: column; gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field label { font-weight: 700; }
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-wrap input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; font: inherit; background: #f9fbff; }
+    .input-wrap input:focus { outline: 3px solid rgba(37,99,235,.18); outline-offset: 1px; border-color: rgba(37,99,235,.6); background: #fff; }
+    .row-between { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+    .check { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+    .link { color: var(--primary); font-weight: 700; text-decoration: none; }
+    .link:hover { text-decoration: underline; }
+    .btn { border: 0; border-radius: 999px; padding: 12px 18px; font: inherit; font-weight: 800; cursor: pointer; }
+    .btn-primary { color: #fff; background: linear-gradient(120deg, var(--primary), var(--primary-2)); box-shadow: 0 12px 30px -16px rgba(37,99,235,1); }
+    .btn-ghost { background: transparent; color: var(--muted); }
+    .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+    .alt-actions { display: flex; flex-direction: column; gap: 10px; }
+    .error-msg { color: #dc2626; font-weight: 700; min-height: 18px; }
+    @media (max-width: 1080px) { .login-shell { grid-template-columns: 1fr; } .login-hero { min-height: 320px; } }
+  </style>
 </head>
 <body>
-  <button class="drawer-trigger" id="drawerTrigger" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
-  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
-
-  <aside class="drawer" id="appDrawer" aria-label="Main menu" aria-hidden="true">
-    <div class="drawer-header">
-      <div class="drawer-brand">
-        <div class="drawer-logo">M</div>
-        <div>
-          <strong>MediCare</strong>
-          <small>Quick access</small>
+  <div class="login-shell">
+    <aside class="login-hero">
+      <div class="hero-brand">
+        <svg class="hero-brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+          <defs>
+            <linearGradient id="m" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#60a5fa"/>
+              <stop offset="1" stop-color="#2563eb"/>
+            </linearGradient>
+          </defs>
+          <rect width="64" height="64" rx="16" fill="url(#m)"/>
+          <g transform="translate(32 32) rotate(-45)">
+            <rect x="-16" y="-8" width="32" height="16" rx="8" fill="#fff"/>
+            <path d="M0 -8 H8 A8 8 0 0 1 8 8 H0 Z" fill="#5b8df5"/>
+          </g>
+          <g transform="translate(32 32) scale(.58) translate(-12 -12)">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 20.28 3 22 5.42 22 7.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#f43f5e"/>
+          </g>
+        </svg>
+        <span class="hero-brand-name">MediCare</span>
+      </div>
+      <div class="hero-content">
+        <span class="hero-kicker"><span>Smart care</span></span>
+        <h2 class="hero-title">Medication support that keeps every dose on track</h2>
+        <p class="hero-subtitle">AI-verified reminders, timely escalations and a connected care space designed to help patients stay consistent with their treatment.</p>
+      </div>
+      <div class="hero-foot">Smarter technology · Healthier lives</div>
+    </aside>
+    <main class="login-panel">
+      <div class="login-card">
+        <header class="card-head">
+          <h1>Sign in to MediCare</h1>
+          <p>Choose your account type and continue</p>
+        </header>
+        <div class="role-toggle" role="tablist" aria-label="Choose account type">
+          <button type="button" class="active" id="roleP" onclick="setRole('patient')">Patient</button>
+          <button type="button" id="roleA" onclick="setRole('admin')">Admin</button>
+        </div>
+        <form class="form-grid" onsubmit="handleSubmit(); return false;">
+          <div id="signupFields" style="display:none; display:flex; flex-direction:column; gap:12px;">
+            <div class="field">
+              <label for="name">Full name</label>
+              <div class="input-wrap"><input id="name" type="text" autocomplete="name" placeholder="Enter your full name"></div>
+            </div>
+            <div class="field">
+              <label for="phone">Mobile number</label>
+              <div class="input-wrap"><input id="phone" type="tel" autocomplete="tel" placeholder="Enter your mobile number"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="email">Email address</label>
+            <div class="input-wrap"><input id="email" type="email" autocomplete="email" placeholder="name@example.com" required></div>
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Enter your password" required></div>
+          </div>
+          <div class="row-between">
+            <label class="check"><input type="checkbox" id="rememberMe"> Remember me</label>
+            <button type="button" class="link" onclick="openResetPassword()">Forgot password?</button>
+          </div>
+          <div class="error-msg" id="errorMsg" aria-live="polite"></div>
+          <button class="btn btn-primary" id="submitBtn" type="submit">Log in</button>
+        </form>
+        <div class="divider"><span>or</span></div>
+        <div class="alt-actions">
+          <button class="btn btn-ghost" id="toggleModeBtn" type="button" onclick="toggleMode()">New here? Create an account</button>
         </div>
       </div>
-      <button class="drawer-close" id="drawerClose" type="button" aria-label="Close menu">×</button>
-    </div>
-
-    <nav class="drawer-nav" aria-label="Main navigation">
-      <button class="drawer-item active" type="button" data-role="patient" data-action="dashboard">
-        <span>🏠</span>
-        <span>Dashboard</span>
-      </button>
-      <button class="drawer-item" type="button" data-role="patient" data-action="reminders">
-        <span>⏰</span>
-        <span>Reminders</span>
-      </button>
-      <button class="drawer-item" type="button" data-role="patient" data-action="alerts">
-        <span>🔔</span>
-        <span>Alerts</span>
-      </button>
-      <button class="drawer-item" type="button" data-role="admin" data-action="admin">
-        <span>🛡️</span>
-        <span>Admin View</span>
-      </button>
-      <button class="drawer-item" type="button" data-action="signup">
-        <span>✨</span>
-        <span>Create Account</span>
-      </button>
-      <button class="drawer-item" type="button" data-action="reset">
-        <span>🔐</span>
-        <span>Reset Password</span>
-      </button>
-    </nav>
-
-    <div class="drawer-footer">
-      <p>Medication support that keeps every dose on track.</p>
-    </div>
-  </aside>
-
-  <script src="js/loading.js"></script>
-  <main class="auth-wrap">
-    <div class="logo" aria-label="MediCare logo"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="mcLogoBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14b8a6"/><stop offset="1" stop-color="#0f766e"/></linearGradient></defs><rect x="0" y="0" width="512" height="512" rx="112" fill="url(#mcLogoBg)"/><g transform="translate(256 256) rotate(-45)"><rect x="-126" y="-62" width="252" height="124" rx="62" fill="#ffffff"/><path d="M0 -62 H64 A62 62 0 0 1 64 62 H0 Z" fill="#5eead4"/><line x1="0" y1="-60" x2="0" y2="60" stroke="#0f766e" stroke-opacity="0.2" stroke-width="6"/></g><g transform="translate(256 256) scale(3.9) translate(-12 -12)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 20.28 3 22 5.42 22 7.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#f43f5e"/></g></svg></div>
-    <div class="brand">MediCare</div>
-    <div class="tagline">Medication support that keeps every dose on track.</div>
-
-    <div class="role-toggle" aria-label="Choose account type">
-      <button id="roleP" class="active" onclick="setRole('patient')">Patient</button>
-      <button id="roleA" onclick="setRole('admin')">Admin</button>
-    </div>
-
-    <div id="signupFields" style="display:none;">
-      <input type="text" id="name" placeholder="Full name" autocomplete="name">
-      <input type="tel" id="phone" placeholder="Mobile number" autocomplete="tel">
-    </div>
-
-    <input type="email" id="email" placeholder="Email address" autocomplete="email">
-    <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-    <button class="forgot-link" type="button" onclick="openResetPassword()">Forgot password?</button>
-    <div class="error-msg" id="errorMsg" aria-live="polite"></div>
-    <button class="primary" id="submitBtn" onclick="handleSubmit()">Log in</button>
-    <button class="secondary" onclick="toggleMode()" id="toggleModeBtn">New here? Create an account</button>
-  </main>
-
-  <div class="modal-overlay" id="resetPasswordModal" style="display:none;">
-    <div class="modal-sheet reset-modal" role="dialog" aria-modal="true" aria-labelledby="resetPasswordTitle">
-      <button class="close-x reset-close" type="button" onclick="closeResetPassword()" aria-label="Close reset password dialog">×</button>
-      <div class="reset-icon" aria-hidden="true">✉</div>
-      <h3 id="resetPasswordTitle">Reset your MediCare password</h3>
-      <p>Enter your email to receive a secure reset link.</p>
-      <input type="email" id="resetEmail" placeholder="Email address" autocomplete="email">
-      <div class="error-msg" id="resetError" aria-live="polite"></div>
-      <button class="primary" id="resetSubmitBtn" type="button" onclick="sendPasswordReset()">Send MediCare reset link</button>
-    </div>
+    </main>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const drawer = document.getElementById('appDrawer');
-      const trigger = document.getElementById('drawerTrigger');
-      const backdrop = document.getElementById('drawerBackdrop');
-      const closeBtn = document.getElementById('drawerClose');
-      const drawerItems = document.querySelectorAll('.drawer-item');
-
-      function updateDrawerState(isOpen) {
-        drawer.classList.toggle('open', isOpen);
-        backdrop.hidden = !isOpen;
-        trigger.setAttribute('aria-expanded', String(isOpen));
-        drawer.setAttribute('aria-hidden', String(!isOpen));
-      }
-
-      trigger.addEventListener('click', function () {
-        updateDrawerState(!drawer.classList.contains('open'));
-      });
-
-      closeBtn.addEventListener('click', function () {
-        updateDrawerState(false);
-      });
-
-      backdrop.addEventListener('click', function () {
-        updateDrawerState(false);
-      });
-
-      drawerItems.forEach(function (item) {
-        item.addEventListener('click', function () {
-          drawerItems.forEach(function (button) {
-            button.classList.toggle('active', button === item);
-          });
-
-          const role = item.dataset.role;
-          const action = item.dataset.action;
-
-          if (role) {
-            setRole(role);
-          }
-
-          if (action === 'signup') {
-            toggleMode();
-          }
-
-          if (action === 'reset') {
-            openResetPassword();
-          }
-
-          updateDrawerState(false);
-        });
-      });
-
-      document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') {
-          updateDrawerState(false);
-        }
-      });
-    });
-  </script>
+  <div class="modal-overlay" id="resetPasswordModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="modal-sheet reset-modal" role="dialog" aria-modal="true" aria-labelledby="resetPasswordTitle" style="width:min(420px,100%); background:#fff; border-radius:18px; box-shadow:0 40px 70px -40px rgba(15,23,42,.8); padding:26px; display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <h3 id="resetPasswordTitle" style="margin:0; font-family:'Plus Jakarta Sans',sans-serif;">Reset your password</h3>
+        <button type="button" onclick="closeResetPassword()" aria-label="Close" style="border:0; background:transparent; font-size:20px; cursor:pointer;">×</button>
+      </div>
+      <p style="margin:0; color:var(--muted);">Enter your email to receive a secure reset link.</p>
+      <div class="input-wrap"><input type="email" id="resetEmail" placeholder="name@example.com" autocomplete="email"></div>
+      <div class="error-msg" id="resetError" aria-live="polite"></div>
+      <button class="btn btn-primary" id="resetSubmitBtn" type="button" onclick="sendPasswordReset()">Send reset link</button>
+    </div>
+  </div>
 
   <script src="js/theme.js"></script>
   <script src="js/vendor/firebase-app-compat.js"></script>
@@ -162,5 +154,6 @@
   <script src="js/firebase-config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/pwa.js"></script>
+  <script src="js/i18n.js"></script>
 </body>
 </html>
