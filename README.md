@@ -27,7 +27,7 @@ Or drag the folder into **Firebase Hosting** / **Netlify** / **Vercel** for a li
 
 ## 3. Demo script (what to show judges)
 
-1. **Sign up as Patient** → add 1–2 medicines with a time a minute or two from now (or use the **"Test Reminder Now"** button next to any medicine to trigger it instantly).
+1. **Sign up as Patient** → add 1–2 medicines with a time a minute or two from now (the alarm fires automatically at that time).
 2. Wait for the **red critical alert screen** to appear automatically.
 3. Tap **Verify medication** → allow camera → follow the 3-step anti-cheat pipeline:
    - **Step 1 · Show medicine** — the custom Teachable Machine model detects your tablet strip / tonic bottle (live confidence bars on screen).

@@ -105,5 +105,5 @@ are active (e.g. "Channels: Webhook, Push (FCM)").
 ## Demo day tips
 
 - Subscribe your phone to the ntfy topic before the demo and test once.
-- Trigger flow: patient login → *Test Reminder Now* → let the 90-second
+- Trigger flow: patient login → add a medicine due in a minute → let the verification
   countdown expire without verifying.

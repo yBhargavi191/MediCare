@@ -253,6 +253,7 @@
       font-size: 16px;
       box-shadow: none;
     }
+    .mic svg { width: 20px; height: 20px; display: block; }
     .mic.listening {
       background: #fef2f2;
       color: #dc2626;
@@ -298,9 +299,15 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
     }
+
+    /* ── Embedded mode (?embed=1): fill the in-page assistant window ── */
+    .caremate-embed body { min-width: 0; background: #f7faff; }
+    .caremate-embed .stage { min-height: 0; height: 100dvh; padding: 0; background: transparent; }
+    .caremate-embed .app { width: 100%; height: 100dvh; min-height: 0; border: 0; border-radius: 0; box-shadow: none; }
   </style>
 </head>
 <body>
+  <script>try { if (new URLSearchParams(location.search).get('embed') === '1') document.documentElement.classList.add('caremate-embed'); } catch (e) {}</script>
   <div class="stage">
     <div class="app" role="region" aria-label="AI Assistant chat">
       <header class="topbar">
@@ -323,7 +330,14 @@
       <div class="composer-wrap">
         <form class="composer" id="form" novalidate>
           <input id="input" type="text" autocomplete="off" placeholder="Type a message…" aria-label="Your message">
-          <button class="mic" id="micBtn" type="button" aria-label="Speak" title="Voice input">🎤</button>
+          <button class="mic" id="micBtn" type="button" aria-label="Speak" title="Voice input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <rect x="9" y="2" width="6" height="12" rx="3"></rect>
+              <path d="M5 11a7 7 0 0 0 14 0"></path>
+              <line x1="12" y1="18" x2="12" y2="22"></line>
+              <line x1="8" y1="22" x2="16" y2="22"></line>
+            </svg>
+          </button>
           <button class="send" id="send" type="submit" aria-label="Send message" disabled>➤</button>
         </form>
         <p class="fineprint" id="fineprint">General information only — not medical advice. In an emergency, call <b>112</b> or <b>108</b>.</p>
@@ -331,6 +345,7 @@
     </div>
   </div>
 
+  <script src="js/caremate-chat.js"></script>
   <script>
     (function () {
       'use strict'
@@ -341,14 +356,15 @@
       /* ── Settings ──────────────────────────────────────────────────── */
       // Where the assistant server lives. Override by setting
       // window.PULSE_ASSISTANT_ENDPOINT before this script loads.
-      // Locally we hit the dev server on :3001; in production we call the
-      // MediCare relay on Vercel, so typed chat works on the deployed site.
+      // Only used when window.PULSE_ASSISTANT_ENDPOINT is set: answers come
+      // from the in-page rule engine (js/caremate-chat.js), so the deployed
+      // site needs no server at all.
       function isLocalHost() {
         return /^(localhost|127\.0\.0\.1|\[::1\]|)$/.test(window.location.hostname)
       }
       var ENDPOINT = window.PULSE_ASSISTANT_ENDPOINT ||
         (isLocalHost() ? 'http://localhost:3001/api/chat'
-                       : 'https://medicare-alerts.vercel.app/api/chat')
+                       : 'https://verimed-6b92d.web.app/api/chat')
       var MAX_HISTORY = 10
       var REQUEST_TIMEOUT_MS = 45000
 
@@ -364,10 +380,31 @@
         'heart attack', 'cardiac arrest'
       ].join('|'), 'i')
 
-      /* ── Translations (English · తెలుగు · हिन्दी · தமிழ்) ──────── */
+      /* ── Translations (English · తెలుగు · हिन्दी · தமிழ் · ಕನ್ನಡ · മലയാളം · मराठी · বাংলা) ── */
       // All fixed UI text and scripted quick replies live here. {name} is
       // replaced with the user's own name (never hardcoded). The chosen
       // language is remembered in localStorage.
+      // BCP-47 locales for voice input (SpeechRecognition / native plugin) and
+      // voice output (speechSynthesis), one per supported language.
+      var SPEECH_LOCALES = {
+        en: 'en-US', te: 'te-IN', hi: 'hi-IN', ta: 'ta-IN',
+        kn: 'kn-IN', ml: 'ml-IN', mr: 'mr-IN', bn: 'bn-IN'
+      }
+      function speechLocale(code) { return SPEECH_LOCALES[code] || SPEECH_LOCALES.en }
+
+      // Shown when the device cannot do speech input at all.
+      var VOICE_UNSUPPORTED = {
+        en: 'Voice input is not supported on this device.',
+        te: 'ఈ పరికరంలో వాయిస్ ఇన్‌పుట్‌కు మద్దతు లేదు.',
+        hi: 'इस डिवाइस पर वॉइस इनपुट समर्थित नहीं है।',
+        ta: 'இந்த சாதனத்தில் குரல் உள்ளீடு ஆதரிக்கப்படவில்லை.',
+        kn: 'ಈ ಸಾಧನದಲ್ಲಿ ಧ್ವನಿ ಇನ್‌ಪುಟ್ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ.',
+        ml: 'ഈ ഉപകരണത്തിൽ വോയ്സ് ഇൻപുട്ട് പിന്തുണയ്ക്കുന്നില്ല.',
+        mr: 'या डिव्हाइसवर व्हॉइस इनपुट समर्थित नाही.',
+        bn: 'এই ডিভাইসে ভয়েস ইনপুট সমর্থিত নয়।'
+      }
+      function voiceUnsupportedMsg() { return VOICE_UNSUPPORTED[langCode()] || VOICE_UNSUPPORTED.en }
+
       var LANGS = {
         en: {
           name: 'English',
@@ -483,6 +520,122 @@
             { id: 'doctor', label: 'மருத்துவர் தொடர்பு 🩺', reply: 'நிச்சயமாக, {name}. 🩺\n\n**அடுத்த படி:** உங்கள் வழக்கமான GP அல்லது கிளினிக்கை அழைக்கவும் — அறிகுறிகள், காலம், மருந்துகளின் பட்டியல். பல இடங்களில் வீடியோ அழைப்பு உள்ளது.\n\nஅவர்களுக்கு அனுப்ப ஒரு சிறு குறிப்பு வேண்டுமா?' },
             { id: 'sos', label: 'அவசர SOS 🚨', danger: true, reply: 'இது இப்போது அவசரமாக இருந்தால், {name}: உடனே **112** (அல்லது ஆம்புலன்ஸுக்கு **108**) அழைக்கவும் — காத்திருக்க வேண்டாம். 💛\n\nநீங்கள் முக்கியம், உதவி அருகில் உள்ளது.' }
           ]
+        },
+
+        kn: {
+          name: 'ಕನ್ನಡ',
+          ui: {
+            langLabel: 'ಭಾಷೆ',
+            title: 'AI ಸಹಾಯಕ — ನಿಮ್ಮ ಆರೋಗ್ಯ ಸಂಗಾತಿ',
+            status: 'ನಿಮಗಾಗಿ ಇಲ್ಲಿದ್ದೇನೆ',
+            placeholder: 'ಸಂದೇಶ ಟೈಪ್ ಮಾಡಿ…',
+            sendLabel: 'ಸಂದೇಶ ಕಳುಹಿಸಿ',
+            resetTitle: 'ಹೊಸ ಚಾಟ್ ಪ್ರಾರಂಭಿಸಿ',
+            namePrompt: 'ಪ್ರಾರಂಭಿಸುವ ಮೊದಲು — ನಿಮ್ಮನ್ನು ಏನೆಂದು ಕರೆಯಲಿ? 👋',
+            namePlaceholder: 'ನಿಮ್ಮ ಹೆಸರು',
+            save: 'ಉಳಿಸಿ',
+            welcome: 'ನಮಸ್ಕಾರ {name} 👋, ನಿಮ್ಮ ಆರೋಗ್ಯಕ್ಕೆ ನಾನು ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?',
+            welcomeSub: 'ನಾನು ನಿಮಗಾಗಿ ಇಲ್ಲಿದ್ದೇನೆ — ಕೆಳಗಿನ ತ್ವರಿತ ಉತ್ತರವನ್ನು ಆಯ್ಕೆಮಾಡಿ ಅಥವಾ ಪ್ರಶ್ನೆ ಟೈಪ್ ಮಾಡಿ.',
+            friend: 'ಸ್ನೇಹಿತ',
+            fineprint: 'ಸಾಮಾನ್ಯ ಮಾಹಿತಿ ಮಾತ್ರ — ವೈದ್ಯಕೀಯ ಸಲಹೆ ಅಲ್ಲ. ತುರ್ತು ಸಂದರ್ಭದಲ್ಲಿ 112 ಅಥವಾ 108 ಗೆ ಕರೆ ಮಾಡಿ.',
+            changeName: 'ಹೆಸರು ಬದಲಿಸಿ',
+            offline: 'ಸದ್ಯಕ್ಕೆ ನನ್ನ ಸೇವೆಯನ್ನು ತಲುಪಲಾಗಲಿಲ್ಲ. 💙\n\nಸರ್ವರ್ ಪ್ರಾರಂಭಿಸಿ (ai-health-assistant ನಲ್ಲಿ `npm start`) ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ — ಅಥವಾ ಮೇಲಿನ ತ್ವರಿತ ಉತ್ತರವನ್ನು ಬಳಸಿ.',
+            medsDone: '9 PM ಜ್ಞಾಪನೆ ಸೆಟ್ ಆಗಿದೆ ✓',
+            sosBanner: '🚨 ಇದು ತುರ್ತು ವೈದ್ಯಕೀಯ ಪರಿಸ್ಥಿತಿಯಾಗಿದ್ದರೆ, ಈಗಲೇ <b>112</b> (ಅಥವಾ ಭಾರತದಲ್ಲಿ ಆಂಬ್ಯುಲೆನ್ಸ್‌ಗಾಗಿ <b>108</b>) ಗೆ ಕರೆ ಮಾಡಿ — ಕಾಯಬೇಡಿ.'
+          },
+          replies: [
+            { id: 'meds', label: 'ಔಷಧ ಜ್ಞಾಪನೆ 💊', reply: 'ಚಿಂತೆ ಬೇಡ, **9 PM** ಗೆ ನೆನಪಿಸುತ್ತೇನೆ. 💙\n\nವೈದ್ಯರು ಹೇಳಿದಂತೆ ತೆಗೆದುಕೊಳ್ಳಿ, ತೆಗೆದುಕೊಂಡ ನಂತರ ಟಿಕ್ ಮಾಡಿ.\n\nಯಾವ ಔಷಧ, ಎಷ್ಟು ಪ್ರಮಾಣ? ನೋಟ್ ಮಾಡಿಕೊಳ್ಳುತ್ತೇನೆ.' },
+            { id: 'fitness', label: 'ಫಿಟ್‌ನೆಸ್ ಸಲಹೆಗಳು 🏃', reply: 'ನಿರಂತರತೆಯೇ ಗೆಲುವು, {name}! 🌿\n\n**ಒಂದರಿಂದ ಪ್ರಾರಂಭಿಸಿ:** ಊಟದ ನಂತರ 15 ನಿಮಿಷ ನಡಿಗೆ · ಪ್ರತಿ ಗಂಟೆಗೆ ಸ್ಟ್ರೆಚ್ · 4‑4‑6 ಉಸಿರಾಟ.' },
+            { id: 'doctor', label: 'ವೈದ್ಯರನ್ನು ಸಂಪರ್ಕಿಸಿ 🩺', reply: 'ಖಂಡಿತ, {name}. 🩺\n\n**ಮುಂದಿನ ಹೆಜ್ಜೆ:** ನಿಮ್ಮ ಸಾಮಾನ್ಯ GP ಅಥವಾ ಕ್ಲಿನಿಕ್‌ಗೆ ಕರೆ ಮಾಡಿ — ಲಕ್ಷಣಗಳು, ಎಷ್ಟು ದಿನ, ಔಷಧಗಳ ಪಟ್ಟಿ. ಅನೇಕ ಕಡೆ ವಿಡಿಯೋ ಕರೆ ಇರುತ್ತದೆ.\n\nಅವರಿಗೆ ಕಳುಹಿಸಲು ಒಂದು ಸಣ್ಣ ಟಿಪ್ಪಣಿ ಬೇಕೆ?' },
+            { id: 'sos', label: 'ತುರ್ತು SOS 🚨', danger: true, reply: 'ಇದು ಈಗಲೇ ತುರ್ತು ಆಗಿದ್ದರೆ, {name}: ತಕ್ಷಣ **112** (ಅಥವಾ ಆಂಬ್ಯುಲೆನ್ಸ್‌ಗೆ **108**) ಗೆ ಕರೆ ಮಾಡಿ — ಕಾಯಬೇಡಿ. 💛\n\nನೀವು ಮುಖ್ಯರು, ಸಹಾಯ ಹತ್ತಿರದಲ್ಲಿದೆ.' }
+          ]
+        },
+
+        ml: {
+          name: 'മലയാളം',
+          ui: {
+            langLabel: 'ഭാഷ',
+            title: 'AI അസിസ്റ്റന്റ് — നിങ്ങളുടെ ആരോഗ്യ സഹായി',
+            status: 'നിങ്ങൾക്കായി ഇവിടെയുണ്ട്',
+            placeholder: 'സന്ദേശം ടൈപ്പ് ചെയ്യുക…',
+            sendLabel: 'സന്ദേശം അയയ്ക്കുക',
+            resetTitle: 'പുതിയ ചാറ്റ് തുടങ്ങുക',
+            namePrompt: 'തുടങ്ങുന്നതിന് മുമ്പ് — നിങ്ങളെ എന്ത് വിളിക്കണം? 👋',
+            namePlaceholder: 'നിങ്ങളുടെ പേര്',
+            save: 'സേവ് ചെയ്യുക',
+            welcome: 'നമസ്കാരം {name} 👋, നിങ്ങളുടെ ആരോഗ്യത്തിന് ഞാൻ എങ്ങനെ സഹായിക്കാം?',
+            welcomeSub: 'ഞാൻ നിങ്ങൾക്കായി ഇവിടെയുണ്ട് — താഴെ ഒരു വേഗ ഉത്തരം തിരഞ്ഞെടുക്കുക അല്ലെങ്കിൽ ചോദ്യം ടൈപ്പ് ചെയ്യുക.',
+            friend: 'സുഹൃത്തേ',
+            fineprint: 'പൊതുവിവരം മാത്രം — വൈദ്യോപദേശമല്ല. അടിയന്തരഘട്ടത്തിൽ 112 അല്ലെങ്കിൽ 108 വിളിക്കുക.',
+            changeName: 'പേര് മാറ്റുക',
+            offline: 'ഇപ്പോൾ എന്റെ സേവനത്തിലേക്ക് എത്താൻ കഴിഞ്ഞില്ല. 💙\n\nസർവർ ആരംഭിച്ച് (ai-health-assistant ൽ `npm start`) വീണ്ടും ശ്രമിക്കുക — അല്ലെങ്കിൽ മുകളിലെ വേഗ ഉത്തരം ഉപയോഗിക്കുക.',
+            medsDone: '9 PM ഓർമ്മപ്പെടുത്തൽ സെറ്റ് ചെയ്തു ✓',
+            sosBanner: '🚨 ഇത് അടിയന്തര വൈദ്യസ്ഥിതിയാണെങ്കിൽ, ഇപ്പോൾ തന്നെ <b>112</b> (അല്ലെങ്കിൽ ഇന്ത്യയിൽ ആംബുലൻസിനായി <b>108</b>) വിളിക്കുക — കാത്തിരിക്കരുത്.'
+          },
+          replies: [
+            { id: 'meds', label: 'മരുന്ന് ഓർമ്മപ്പെടുത്തൽ 💊', reply: 'വിഷമിക്കേണ്ട, **9 PM** ന് ഞാൻ ഓർമ്മിപ്പിക്കാം. 💙\n\nഡോക്ടർ പറഞ്ഞതുപോലെ കഴിക്കുക, കഴിച്ച ശേഷം ടിക്ക് ചെയ്യുക.\n\nഏത് മരുന്ന്, എത്ര അളവ്? ഞാൻ കുറിച്ചുവെക്കാം.' },
+            { id: 'fitness', label: 'ഫിറ്റ്നസ് നിർദ്ദേശങ്ങൾ 🏃', reply: 'സ്ഥിരതയാണ് വിജയം, {name}! 🌿\n\n**ഒന്നിൽ തുടങ്ങുക:** ഭക്ഷണത്തിന് ശേഷം 15 മിനിറ്റ് നടത്തം · ഓരോ മണിക്കൂറും സ്ട്രെച്ച് · 4‑4‑6 ശ്വാസവ്യായാമം.' },
+            { id: 'doctor', label: 'ഡോക്ടറെ ബന്ധപ്പെടുക 🩺', reply: 'തീർച്ചയായും, {name}. 🩺\n\n**അടുത്ത ചുവട്:** നിങ്ങളുടെ സ്ഥിരം GP അല്ലെങ്കിൽ ക്ലിനിക്കിനെ വിളിക്കുക — ലക്ഷണങ്ങൾ, ദൈർഘ്യം, മരുന്നുകളുടെ പട്ടിക. പലയിടത്തും വീഡിയോ കോൾ ലഭ്യമാണ്.\n\nഅവർക്ക് അയയ്ക്കാൻ ഒരു ചെറിയ കുറിപ്പ് വേണോ?' },
+            { id: 'sos', label: 'അടിയന്തര SOS 🚨', danger: true, reply: 'ഇത് ഇപ്പോൾ അടിയന്തരമാണെങ്കിൽ, {name}: ഉടൻ **112** (അല്ലെങ്കിൽ ആംബുലൻസിനായി **108**) വിളിക്കുക — കാത്തിരിക്കരുത്. 💛\n\nനിങ്ങൾ പ്രധാനമാണ്, സഹായം അരികിലുണ്ട്.' }
+          ]
+        },
+
+        mr: {
+          name: 'मराठी',
+          ui: {
+            langLabel: 'भाषा',
+            title: 'AI सहाय्यक — तुमचा आरोग्य साथीदार',
+            status: 'तुमच्यासाठी येथे आहे',
+            placeholder: 'संदेश टाइप करा…',
+            sendLabel: 'संदेश पाठवा',
+            resetTitle: 'नवीन चॅट सुरू करा',
+            namePrompt: 'सुरू करण्यापूर्वी — मी तुम्हाला काय म्हणू? 👋',
+            namePlaceholder: 'तुमचे नाव',
+            save: 'जतन करा',
+            welcome: 'नमस्कार {name} 👋, तुमच्या आरोग्यासाठी मी कशी मदत करू?',
+            welcomeSub: 'मी तुमच्यासाठी येथे आहे — खालील त्वरित उत्तर निवडा किंवा प्रश्न टाइप करा.',
+            friend: 'मित्रा',
+            fineprint: 'फक्त सामान्य माहिती — वैद्यकीय सल्ला नाही. आपत्कालीन स्थितीत 112 किंवा 108 वर कॉल करा.',
+            changeName: 'नाव बदला',
+            offline: 'सध्या माझ्या सेवेपर्यंत पोहोचता आले नाही. 💙\n\nसर्व्हर सुरू करा (ai-health-assistant मध्ये `npm start`) आणि पुन्हा प्रयत्न करा — किंवा वरील त्वरित उत्तर वापरा.',
+            medsDone: '9 PM स्मरणपत्र सेट केले ✓',
+            sosBanner: '🚨 ही आपत्कालीन वैद्यकीय स्थिती असू शकत असल्यास, आत्ताच <b>112</b> (किंवा भारतात रुग्णवाहिकेसाठी <b>108</b>) वर कॉल करा — थांबू नका.'
+          },
+          replies: [
+            { id: 'meds', label: 'औषध स्मरणपत्र 💊', reply: 'काळजी करू नका, मी **9 PM** ला आठवण करून देईन. 💙\n\nडॉक्टरांनी सांगितल्याप्रमाणे घ्या, घेतल्यानंतर टिक करा.\n\nकोणते औषध, किती मात्रा? मी नोंद करतो.' },
+            { id: 'fitness', label: 'फिटनेस टिप्स 🏃', reply: 'सातत्य हीच खरी जिंक, {name}! 🌿\n\n**एकापासून सुरुवात करा:** जेवणानंतर 15 मिनिटे चालणे · दर तासाला स्ट्रेच · 4‑4‑6 श्वास व्यायाम.' },
+            { id: 'doctor', label: 'डॉक्टरांशी संपर्क 🩺', reply: 'नक्कीच, {name}. 🩺\n\n**पुढील पाऊल:** तुमच्या नियमित GP किंवा क्लिनिकला कॉल करा — लक्षणे, कालावधी आणि औषधांची यादी सांगा. अनेक ठिकाणी व्हिडिओ कॉल उपलब्ध आहे.\n\nत्यांना पाठवण्यासाठी एक छोटी नोंद हवी?' },
+            { id: 'sos', label: 'आपत्कालीन SOS 🚨', danger: true, reply: 'हे आत्ताच आपत्कालीन असेल, तर {name}: लगेच **112** (किंवा रुग्णवाहिकेसाठी **108**) वर कॉल करा — थांबू नका. 💛\n\nतुम्ही महत्त्वाचे आहात, मदत जवळ आहे.' }
+          ]
+        },
+
+        bn: {
+          name: 'বাংলা',
+          ui: {
+            langLabel: 'ভাষা',
+            title: 'AI সহকারী — আপনার স্বাস্থ্য সঙ্গী',
+            status: 'আপনার জন্য এখানে আছি',
+            placeholder: 'বার্তা লিখুন…',
+            sendLabel: 'বার্তা পাঠান',
+            resetTitle: 'নতুন চ্যাট শুরু করুন',
+            namePrompt: 'শুরু করার আগে — আপনাকে কী নামে ডাকব? 👋',
+            namePlaceholder: 'আপনার নাম',
+            save: 'সংরক্ষণ করুন',
+            welcome: 'নমস্কার {name} 👋, আপনার স্বাস্থ্যে আমি কীভাবে সাহায্য করতে পারি?',
+            welcomeSub: 'আমি আপনার জন্য এখানে আছি — নিচে একটি দ্রুত উত্তর বেছে নিন বা প্রশ্ন লিখুন।',
+            friend: 'বন্ধু',
+            fineprint: 'শুধুমাত্র সাধারণ তথ্য — চিকিৎসা পরামর্শ নয়। জরুরি অবস্থায় 112 বা 108 নম্বরে কল করুন।',
+            changeName: 'নাম পরিবর্তন করুন',
+            offline: 'এখন আমার সেবায় পৌঁছাতে পারিনি। 💙\n\nসার্ভার চালু করুন (ai-health-assistant-এ `npm start`) এবং আবার চেষ্টা করুন — অথবা উপরের দ্রুত উত্তর ব্যবহার করুন।',
+            medsDone: '9 PM রিমাইন্ডার সেট হয়েছে ✓',
+            sosBanner: '🚨 এটি জরুরি চিকিৎসা পরিস্থিতি হলে, এখনই <b>112</b> (বা ভারতে অ্যাম্বুলেন্সের জন্য <b>108</b>) নম্বরে কল করুন — দেরি করবেন না।'
+          },
+          replies: [
+            { id: 'meds', label: 'ওষুধ রিমাইন্ডার 💊', reply: 'চিন্তা করবেন না, আমি **9 PM**-এ মনে করিয়ে দেব। 💙\n\nডাক্তার যেমন বলেছেন তেমনভাবে নিন, নেওয়ার পরে টিক করুন.\n\nকোন ওষুধ, কতটা মাত্রা? আমি নোট করে নিচ্ছি.' },
+            { id: 'fitness', label: 'ফিটনেস টিপস 🏃', reply: 'নিয়মিততাই আসল জয়, {name}! 🌿\n\n**একটি দিয়ে শুরু করুন:** খাবারের পরে ১৫ মিনিট হাঁটা · প্রতি ঘণ্টায় স্ট্রেচ · 4‑4‑6 শ্বাস-প্রশ্বাস ব্যায়াম.' },
+            { id: 'doctor', label: 'ডাক্তারের সাথে যোগাযোগ 🩺', reply: 'অবশ্যই, {name}. 🩺\n\n**পরের ধাপ:** আপনার নিয়মিত GP বা ক্লিনিকে কল করুন — লক্ষণ, সময়কাল ও ওষুধের তালিকা জানান. অনেক জায়গায় ভিডিও কল আছে.\n\nতাদের পাঠানোর জন্য একটি ছোট নোট চান?' },
+            { id: 'sos', label: 'জরুরি SOS 🚨', danger: true, reply: 'এটি যদি এখনই জরুরি হয়, {name}: সঙ্গে সঙ্গে **112** (বা অ্যাম্বুলেন্সের জন্য **108**) নম্বরে কল করুন — দেরি করবেন না. 💛\n\nআপনি গুরুত্বপূর্ণ, সাহায্য কাছেই আছে.' }
+          ]
         }
       }
 
@@ -494,6 +647,33 @@
         var value = ''
         try { value = (localStorage.getItem(LANG_KEY) || '').trim() } catch (err) {}
         return LANGS[value] ? value : 'en'
+      }
+
+      // Auto language detection: looks at the script the user typed in and
+      // replies in that same language, even if the picker is set to another
+      // one. Plain Latin text returns '' so the chosen language is used
+      // (so a Telugu user typing romanised/English still hears Telugu).
+      var SCRIPT_LANGS = [
+        [/[\u0C00-\u0C7F]/, 'te'], // Telugu
+        [/[\u0C80-\u0CFF]/, 'kn'], // Kannada
+        [/[\u0B80-\u0BFF]/, 'ta'], // Tamil
+        [/[\u0D00-\u0D7F]/, 'ml'], // Malayalam
+        [/[\u0980-\u09FF]/, 'bn'], // Bengali
+        [/[\u0900-\u097F]/, 'hi']  // Devanagari (Hindi / Marathi)
+      ]
+      // Devanagari is shared with Marathi; these words tip the answer to Marathi.
+      var MARATHI_HINTS = /(आहे|नाही|काय|मला|तुम्ही|आम्ही|डॉक्टरांना|आणि|पण)/
+
+      function detectLang(text) {
+        var value = String(text == null ? '' : text)
+        for (var i = 0; i < SCRIPT_LANGS.length; i++) {
+          if (SCRIPT_LANGS[i][0].test(value)) {
+            var code = SCRIPT_LANGS[i][1]
+            if (code === 'hi' && MARATHI_HINTS.test(value)) return 'mr'
+            return code
+          }
+        }
+        return ''
       }
 
       function ui(code) {
@@ -554,22 +734,68 @@
         updateTts()
       })
 
+      function nativeTts() {
+        var cap = window.Capacitor
+        if (!cap || typeof cap.isNativePlatform !== 'function' || !cap.isNativePlatform()) return null
+        return (cap.Plugins && cap.Plugins.MediCareTts) || null
+      }
+
       function stopSpeaking() {
         try { if (window.speechSynthesis) window.speechSynthesis.cancel() } catch (err) {}
+        var plugin = nativeTts()
+        if (plugin && typeof plugin.stop === 'function') { try { plugin.stop() } catch (err) {} }
         speaking = false
       }
 
-      function speak(text) {
+      // Speaks `text` in the language the user is chatting in (multi-language).
+      // On the installed Android app we use the native TextToSpeech engine
+      // (MediCareTts) which supports Telugu, Hindi, Tamil, Kannada, Malayalam,
+      // Marathi, Bengali; in a desktop browser we use the Web Speech API.
+      // `englishText` (optional) is the same reply in English, read only when
+      // the device has a voice list that clearly lacks the target language.
+      function speak(text, englishText, code) {
         if (!ttsEnabled) return
+        var clean = function (s) { return String(s).replace(/<[^>]+>/g, ' ').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1').replace(/\s+/g, ' ').trim() }
+        var target = code || langCode()
+        var spoken = clean(text)
+        var english = englishText ? clean(englishText) : ''
+        if (!spoken) return
+
+        stopSpeaking()
+
+        // Preferred path inside the Android app: the platform engine.
+        var plugin = nativeTts()
+        if (plugin && typeof plugin.speak === 'function') {
+          try {
+            speaking = true
+            plugin.speak({ text: spoken, lang: speechLocale(target), fallback: english })
+              .catch(function () { speaking = false })
+          } catch (err) { speaking = false }
+          return
+        }
+
         try {
           if (!window.speechSynthesis) return
-          stopSpeaking()
-          var utter = new window.SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim())
-          var voices = window.speechSynthesis.getVoices()
-          var lang = langCode()
-          var map = { en: 'en-US', te: 'te-IN', hi: 'hi-IN', ta: 'ta-IN' }
-          var vname = map[lang] || 'en-US'
-          var voice = voices.find(function (v) { return v.lang === vname || v.lang.startsWith(vname.slice(0,2)) }) || voices[0]
+          var voices = window.speechSynthesis.getVoices() || []
+          var vname = speechLocale(target)
+          var prefix = vname.slice(0, 2).toLowerCase()
+          // Prefer an exact locale voice, then any voice of the same language.
+          var voice = voices.find(function (v) { return (v.lang || '').toLowerCase() === vname.toLowerCase() })
+            || voices.find(function (v) { return (v.lang || '').toLowerCase().indexOf(prefix) === 0 })
+
+          // Only fall back to English when we actually have a voice list and it
+          // has no voice for this language. With an empty list (some WebViews
+          // report none) we keep the native text and let the platform choose a
+          // voice from utter.lang, so Telugu/Hindi are still spoken properly.
+          if (!voice && voices.length > 0 && prefix !== 'en' && english) {
+            spoken = english
+            vname = speechLocale('en')
+            voice = voices.find(function (v) { return !!v.default })
+              || voices.find(function (v) { return (v.lang || '').toLowerCase().indexOf('en') === 0 })
+              || voices[0] || null
+          }
+
+          var utter = new window.SpeechSynthesisUtterance(spoken)
           if (voice) utter.voice = voice
           utter.lang = vname
           utter.rate = 0.98
@@ -579,6 +805,15 @@
           window.speechSynthesis.speak(utter)
         } catch (err) {}
       }
+
+      // Voices load asynchronously on some devices; call once so the list is
+      // ready by the time the user chats.
+      try {
+        if (window.speechSynthesis) {
+          window.speechSynthesis.getVoices()
+          window.speechSynthesis.onvoiceschanged = function () { window.speechSynthesis.getVoices() }
+        }
+      } catch (err) {}
 
       /* ── Helpers ───────────────────────────────────────────────────── */
       function esc(value) {
@@ -656,7 +891,6 @@
         thread.appendChild(row)
         thread.scrollTop = thread.scrollHeight
         if (opts.emergency) sosFlag.classList.add('show')
-        speak(text)
         return row
       }
 
@@ -719,16 +953,58 @@
 
         var isEmergency = reply.id === 'sos' || EMERGENCY_PATTERN.test(reply.label)
         var replyText = personalize(reply.reply)
+        var enReply = LANGS.en.replies.find(function (r) { return r.id === reply.id })
         setTyping(false)
         addAssistant(replyText, { emergency: isEmergency })
         history.push({ role: 'user', content: reply.label })
         history.push({ role: 'assistant', content: replyText })
-        speak(replyText)
+        speak(replyText, personalize((enReply && enReply.reply) || replyText))
         busy = false
         input.focus()
       }
 
-      /* ── Typed questions (sent to the assistant server) ────────────── */
+      /* ── Typed questions ───────────────────────────────────────────── */
+      // Answers come from the built-in rule engine (js/caremate-chat.js), so
+      // typed chat works on the deployed site, offline (PWA) and in the
+      // Android app — no server, no API key, no cost. Setting
+      // window.PULSE_ASSISTANT_ENDPOINT switches to a server instead, with the
+      // local rules kept as the safety net.
+      function localAnswer(text, code) {
+        var engine = window.MediCareChat
+        if (!engine || typeof engine.respond !== 'function') return null
+        try {
+          var res = engine.respond(text, code || langCode())
+          if (res && typeof res.content === 'string' && res.content.trim()) {
+            return { content: res.content.trim(), contentEn: res.contentEn, link: res.link }
+          }
+        } catch (err) { /* fall through to the network */ }
+        return null
+      }
+
+      async function askAssistant(text, prior, code) {
+        if (!window.PULSE_ASSISTANT_ENDPOINT) {
+          var quick = localAnswer(text, code)
+          if (quick) return quick
+        }
+        try {
+          var response = await fetch(ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, history: prior }),
+            signal: withTimeout(REQUEST_TIMEOUT_MS)
+          })
+          if (!response.ok) throw new Error('Request failed with status ' + response.status)
+          var payload = await response.json()
+          var content = payload && typeof payload.content === 'string' ? payload.content.trim() : ''
+          if (!content) throw new Error('Empty answer')
+          return { content: content, contentEn: content, link: payload.link }
+        } catch (error) {
+          var fallback = localAnswer(text, code)
+          if (fallback) return fallback
+          throw error
+        }
+      }
+
       async function sendTyped(rawText) {
         var text = (rawText || '').trim()
         if (!text || busy) return
@@ -743,27 +1019,26 @@
         var prior = history.slice(-MAX_HISTORY)
         history.push({ role: 'user', content: text })
 
-        try {
-          var response = await fetch(ENDPOINT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, history: prior }),
-            signal: withTimeout(REQUEST_TIMEOUT_MS)
-          })
-          if (!response.ok) throw new Error('Request failed with status ' + response.status)
-          var data = await response.json()
-          var content = data && typeof data.content === 'string' ? data.content.trim() : ''
-          if (!content) throw new Error('Empty answer')
+        // Reply in the language the user actually typed in (auto-detect);
+        // fall back to the picker for Latin / romanised text. Remember it so
+        // the mic listens in the same language on the next voice input.
+        var detected = detectLang(text)
+        if (detected) lastVoiceLang = detected
+        var replyLang = detected || langCode()
 
+        try {
+          var answer = await askAssistant(text, prior, replyLang)
+
+          var urgent = isEmergency || (answer.link && answer.link.url === 'emergency-contacts.html')
           setTyping(false)
-          addAssistant(content, { emergency: isEmergency, link: data.link })
-          history.push({ role: 'assistant', content: content })
-          speak(content)
+          addAssistant(answer.content, { emergency: urgent, link: answer.link })
+          history.push({ role: 'assistant', content: answer.content })
+          speak(answer.content, answer.contentEn, replyLang)
         } catch (error) {
           setTyping(false)
           var off = t('offline')
           addAssistant(off, { emergency: false })
-          speak(off)
+          speak(off, LANGS.en.ui.offline)
         } finally {
           busy = false
           sendBtn.disabled = true
@@ -780,7 +1055,7 @@
         if (name) {
           var w = personalize(t('welcome') + '\n\n' + t('welcomeSub'))
           addAssistant(w, { emergency: false })
-          speak(w)
+          speak(w, personalize(LANGS.en.ui.welcome + '\n\n' + LANGS.en.ui.welcomeSub))
         } else {
           askForName()
         }
@@ -857,6 +1132,7 @@
         var code = langCode()
         var ui = LANGS[code].ui
         document.title = ui.title
+        document.documentElement.lang = code
         if (statusText) statusText.textContent = ui.status
         input.placeholder = ui.placeholder
         input.setAttribute('aria-label', ui.placeholder)
@@ -900,42 +1176,81 @@
         sendBtn.disabled = busy || !input.value.trim()
       })
       resetBtn.addEventListener('click', reset)
-      if (micBtn) micBtn.addEventListener('click', function () {
-        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-          alert('Voice input is not supported in this browser')
-          return
+      /* ── Voice input (mic) ─────────────────────────────────────────── */
+      // Inside the installed Android app the WebView has no SpeechRecognition,
+      // so we use the native MediCareSpeech plugin (Android SpeechRecognizer).
+      // In a desktop browser we fall back to the Web Speech API.
+      function nativeSpeech() {
+        var cap = window.Capacitor
+        if (!cap || typeof cap.isNativePlatform !== 'function' || !cap.isNativePlatform()) return null
+        return (cap.Plugins && cap.Plugins.MediCareSpeech) || null
+      }
+
+      var listening = false
+      // Language of the last message we auto-detected; the mic prefers it so
+      // voice input matches how the user has been chatting.
+      var lastVoiceLang = ''
+
+      function setListening(on) {
+        listening = on
+        if (micBtn) {
+          micBtn.classList.toggle('listening', on)
+          micBtn.setAttribute('aria-pressed', on ? 'true' : 'false')
         }
-        stopSpeaking()
-        var SR = window.SpeechRecognition || window.webkitSpeechRecognition
-        if (recognition) {
-          try { recognition.stop() } catch (err) {}
-          recognition = null
-          micBtn.classList.remove('listening')
-          return
+      }
+
+      function finishVoice(text) {
+        setListening(false)
+        var value = (text || '').trim()
+        if (value) {
+          input.value = value
+          sendTyped(value)
         }
+      }
+
+      function startWebVoice(SR) {
         recognition = new SR()
-        recognition.lang = (function (code) { return ({ en: 'en-US', te: 'te-IN', hi: 'hi-IN', ta: 'ta-IN' })[code] || 'en-US' })(langCode())
+        recognition.lang = speechLocale(lastVoiceLang || langCode())
         recognition.interimResults = false
         recognition.maxAlternatives = 1
-        micBtn.classList.add('listening')
+        setListening(true)
         recognition.onresult = function (e) {
           var txt = e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript
-          micBtn.classList.remove('listening')
           recognition = null
-          if (txt) {
-            input.value = txt
-            sendTyped(txt)
-          }
+          finishVoice(txt)
         }
-        recognition.onerror = function () {
-          micBtn.classList.remove('listening')
-          recognition = null
+        recognition.onerror = function () { recognition = null; setListening(false) }
+        recognition.onend = function () { recognition = null; setListening(false) }
+        try { recognition.start() } catch (err) { recognition = null; setListening(false) }
+      }
+
+      function startNativeVoice(plugin) {
+        setListening(true)
+        plugin.available().then(function (res) {
+          if (!res || res.available === false) { setListening(false); alert(voiceUnsupportedMsg()); return null }
+          return plugin.start({ lang: speechLocale(lastVoiceLang || langCode()) })
+        }).then(function (res) {
+          if (res === null) return
+          finishVoice(res && res.text)
+        }).catch(function () {
+          setListening(false)
+        })
+      }
+
+      if (micBtn) micBtn.addEventListener('click', function () {
+        stopSpeaking()
+        if (listening) {
+          var active = nativeSpeech()
+          if (active) { try { active.stop() } catch (err) {} }
+          if (recognition) { try { recognition.stop() } catch (err) {} ; recognition = null }
+          setListening(false)
+          return
         }
-        recognition.onend = function () {
-          micBtn.classList.remove('listening')
-          recognition = null
-        }
-        try { recognition.start() } catch (err) {}
+        var plugin = nativeSpeech()
+        if (plugin) { startNativeVoice(plugin); return }
+        var SR = window.SpeechRecognition || window.webkitSpeechRecognition
+        if (!SR) { alert(voiceUnsupportedMsg()); return }
+        startWebVoice(SR)
       })
       langSelect.addEventListener('change', function () {
         try { localStorage.setItem(LANG_KEY, langSelect.value) } catch (err) {}

@@ -133,7 +133,9 @@ the penalty.
 - **Appointments** — scheduled visits.
 - **Nearby hospitals** — location-based hospital list.
 - **Fitness & wellness** — fitness hub, details, plan, reminders, diet plan.
-- **AI health companion** (`caremate.html`) — rule-based chat + wellness hub.
+- **AI health companion** (`caremate.html`) — rule-based chat + wellness hub; understands and
+  replies in English, Telugu, Hindi, Tamil, Kannada, Malayalam, Marathi and Bengali, with voice
+  input and spoken replies in the same eight languages.
 - **Connected monitoring** (`monitor.html`) — Bluetooth/manual vitals with a safety-rules engine
   and AI explanation (see §12).
 - **Emergency contacts** — trusted contacts, relative alerts.
@@ -310,7 +312,7 @@ dies:
    phase. If it never fires, a manual confirm button appears after
    `MANUAL_CONFIRM_AFTER_SECONDS` (40 s).
 
-The verification window can only be *shortened* via `?window=90` (used by "Test Reminder Now"),
+The verification window can only be *shortened* via `?window=90` (used by the demo/test path),
 never extended beyond `DEMO_CONFIG.VERIFY_WINDOW_SECONDS`.
 
 Result metadata saved on the dose: `verifiedVia` = `medicine-match` | `medicine-detected` |

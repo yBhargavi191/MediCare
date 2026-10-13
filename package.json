@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build:web": "powershell -ExecutionPolicy Bypass -File scripts/build-web.ps1",
+    "sync:android": "powershell -ExecutionPolicy Bypass -File scripts/sync-android-assets.ps1",
     "firebase:deploy": "npm run build:web && npx firebase-tools deploy",
     "android:sync": "npx cap sync android",
     "android:open": "npx cap open android"

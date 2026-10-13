@@ -9,10 +9,10 @@
   <link rel="stylesheet" href="css/fitness-pages.css">
   <style>
     body{visibility:hidden}.settings-list{display:grid;gap:12px}.settings-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;border:1px solid var(--border);border-radius:14px;background:#fff}
-    .settings-item-copy{min-width:0}.settings-item-copy strong{display:block;color:var(--primary-dark)}.settings-item-copy p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .settings-item-copy{min-width:0;flex:1 1 auto}.settings-item-copy strong{display:block;color:var(--primary-dark)}.settings-item-copy p{margin:4px 0 0;color:var(--muted);font-size:13px}
     .settings-icon{display:grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border-radius:13px;background:#eaf5f5;font-size:20px}.settings-item .icon-btn{flex:0 0 auto;text-decoration:none}.settings-status{margin-top:16px;padding:14px;border-radius:12px;background:#f5f9ff;color:var(--muted);font-size:13px}
     .permission-card{margin-bottom:14px;padding:16px;border:1px solid var(--border);border-radius:14px;background:#fbfdff}.permission-head{display:flex;align-items:center;justify-content:space-between;gap:14px}.permission-head strong{color:var(--primary-dark)}.permission-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.permission-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.permission-actions button{width:auto;min-height:42px;padding:9px 12px}.permission-status{margin:12px 0 0;color:var(--muted);font-size:13px;line-height:1.5}.switch{position:relative;display:inline-block;width:50px;height:30px;flex:0 0 auto}.switch input{position:absolute;opacity:0;width:1px;height:1px}.switch-slider{position:absolute;inset:0;border-radius:999px;background:#cbd5db;cursor:pointer;transition:.2s}.switch-slider:before{position:absolute;content:"";width:24px;height:24px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0004;transition:.2s}.switch input:checked+.switch-slider{background:var(--primary)}.switch input:checked+.switch-slider:before{transform:translateX(20px)}.switch input:disabled+.switch-slider{opacity:.5;cursor:not-allowed}
-    @media(max-width:480px){.settings-item{align-items:flex-start;flex-wrap:wrap}.settings-item .icon-btn{margin-left:56px}}
+    @media(max-width:480px){.settings-item{align-items:flex-start;flex-wrap:wrap}.settings-item>.icon-btn,.settings-item>.switch,.settings-item>.language-switcher{margin-left:56px}}
   </style>
 </head>
 <body>
@@ -41,9 +41,7 @@
         <div class="permission-head"><div><strong>Medication notifications</strong><p>Allow MediCare to notify you when a dose is due.</p></div><label class="switch"><input type="checkbox" id="enableNotificationsBtn" onchange="enableMedicationAlerts()"><span class="switch-slider"></span></label></div>
         <p id="notificationStatus" class="permission-status" aria-live="polite">Checking notification permission…</p>
         <button id="enableUrgentAlertsBtn" class="icon-btn" type="button" style="display:none;margin-top:10px;" onclick="enableUrgentAndroidAlerts()">Enable alarm access</button>
-      </div>
-      <div class="permission-card"><div class="permission-head"><div><strong>Test and troubleshoot alarm</strong><p>Check alarm sound, background operation, and Android permissions.</p></div><span class="settings-icon" aria-hidden="true">⏰</span></div>
-        <div class="permission-actions"><button id="testAlarmBtn" class="icon-btn" type="button" onclick="testAlarmSound()">Test alarm sound</button><button id="testScheduleBtn" class="icon-btn" type="button" onclick="testScheduledAlarm()">Test closed-app alarm</button><button id="batteryBtn" class="icon-btn" type="button" onclick="requestBatteryExemption()">Allow background</button><button id="alarmDiagnosticsBtn" class="icon-btn" type="button" onclick="showAlarmDiagnostics()">Alarm help</button></div>
+        <button id="batteryBtn" class="icon-btn" type="button" style="display:none;margin-top:10px;" onclick="requestBatteryExemption()">Allow background</button>
       </div>
     </section>
     <section class="card"><div class="settings-list">

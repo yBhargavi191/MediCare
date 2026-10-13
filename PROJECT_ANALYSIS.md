@@ -153,7 +153,7 @@ Three complementary detectors, each with a graceful fallback so a live demo neve
    phase; if it never fires, a manual confirm button appears after
    `MANUAL_CONFIRM_AFTER_SECONDS` (40 s).
 
-The verification window can only be *shortened* via `?window=90` (used by "Test Reminder Now"),
+The verification window can only be *shortened* via `?window=90` (used by the demo/test path),
 never extended beyond `DEMO_CONFIG.VERIFY_WINDOW_SECONDS`.
 
 Result metadata saved on the dose: `verifiedVia` = `medicine-match` | `medicine-detected` |
@@ -229,6 +229,23 @@ doses, medicines, fitness, diet, hydration, sleep, stress, fever, cough, headach
 pressure, diabetes, appointments, pain, and small talk, each optionally deep-linking to the
 relevant in-app page. `dev-server.mjs` serves the site + `/api/chat` on one local port.
 
+The chat UI is **multilingual** — English, Telugu, Hindi, Tamil, Kannada, Malayalam, Marathi and
+Bengali — covering the interface, the scripted quick replies, the emergency banner **and the
+answers themselves**. `js/caremate-chat.js` matches keywords in all eight scripts and returns the
+reply in the language the user selected (`respond(text, lang)`); it also returns the English
+wording as `contentEn`. Each language carries a BCP-47 locale shared by both voice features:
+**voice input** (the mic button) and **voice output** (spoken replies via `speechSynthesis`).
+When the device has no text-to-speech voice for the selected language, the page speaks the
+English `contentEn` wording instead of staying silent, so the assistant always talks back. In a
+desktop browser the mic uses the Web Speech API; the installed Android app's WebView has no
+`SpeechRecognition`, so a small native plugin (`SpeechRecognitionPlugin`, JS name
+`MediCareSpeech`) drives the platform `SpeechRecognizer` instead. The manifest therefore declares
+`RECORD_AUDIO` and the Android 11 `android.speech.RecognitionService` `<queries>` entry.
+
+> Note: `vercel-api/api/chat.js` is the (unused-by-default) server copy of the same rule set. The
+> app runs the in-page engine, so `window.PULSE_ASSISTANT_ENDPOINT` is left unset and the relay is
+> not required.
+
 ---
 
 ## 11. Source-file inventory (application JS, excluding `node_modules`/vendor)
@@ -240,6 +257,7 @@ relevant in-app page. `dev-server.mjs` serves the site + `/api/chat` on one loca
 | `js/admin.js` | 427 | Aggregate stats, patient list/detail, add/remove medicines, statistics |
 | `js/i18n.js` | 408 | Multi-language strings |
 | `js/patient-details.js` | 382 | Admin per-patient management |
+| `js/caremate-chat.js` | 382 | Rule-based chat engine: 8-language matching + localized replies |
 | `js/app-shell.js` | 375 | Sidebar/topbar shell, global search, notification bell, theme |
 | `js/fitness-assistant.js` | 279 | Wellness plan generation |
 | `js/admin-pages.js` | 243 | Alerts/reports/settings pages |

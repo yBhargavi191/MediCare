@@ -121,7 +121,7 @@ alert cannot be missed.
 ## 6. Demo Walkthrough (Judge-Ready)
 
 1. **Login as Bhargavi (patient)** → today's medicines with AM/PM times visible.
-2. **Tap "Test Reminder Now"** → a 90-second verification window starts.
+2. **Add a medicine due a minute from now** → the alarm fires automatically and the verification window starts.
 3. **Show the medicine** → confidence bars confirm `Tablets` recognised.
 4. **Take it** → hand-to-mouth motion detected; confirm medicine gone.
 5. Adherence %, verified count and wallet all update live.
