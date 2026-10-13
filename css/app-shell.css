@@ -1,0 +1,282 @@
+body.app-shell-body { display: block; min-height: 100vh; padding: 0; background: var(--bg); }
+:root[data-theme="dark"] body.app-shell-body { background: var(--bg); }
+.app-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 35; display: flex; flex-direction: column; gap: 14px; width: 280px; padding: 82px 16px 16px; overflow: hidden; border-right: 1px solid var(--border); background: #ffffff; box-shadow: 10px 0 32px rgba(31, 45, 76,.045); }
+.app-sidebar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 1px 6px 8px; }
+.app-sidebar-mark { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 auto; border-radius: 14px; color: #fff; background:var(--primary-dark); box-shadow: 0 7px 15px rgba(37,99,235,.22); font-size: 22px; font-weight: 900; }
+.app-sidebar-logo { display: grid; place-items: center; width: 56px; height: 56px; flex: 0 0 auto; border-radius: 14px; overflow: hidden; box-shadow: 0 7px 15px rgba(37,99,235,.16); }
+.app-sidebar-logo .app-logo-svg { display: block; width: 56px; height: 56px; }
+.app-sidebar-logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.app-breadcrumb-logo { display: grid; place-items: center; width: 22px; height: 22px; flex: 0 0 auto; border-radius: 5px; overflow: hidden; box-shadow: 0 2px 6px rgba(37,99,235,.24); }
+.app-breadcrumb-logo .app-logo-svg { display: block; width: 22px; height: 22px; }
+.app-sidebar-brand-copy { display: grid; min-width: 0; }
+.app-sidebar-brand-copy strong { color: #0c286f; font-size: 19px; line-height: 1.15; letter-spacing: -.03em; }
+.app-sidebar-brand-copy span { margin-top: 4px; color: #7290b7; font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+.app-sidebar-context { padding: 13px; border: 1px solid var(--border); border-radius: 13px; background: var(--primary-soft); }
+.app-sidebar-context strong { display: flex; align-items: center; gap: 7px; color: #3b82f6; font-size: 13px; }
+.app-sidebar-context p { margin: 6px 0 0; color: #64708b; font-size: 12px; line-height: 1.45; }
+.app-sidebar-nav { display: grid; align-content: start; gap: 5px; flex: 1 1 auto; min-height: 0; padding: 2px 0; overflow-y: auto; overscroll-behavior: contain; }
+.app-sidebar-section-label { display: flex; align-items: center; gap: 10px; margin: 17px 12px 5px; color: #6c8fc7; font-size: 10px; font-weight: 800; letter-spacing: .11em; }
+.app-sidebar-section-label::after { height: 1px; flex: 1 1 auto; background: #dce9fc; content: ""; }
+.app-sidebar-link { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 5px 12px; border: 1px solid transparent; border-radius: 14px; color: #0b318d; font-size: 14px; font-weight: 700; text-decoration: none; transition: color .16s ease,background .16s ease,border-color .16s ease; }
+.app-sidebar-link:hover { color: #0754d6; background: #f0f7ff; }
+.app-sidebar-link[aria-current="page"] { border-color: #b9ddff; color: #0754d6; background: linear-gradient(100deg,#e5f4ff,#d6eaff); box-shadow: inset 4px 0 #1687ff; }
+.app-sidebar-icon { display: grid; place-items: center; width: 48px; height: 48px; flex: 0 0 auto; border-radius: 13px; color: #168fe8; background: #e4f5ff; font-size: 23px; }
+.app-sidebar-icon[data-nav="patient-dashboard.html"] { color: #0879f8; background: #e5f4ff; }
+.app-sidebar-icon[data-nav="medication-reminders.html"] { color: #ef4778; background: #fde8f2; }
+.app-sidebar-icon[data-nav="health-records.html"] { color: #08b99d; background: #ddfaf4; }
+.app-sidebar-icon[data-nav="appointments.html"] { color: #f39a00; background: #fff1d8; }
+.app-sidebar-icon[data-nav="nearby-hospitals.html"] { color: #9333ea; background: #f0e5ff; }
+.app-sidebar-icon[data-nav="fitness-checking.html"] { color: #0798df; background: #e1f5ff; }
+.app-sidebar-icon[data-nav="monitor.html"] { color: #7b35e8; background: #eee5ff; }
+.app-sidebar-icon[data-nav="profile.html"] { color: #0a9ee5; background: #e1f5ff; }
+.app-sidebar-icon[data-nav="settings.html"] { color: #07b89e; background: #dff9f3; }
+.app-sidebar-icon[data-nav="emergency-contacts.html"] { color: #ef4778; background: #fde8f2; }
+.app-sidebar-link[aria-current="page"] .app-sidebar-icon { color: #0754d6; background: #fff; box-shadow: 0 3px 10px rgba(21,91,184,.12); }
+.app-sidebar-link-label { flex: 1 1 auto; min-width: 0; }
+.app-sidebar-indicator { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: #60a5fa; }
+.app-sidebar-metrics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; padding: 12px 10px; border: 1px solid #cfe6ff; border-radius: 15px; background: linear-gradient(110deg,#edf8ff,#e6f3ff); }
+.app-sidebar-metric { display: grid; justify-items: center; gap: 3px; min-width: 0; }
+.app-sidebar-metric span { color: #6792cf; font-size: 9px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.app-sidebar-metric strong { color: #0b318d; font-size: 20px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.app-sidebar-backdrop { display: none; }
+.app-sidebar-toggle { position: fixed; top: 12px; left: 16px; z-index: 40; display: grid; place-items: center; width: 56px; height: 56px; flex: 0 0 auto; padding: 0; border: 0; border-radius: 14px; color: var(--primary-dark); background: transparent; cursor: pointer; }
+.app-sidebar-toggle svg { display: block; width: 56px; height: 56px; overflow: visible; filter: drop-shadow(0 4px 10px rgba(45, 124, 223, .13)); }
+.app-sidebar-toggle:not(:disabled):hover svg { transform: translateY(-1px); }
+.app-sidebar-toggle svg { transition: transform .16s ease; }
+.app-sidebar-menu-button[aria-expanded="true"] { cursor: default; }
+.app-sidebar-collapse { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; margin-left: auto; padding: 7px; border: 1px solid #d7e5ff; border-radius: 12px; color: #2563eb; background: linear-gradient(180deg,#ffffff,#f3f7ff); box-shadow: 0 1px 2px rgba(21,91,184,.06); cursor: pointer; transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, color .18s ease, transform .18s ease; }
+.app-sidebar-collapse svg { display: block; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.app-sidebar-collapse .app-sidebar-collapse-arrow { transition: transform .18s ease; }
+.app-sidebar-collapse:hover { border-color: #bcd4ff; color: #1358d8; background: linear-gradient(180deg,#ffffff,#e8f1ff); box-shadow: 0 7px 15px rgba(37,99,235,.16); transform: translateY(-1px); }
+.app-sidebar-collapse:hover .app-sidebar-collapse-arrow { transform: translateX(-2px); }
+.app-sidebar-collapse:active { transform: translateY(0) scale(.95); box-shadow: 0 2px 6px rgba(37,99,235,.14); }
+.app-sidebar-collapse:focus-visible { outline: 3px solid rgba(37,99,235,.34); outline-offset: 2px; }
+.app-page-nav { display: none !important; }
+
+.app-main { width: calc(100% - 330px); max-width: 1240px; min-height: 100vh; margin: 0 22px 0 308px; padding: 18px 0 48px; }
+.admin-container.app-main { padding-top: 24px; }
+.patient-dashboard.app-main { width: calc(100% - 330px); max-width: none; margin: 0 22px 0 308px; padding: 24px 0 50px; }
+.fitness-page.app-main { width: calc(100% - 330px); max-width: 1240px; min-height: 100vh; margin: 0 22px 0 308px; padding: 26px 0 48px; }
+.admin-page-nav { display: none !important; }
+.app-shell-body .admin-page-nav { display: none !important; }
+.admin-shell-body .admin-container > .topbar,.admin-shell-body .admin-page-shell > .admin-page-topbar { display: none; }
+.patient-shell-body .dashboard-topbar-actions { display: none; }
+.admin-shell-body .admin-page-topbar,.admin-shell-body .admin-container > .topbar { display: none; }
+.patient-shell-body .drawer-trigger,.patient-shell-body .drawer-backdrop,.patient-shell-body .drawer { display: none !important; }
+.patient-shell-body .topbar button[onclick*="signOut"],.patient-shell-body .topbar button[onclick="logout()"] { display: none; }
+
+.app-topbar { position: relative; z-index: 25; display: flex; align-items: center; gap: 16px; min-height: 64px; margin-bottom: 20px; padding: 9px 13px; border: 1px solid rgba(219, 223, 233,.9); border-radius: 14px; background: rgba(255,255,255,.78); -webkit-backdrop-filter: saturate(160%) blur(10px); backdrop-filter: saturate(160%) blur(10px); box-shadow: 0 4px 16px rgba(35, 52, 88,.035); }
+.app-breadcrumb { display: flex; align-items: center; gap: 8px; flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #71839a; font-size: 13px; }
+.app-breadcrumb a { color: inherit; text-decoration: none; }
+.app-breadcrumb strong { color: #34485c; font-weight: 700; }
+.app-breadcrumb-separator { color: #a8b6c5; }
+.app-global-search { display: flex; align-items: center; gap: 8px; flex: 1 1 200px; width: 100%; max-width: 280px; min-width: 0; height: 42px; padding: 0 9px 0 12px; border: 1px solid #e0e8f0; border-radius: 11px; background: #f7f9fc; }
+.app-global-search-icon { color: #71839a; font-size: 18px; }
+.app-global-search input { width: 100%; min-width: 0; height: 100%; margin: 0; padding: 0; border: 0; outline: 0; background: transparent; font-size: 13px; }
+.app-global-search input:focus { background: transparent; }
+.app-global-search kbd { flex: 0 0 auto; padding: 3px 6px; border: 1px solid #dce5ef; border-radius: 6px; color: #62758a; background: #fff; font: 10px/1.2 'DM Sans',sans-serif; }
+.app-topbar-actions { display: flex; align-items: center; gap: 6px; flex: 0 1 auto; min-width: 0; }
+.app-tool-button { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 10px; color: #52657b; background: transparent; font-size: 19px; cursor: pointer; }
+.app-tool-button:hover { background: #eef0f5; }
+.app-bell { display: inline-block; font-size: 19px; line-height: 1; }
+.app-notification-badge { position: absolute; top: 1px; right: 0; display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; color: #fff; background: #e94462; font-size: 9px; font-weight: 800; }
+.app-profile { display: flex; align-items: center; gap: 8px; min-width: 0; padding-left: 3px; color: var(--text); text-decoration: none; }
+.app-profile-copy { display: grid; min-width: 0; }
+.app-profile-copy strong { max-width: 120px; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.app-profile-copy small { color: #71839a; font-size: 10px; }
+.app-avatar { display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; color: #fff; background: #3b82f6; font-size: 12px; font-weight: 800; }
+.app-avatar img { display: block; width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
+.app-logout { min-height: 38px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 9px; color: var(--primary-dark); background: var(--card); font-size: 11px; font-weight: 700; cursor: pointer; }
+
+/* ── Floating AI Assistant button (patient pages) ────────────── */
+.app-assist-fab { position: fixed; right: 18px; bottom: 18px; z-index: 40; display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 16px 0 12px; border: 0; border-radius: 999px; color: #fff; background:var(--primary-dark); box-shadow: 0 12px 26px rgba(37,99,235,.32); font-size: 13px; font-weight: 800; text-decoration: none; }
+.app-assist-fab-icon { display: block; width: 36px; height: 36px; flex: 0 0 36px; border-radius: 10px; object-fit: cover; }
+.app-assist-fab:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(30,60,90,.42); }
+@media (max-width: 720px) { .app-assist-fab { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); } }
+@media (max-width: 520px) { .app-assist-fab { min-height: 48px; padding-inline: 13px; } }
+:root[data-theme="dark"] .app-sidebar { border-color: var(--border); background: rgba(27, 30, 38,.98); }
+:root[data-theme="dark"] .app-sidebar-context { border-color: #343d50; background: #202633; }
+:root[data-theme="dark"] .app-sidebar-context strong { color: #849ed5; }
+:root[data-theme="dark"] .app-sidebar-context p { color: #a3bbb2; }
+:root[data-theme="dark"] .app-sidebar-link { color: #bdc3cf; }
+:root[data-theme="dark"] .app-sidebar-link:hover,:root[data-theme="dark"] .app-sidebar-link[aria-current="page"] { border-color: #353e52; color: #8ea8e0; background: #252c3b; }
+:root[data-theme="dark"] .app-sidebar-section-label { color: #9aa1af; }
+:root[data-theme="dark"] .app-sidebar-metrics { border-color: var(--border); background: #20242d; }
+:root[data-theme="dark"] .app-sidebar-metric span { color: var(--muted); }
+:root[data-theme="dark"] .app-topbar { border-color: var(--border); background: rgba(32, 36, 45,.82); }
+:root[data-theme="dark"] .app-breadcrumb strong,:root[data-theme="dark"] .app-tool-button { color: var(--text); }
+:root[data-theme="dark"] .app-global-search { border-color: var(--border); background: #191d26; }
+:root[data-theme="dark"] .app-global-search kbd { border-color: var(--border); color: var(--muted); background: #272c36; }
+:root[data-theme="dark"] .app-tool-button:hover { background: #292e3a; }
+:root[data-theme="dark"] .app-sidebar-toggle { border-color: var(--border); color: var(--text); background: var(--card); }
+:root[data-theme="dark"] .app-sidebar-collapse { border-color: #353e52; color: #9db6ea; background: #232a37; box-shadow: none; }
+:root[data-theme="dark"] .app-sidebar-collapse:hover { border-color: #435a8f; color: #c3d4ff; background: #2b3444; box-shadow: 0 7px 15px rgba(0,0,0,.28); }
+
+@media (max-width: 1280px) and (min-width: 901px) {
+  .app-sidebar { width: 248px; padding-inline: 13px; }
+  .app-main,.patient-dashboard.app-main,.fitness-page.app-main { width: calc(100% - 278px); margin-left: 270px; margin-right: 8px; }
+  .app-topbar { gap: 10px; padding-inline: 10px; }
+  .app-global-search { min-width: 120px; }
+  .app-breadcrumb a,.app-breadcrumb-separator { display: none; }
+  .app-topbar .app-profile-copy { display: none; }
+  .app-topbar .language-switcher { display: none; }
+}
+
+@media (max-width: 900px) and (min-width: 721px) {
+  .app-sidebar { width: 248px; padding-inline: 13px; }
+  .app-main,.patient-dashboard.app-main,.fitness-page.app-main { width: calc(100% - 278px); margin-left: 270px; margin-right: 8px; }
+  .app-topbar { display: grid; grid-template-columns: auto minmax(0,1fr) auto; grid-template-rows: auto auto; gap: 10px; margin: 0 0 16px; padding: 10px; }
+  .app-breadcrumb { grid-column: 2; grid-row: 1; min-width: 0; }
+  .app-global-search { grid-column: 1 / -1; grid-row: 2; width: 100%; min-width: 0; }
+  .app-topbar-actions { grid-column: 3; grid-row: 1; gap: 4px; }
+  .app-topbar .app-profile-copy { display: none; }
+  .app-topbar .language-switcher { display: none; }
+  .app-logout { padding-inline: 8px; }
+}
+
+@media (max-width: 720px) {
+  .app-sidebar { width: min(84vw,300px); transform: translateX(-105%); transition: transform .24s ease; }
+  .app-sidebar.is-open { transform: translateX(0); }
+  .app-sidebar-backdrop { position: fixed; inset: 0; z-index: 34; display: block; background: rgba(17, 24, 40,.44); }
+  .app-sidebar-backdrop[hidden] { display: none; }
+  .app-main,.patient-dashboard.app-main,.fitness-page.app-main { width: calc(100% - 32px); margin: 0 auto; padding-top: 12px; }
+  .admin-page-shell.app-main { padding-top: 12px; }
+  .app-topbar { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 10px; margin: 0 0 16px; padding: 10px; }
+  .app-breadcrumb { grid-column: 2; grid-row: 1; min-width: 0; }
+  .app-global-search { grid-column: 1 / -1; grid-row: 2; width: 100%; }
+  .app-topbar-actions { grid-column: 3; grid-row: 1; gap: 2px; }
+  .app-profile-copy { display: none; }
+  .app-topbar .language-switcher { display: none; }
+  .app-logout { padding-inline: 8px; }
+  .dashboard-topbar { margin-top: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) { .app-sidebar,.app-sidebar-link { transition: none; } }
+
+/* ── Collapsible sidebar on desktop (hamburger in the ribbon) ── */
+@media (min-width: 721px) {
+  .app-sidebar { transition: transform .24s ease; }
+  .app-main,
+  .patient-dashboard.app-main,
+  .fitness-page.app-main,
+  .admin-container.app-main,
+  .admin-page-shell.app-main { transition: width .26s ease, margin .26s ease; }
+  body.app-sidebar-collapsed .app-sidebar { transform: translateX(-105%); }
+  body.app-sidebar-collapsed .app-main,
+  body.app-sidebar-collapsed .patient-dashboard.app-main,
+  body.app-sidebar-collapsed .fitness-page.app-main,
+  body.app-sidebar-collapsed .admin-container.app-main,
+  body.app-sidebar-collapsed .admin-page-shell.app-main { width: calc(100% - 48px); max-width: 1240px; margin: 0 auto; }
+  body.app-sidebar-collapsed .app-sidebar-toggle { border-color: #cdd3e0; background: #eaeef6; color: #3b82f6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-sidebar,
+  .app-main,
+  .patient-dashboard.app-main,
+  .fitness-page.app-main,
+  .admin-container.app-main,
+  .admin-page-shell.app-main { transition: none; }
+  .app-sidebar-collapse,
+  .app-sidebar-collapse .app-sidebar-collapse-arrow { transition: none; }
+}
+
+/* ── Global search results dropdown ─────────────────────────── */
+.app-global-search { position: relative; }
+.app-search-pop {
+  position: absolute; top: calc(100% + 8px); left: 0; z-index: 60;
+  width: 100%; min-width: 262px; max-height: 340px; overflow: auto;
+  padding: 6px; border: 1px solid #e0e8f0; border-radius: 12px;
+  background: #fff; box-shadow: 0 14px 34px rgba(23, 35, 60,.16);
+}
+.app-search-group-label { padding: 8px 10px 4px; color: #71839a; font-size: 10px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; }
+.app-search-result {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 9px 10px; border: 0; border-radius: 9px; color: #34485c;
+  background: transparent; text-align: left; cursor: pointer;
+}
+.app-search-result:hover { background: #eef0f5; }
+.app-search-result .app-search-result-icon {
+  display: grid; place-items: center; width: 26px; height: 26px;
+  flex: 0 0 auto; border-radius: 8px; background: #e6eaf2; color: #3b82f6; font-size: 13px;
+}
+.app-search-result small { display: block; overflow: hidden; color: #71839a; font-size: 10.5px; text-overflow: ellipsis; white-space: nowrap; }
+.app-search-empty { padding: 14px 12px; color: #71839a; font-size: 12.5px; text-align: center; }
+.app-search-flash { animation: appSearchFlash 1.7s ease-out both; }
+@keyframes appSearchFlash { 0%,100% { background: transparent; } 22% { background: #fff3c4; } }
+:root[data-theme="dark"] .app-search-pop { border-color: var(--border); background: #1d222c; }
+:root[data-theme="dark"] .app-search-result { color: var(--text); }
+:root[data-theme="dark"] .app-search-result:hover { background: #292e3a; }
+:root[data-theme="dark"] .app-search-result .app-search-result-icon { background: #252c3b; color: #8ea8e0; }
+:root[data-theme="dark"] .app-search-empty,:root[data-theme="dark"] .app-search-result small { color: #9aa1af; }
+
+/* ── Notification bell dropdown ─────────────────────────────── */
+.app-notif-wrap { position: relative; }
+.app-notif-pop {
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 60;
+  width: min(90vw, 330px); max-height: 400px; overflow: auto;
+  display: flex; flex-direction: column; padding: 8px;
+  border: 1px solid #e0e8f0; border-radius: 14px; background: #fff;
+  box-shadow: 0 14px 34px rgba(23, 35, 60,.16);
+}
+.app-notif-pop[hidden], .app-search-pop[hidden] { display: none !important; }
+.app-notif-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px 6px; }
+.app-notif-head strong { font-size: 13px; color: #34485c; }
+.app-notif-head button { border: 0; background: none; color: #3b82f6; font-size: 11.5px; font-weight: 700; cursor: pointer; }
+.app-notif-head button:hover { text-decoration: underline; }
+.app-notif-list { overflow: auto; }
+.app-notif-item { display: flex; gap: 10px; padding: 9px 10px; border-radius: 10px; }
+.app-notif-item + .app-notif-item { border-top: 1px solid #eef1f6; }
+.app-notif-item:hover { background: #f4f6f9; }
+.app-notif-icon { display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 50%; font-size: 14px; }
+.app-notif-item.note-missed .app-notif-icon { background: #fdecef; }
+.app-notif-item.note-reminder .app-notif-icon { background: #e6eaf2; }
+.app-notif-item.note-alert .app-notif-icon { background: #fff4e0; }
+.app-notif-copy strong { display: block; font-size: 12.5px; color: #34485c; }
+.app-notif-copy small { display: block; margin-top: 2px; color: #71839a; font-size: 11px; line-height: 1.4; }
+.app-notif-empty { padding: 22px 14px; color: #71839a; font-size: 12.5px; text-align: center; }
+.app-notif-go {
+  display: block; margin: 8px 10px; padding: 8px; border-radius: 9px;
+  background: #eef0f5; color: #3b82f6; font-size: 12px; font-weight: 700; text-align: center; text-decoration: none;
+}
+:root[data-theme="dark"] .app-notif-pop { border-color: var(--border); background: #1d222c; }
+:root[data-theme="dark"] .app-notif-head strong,:root[data-theme="dark"] .app-notif-copy strong { color: var(--text); }
+:root[data-theme="dark"] .app-notif-item:hover { background: #292e3a; }
+:root[data-theme="dark"] .app-notif-copy small,:root[data-theme="dark"] .app-notif-empty { color: #9aa1af; }
+:root[data-theme="dark"] .app-notif-go { background: #252c3b; color: #8ea8e0; }
+:root[data-theme="dark"] .app-notif-head button { color: #8ea8e0; }
+
+/* ── In-page AI Assistant window (no separate page) ─────────────── */
+.app-assist-fab { cursor: pointer; font-family: inherit; }
+.app-assist-window[hidden] { display: none; }
+.app-assist-window { position: fixed; inset: 0; z-index: 60; }
+.app-assist-window-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, .42); }
+.app-assist-window-panel {
+  position: absolute; right: 18px; bottom: 18px;
+  display: flex; flex-direction: column;
+  width: min(400px, calc(100vw - 24px));
+  height: min(660px, calc(100vh - 40px));
+  overflow: hidden; border: 1px solid var(--border, #dbe3f0); border-radius: 20px;
+  background: var(--card, #ffffff); box-shadow: 0 30px 70px -18px rgba(15, 23, 42, .5);
+}
+.app-assist-window-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; border-bottom: 1px solid var(--border, #e8eef9); background: var(--card, #ffffff);
+}
+.app-assist-window-title { display: inline-flex; align-items: center; gap: 9px; color: var(--text, #0f172a); font-size: 13.5px; }
+.app-assist-window-avatar { display: block; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 9px; object-fit: cover; }
+.app-assist-window-close {
+  width: 32px; height: 32px; flex: 0 0 auto; border: 1px solid var(--border, #dbe3f0);
+  border-radius: 9px; color: inherit; background: var(--card, #ffffff); font-size: 13px; cursor: pointer;
+}
+.app-assist-window-close:hover { background: #eef2fb; }
+.app-assist-window-body { flex: 1 1 auto; min-height: 0; background: #f7faff; }
+.app-assist-frame { display: block; width: 100%; height: 100%; border: 0; }
+:root[data-theme="dark"] .app-assist-window-panel,
+:root[data-theme="dark"] .app-assist-window-head,
+:root[data-theme="dark"] .app-assist-window-close { border-color: var(--border); background: #1d222c; color: var(--text); }
+:root[data-theme="dark"] .app-assist-window-title { color: var(--text); }
+:root[data-theme="dark"] .app-assist-window-body { background: #171b23; }
+@media (max-width: 560px) {
+  .app-assist-window-panel { inset: 0; width: 100%; height: 100dvh; border: 0; border-radius: 0; }
+}

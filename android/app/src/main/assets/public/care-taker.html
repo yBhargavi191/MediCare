@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediCare — Care Taker Alerts</title><link rel="stylesheet" href="css/style.css"><style>
+.ct-wrap{max-width:460px;margin:0 auto;padding:28px 20px;}
+.ct-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;}
+.ct-status{font-size:13px;color:var(--muted);margin-top:8px;min-height:18px;}
+.badge.upcoming{background:#e0f2fe;color:#3b82f6;}
+</style><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#60a5fa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MediCare">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+</head>
+<body>
+  <script src="js/loading.js"></script>
+<main class="ct-wrap">
+  <div class="logo" aria-label="MediCare logo"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="mcLogoBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs><rect x="0" y="0" width="512" height="512" rx="112" fill="url(#mcLogoBg)"/><g transform="translate(256 256) rotate(-45)"><rect x="-126" y="-62" width="252" height="124" rx="62" fill="#ffffff"/><path d="M0 -62 H64 A62 62 0 0 1 64 62 H0 Z" fill="#93c5fd"/><line x1="0" y1="-60" x2="0" y2="60" stroke="#3b82f6" stroke-opacity="0.2" stroke-width="6"/></g><g transform="translate(256 256) scale(3.9) translate(-12 -12)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 20.28 3 22 5.42 22 7.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#f43f5e"/></g></svg></div>
+  <div class="brand">MediCare</div>
+  <div class="tagline">Care taker alerts — get a phone notification the moment your loved one misses a medicine.</div>
+
+  <div class="ct-card">
+    <h3 style="margin:0 0 6px;">🔔 Enable Free Alerts</h3>
+    <p style="font-size:13px;color:var(--muted);margin:0 0 12px;">Enter the patient's email (the one they signed up with). One-time setup — after this you'll get automatic push notifications.</p>
+    <input type="email" id="patientEmail" placeholder="Patient email (e.g. bhargavi@gmail.com)">
+    <button class="primary" id="enableBtn" onclick="enableAlerts()">Enable notifications</button>
+    <div class="error-msg" id="ctError"></div>
+    <div class="ct-status" id="ctStatus"></div>
+  </div>
+
+  <div class="ct-card" id="liveCard" style="display:none;">
+    <h3 style="margin:0 0 10px;">📋 Today's medicines — <span id="livePatientName"></span></h3>
+    <div id="doseList"></div>
+  </div>
+
+  <p style="font-size:12px;color:var(--muted);">100% free · powered by Firebase Cloud Messaging · works even when this tab is closed</p>
+</main>
+<script src="js/theme.js"></script><script src="js/vendor/firebase-app-compat.js"></script><script src="js/vendor/firebase-auth-compat.js"></script><script src="js/vendor/firebase-firestore-compat.js"></script><script src="js/vendor/firebase-messaging-compat.js"></script><script src="js/firebase-config.js"></script><script src="js/care-taker.js"></script>
+<script src="js/pwa.js"></script>
+<script src="js/i18n.js"></script>
+</body>
+</html>

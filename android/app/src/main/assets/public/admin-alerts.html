@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#60a5fa">
+  <title>MediCare Admin — Alert Center</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin-pages.css">
+  <link rel="stylesheet" href="css/app-shell.css">
+</head>
+<body data-admin-page="alerts">
+  <main class="admin-page-shell">
+    <header class="topbar admin-page-topbar">
+      <div><h1>Alert Center</h1><p id="adminName">Loading admin profile…</p></div>
+      <div class="admin-page-actions"><button class="icon-btn" type="button" onclick="logout()">Log out</button></div>
+    </header>
+    <nav class="admin-page-nav" aria-label="Admin navigation">
+      <a href="admin-dashboard.html">Dashboard</a>
+      <a href="admin-alerts.html" aria-current="page">Alert Center</a>
+      <a href="admin-reports.html">Reports</a>
+      <a href="admin-settings.html">Settings</a>
+    </nav>
+    <p class="admin-page-intro">Review missed-dose alerts and follow up with the patient’s caregiver.</p>
+    <section class="admin-page-card" aria-labelledby="alertsTitle">
+      <div class="panel-heading"><div><h2 id="alertsTitle">Caregiver alerts</h2><p id="alertsSummary">Loading alerts…</p></div></div>
+      <div class="admin-filter-row">
+        <label for="alertStatusFilter">Status<select id="alertStatusFilter"><option value="open">Needs review</option><option value="all">All alerts</option><option value="reviewed">Reviewed</option></select></label>
+        <label for="alertPatientFilter">Patient<select id="alertPatientFilter"><option value="all">All patients</option></select></label>
+        <label for="alertSearch">Search<input id="alertSearch" type="search" placeholder="Patient or alert text"></label>
+      </div>
+      <p id="alertPageStatus" class="admin-status-message" role="status" aria-live="polite"></p>
+      <div class="admin-alert-list" id="adminAlertList" aria-live="polite"><div class="admin-empty">Loading alerts…</div></div>
+    </section>
+  </main>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app-shell.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/admin-pages.js"></script>
+<script src="js/i18n.js"></script>
+</body>
+</html>

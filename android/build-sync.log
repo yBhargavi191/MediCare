@@ -1,0 +1,10 @@
+﻿==== npx cap sync android ====
+node.exe : npm error could not determine executable to run
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm error could...ecutable to run:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm error A complete log of this run can be found in: 
+C:\Users\ybhar_9sumasa\AppData\Local\npm-cache\_logs\2026-10-13T05_14_57_434Z-debug-0.log

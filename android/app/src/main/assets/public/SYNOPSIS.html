@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MediCare — Project Synopsis</title>
+<style>
+  @page { size: A4; margin: 14mm 14mm 16mm 14mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', 'Calibri', Arial, sans-serif; color: #22303f; font-size: 10.5pt; line-height: 1.45; }
+
+  .page { max-width: 190mm; margin: 0 auto; }
+
+  /* ===== Header ===== */
+  .titlebar {
+    background: linear-gradient(135deg, #0a4f8f 0%, #0d6aad 55%, #1498dc 100%);
+    color: #fff; border-radius: 10px; padding: 20px 26px 16px; text-align: center;
+    border: 2px solid #0a4f8f; box-shadow: 0 3px 10px rgba(10,79,143,.3);
+  }
+  .titlebar h1 { font-size: 34pt; letter-spacing: 6px; font-weight: 800; }
+  .titlebar .tag { font-size: 15pt; font-weight: 600; color: #ffd76a; margin-top: 2px; }
+  .titlebar .sub { font-size: 10pt; margin-top: 8px; color: #e8f4ff; letter-spacing: 3px; }
+  .pillbar { display: flex; justify-content: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .pillbar span { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.45); padding: 4px 12px; border-radius: 30px; font-size: 9pt; font-weight: 600; }
+
+  /* ===== Sections ===== */
+  .sec { margin-top: 15px; page-break-inside: avoid; }
+  .sec h2 {
+    font-size: 13.5pt; color: #0a4f8f; border-bottom: 3px solid #0d6aad;
+    padding-bottom: 4px; margin-bottom: 8px; letter-spacing: .4px;
+  }
+  .sec h2 .num { background: #0d6aad; color: #fff; border-radius: 6px; padding: 1px 8px; margin-right: 8px; font-size: 11.5pt; }
+
+  p.body { margin-bottom: 7px; text-align: justify; }
+  p.sub { margin-bottom: 5px; }
+
+  /* ===== Callout ===== */
+  .gapbox {
+    background: #eef7ff; border-left: 5px solid #0d6aad; border-radius: 0 8px 8px 0;
+    padding: 10px 14px; margin: 8px 0; font-weight: 600; color: #0a4f8f;
+  }
+
+  /* ===== Steps ===== */
+  .steps { list-style: none; counter-reset: st; margin-top: 4px; }
+  .steps li { counter-increment: st; position: relative; padding: 3px 0 3px 34px; margin-bottom: 3px; }
+  .steps li::before {
+    content: counter(st); position: absolute; left: 0; top: 3px;
+    width: 22px; height: 22px; border-radius: 50%; background: #0d6aad; color: #fff;
+    text-align: center; font-weight: 700; font-size: 11pt; line-height: 22px;
+  }
+  .steps b.k { color: #0a4f8f; }
+
+  /* ===== Features ===== */
+  .feat { display: flex; gap: 8px; margin-bottom: 8px; }
+  .feat .badge { flex: 0 0 118px; background: #0d6aad; color: #fff; font-size: 8.5pt; font-weight: 700; text-align: center; padding: 3px 4px; border-radius: 4px; align-self: flex-start; }
+  .feat p { flex: 1; text-align: justify; }
+
+  /* ===== Tech rows ===== */
+  .tech { border: 1px solid #c9d8e8; border-radius: 8px; overflow: hidden; margin: 2px 0 4px; }
+  .tech .cr { display: flex; border-bottom: 1px solid #dde7f1; }
+  .tech .cr:last-child { border-bottom: none; }
+  .tech .cl { width: 150px; background: #eef4fb; font-weight: 700; color: #0a4f8f; padding: 5px 10px; flex: 0 0 150px; }
+  .tech .cv { padding: 5px 12px; flex: 1; }
+
+  /* ===== Flow ===== */
+  .flowbox { background: #f7fafd; border: 1px solid #c9d8e8; border-radius: 8px; padding: 8px 14px; }
+  .flowbox p { margin: 3px 0; font-size: 9.8pt; }
+
+  /* ===== Real vs Sim ===== */
+  .rsrow { display: flex; gap: 10px; margin-bottom: 8px; }
+  .rs { flex: 1; border-radius: 8px; padding: 10px 12px; border: 1px solid; }
+  .rs.real { background: #eafaf0; border-color: #2e9e6b; }
+  .rs.sim  { background: #fff7e8; border-color: #e8b45a; }
+  .rs h4 { font-size: 10pt; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+  .rs.real h4 { color: #1c7c4f; }
+  .rs.sim h4  { color: #b07d18; }
+  .rs p { font-size: 9.4pt; text-align: justify; }
+
+  /* ===== Links ===== */
+  .links { border: 1.5px dashed #0d6aad; border-radius: 8px; padding: 8px 14px; background: #f2f9ff; }
+  .links p { margin: 2px 0; font-family: Consolas, monospace; font-size: 9.8pt; }
+  .links b { color: #0a4f8f; font-family: 'Segoe UI', sans-serif; display: inline-block; width: 130px; }
+
+  /* ===== Footer ===== */
+  .foot { margin-top: 16px; border-top: 2px solid #0d6aad; padding-top: 7px; text-align: center; color: #0a4f8f; font-weight: 600; font-size: 9.5pt; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="titlebar">
+    <h1>MEDICARE</h1>
+    <div class="tag">Smart Health Reminders That Can&rsquo;t Be Ignored</div>
+    <div class="sub">PROJECT SYNOPSIS</div>
+    <div class="pillbar">
+      <span>AI Verification</span><span>Wallet Penalties</span><span>Care-Taker Push Alerts</span><span>Free Tier</span>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="sec">
+    <h2><span class="num">1</span> PROBLEM STATEMENT</h2>
+    <p class="body">Non-adherence to medication is one of the most preventable causes of poor health outcomes. Patients forget doses or skip them silently, and no one &mdash; not even family or a nurse &mdash; reliably learns about it in time. Most reminder apps merely notify the patient at dose time; they <b>cannot prove a dose was actually taken</b>, they give no incentive to comply, and they do <b>not escalate a miss</b> to someone who can act.</p>
+    <div class="gapbox">The Gap: a system that can REMIND &mdash; VERIFY ingestion with proof &mdash; ENFORCE compliance through incentives &mdash; and ESCALATE a missed dose to a care taker instantly.</div>
+  </div>
+
+  <!-- 2 -->
+  <div class="sec">
+    <h2><span class="num">2</span> OUR SOLUTION</h2>
+    <p class="body">MediCare turns a scheduled reminder into an accountable, escalating event through a four-step loop:</p>
+    <ul class="steps">
+      <li><b class="k">REMIND</b> &mdash; the patient gets an alert when it&rsquo;s time for a dose.</li>
+      <li><b class="k">VERIFY</b> &mdash; a three-step AI anti-cheat proof that the dose was truly ingested.</li>
+      <li><b class="k">ENFORCE</b> &mdash; missing the verification window deducts a wallet penalty.</li>
+      <li><b class="k">ESCALATE</b> &mdash; on a missed dose, every subscribed care taker instantly receives a push notification.</li>
+    </ul>
+  </div>
+
+  <!-- 3 -->
+  <div class="sec">
+    <h2><span class="num">3</span> KEY FEATURES</h2>
+    <div class="feat"><div class="badge">3.1 &middot; AI RECOGNITION</div><p>A custom Teachable Machine model runs in-browser via TensorFlow.js and recognises the patient&rsquo;s specific medicines (Tablets / syrup). Live confidence bars confirm the <b>correct</b> medicine is being presented.</p></div>
+    <div class="feat"><div class="badge">3.2 &middot; INGESTION PROOF</div><p>MoveNet pose AI confirms a hand-to-mouth motion (3 consecutive frames) and then checks the medicine is <b>gone from frame</b> &mdash; blocking &ldquo;fake takes&rdquo; such as merely waving the bottle near the mouth.</p></div>
+    <div class="feat"><div class="badge">3.3 &middot; COUNTDOWN</div><p>Verification must happen within a window (90 seconds in demo, 10 minutes on live doses) with a visible countdown and a manual confirm as a human fallback after an admin-configurable delay.</p></div>
+    <div class="feat"><div class="badge">3.4 &middot; WALLET PENALTY</div><p>A virtual wallet (starts at ₹500) is docked ₹10 for every missed dose, recorded as a traceable transaction.</p></div>
+    <div class="feat"><div class="badge">3.5 &middot; PUSH ALERTS</div><p>On a miss, a free serverless relay (Vercel) signs a JWT with a Firebase service account and sends an <b>FCM web push</b> to every subscribed care taker &mdash; even when their browser is closed. Tapping it opens a live dose-status page.</p></div>
+    <div class="feat"><div class="badge">3.6 &middot; ROLES</div><p><b>Patient</b> &mdash; today&rsquo;s medicines, AM/PM schedule, adherence %, wallet, alert history and care takers. <b>Admin</b> &mdash; aggregate dashboards and per-patient drill-down.</p></div>
+    <div class="feat"><div class="badge">3.7 &middot; ALARM</div><p>The native Capacitor wrapper fires local notifications while the app is closed, on an urgent channel that overrides Do Not Disturb and rings the device&rsquo;s alarm stream.</p></div>
+  </div>
+
+  <!-- 4 -->
+  <div class="sec">
+    <h2><span class="num">4</span> TECHNOLOGY STACK</h2>
+    <div class="tech">
+      <div class="cr"><div class="cl">Frontend</div><div class="cv">Pure HTML / CSS / JavaScript (no build step)</div></div>
+      <div class="cr"><div class="cl">AI / ML</div><div class="cv">TensorFlow.js, Teachable Machine, MoveNet pose</div></div>
+      <div class="cr"><div class="cl">Backend / Data</div><div class="cv">Firebase Authentication + Firestore (real-time)</div></div>
+      <div class="cr"><div class="cl">Push Notifications</div><div class="cv">Firebase Cloud Messaging (FCM) HTTP v1</div></div>
+      <div class="cr"><div class="cl">Serverless Relay</div><div class="cv">Vercel Functions (JWT-signed API calls)</div></div>
+      <div class="cr"><div class="cl">Mobile</div><div class="cv">Capacitor &rarr; Android (native notifications)</div></div>
+      <div class="cr"><div class="cl">Hosting</div><div class="cv">Firebase Hosting (web app)</div></div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="sec">
+    <h2><span class="num">5</span> HOW IT WORKS</h2>
+    <div class="flowbox">
+      <p>1. Patient signs in &rarr; dashboard lists today&rsquo;s medicines (AM / PM schedule).</p>
+      <p>2. Dose time arrives &rarr; alert triggers, verify page opens.</p>
+      <p>3. Verify page runs the 3-step AI proof: <b>Show</b> (recognise medicine) &rarr; <b>Take</b> (hand-to-mouth) &rarr; <b>Gone</b> (medicine leaves frame / swallowed).</p>
+      <p>4. Proof accepted &rarr; dose marked verified, wallet untouched, history updated.</p>
+      <p>5. Window expires without proof &rarr; ₹10 penalty, alert saved, relay &rarr; FCM &rarr; push to <b>ALL</b> care takers.</p>
+      <p>6. Care taker taps the notification &rarr; live dose-status page opens.</p>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="sec">
+    <h2><span class="num">6</span> DEMO WALKTHROUGH</h2>
+    <ul class="steps">
+      <li>Log in as a patient &mdash; today&rsquo;s medicines with AM/PM times visible.</li>
+      <li>Add a medicine due in a minute &mdash; the alarm fires automatically and a verification window starts.</li>
+      <li>Show the medicine &mdash; confidence bars confirm it is recognised.</li>
+      <li>Take it &mdash; hand-to-mouth motion detected; medicine confirmed gone.</li>
+      <li>Adherence %, verified count and wallet balance all update live.</li>
+      <li>Deliberately miss a dose &mdash; wait for countdown &mdash; ₹10 penalty recorded.</li>
+      <li>Care taker&rsquo;s phone pops a push notification &mdash; tap opens live status.</li>
+    </ul>
+  </div>
+
+  <!-- 7 -->
+  <div class="sec">
+    <h2><span class="num">7</span> REAL vs SIMULATED</h2>
+    <div class="rsrow">
+      <div class="rs real"><h4>&#10004; Real</h4><p>Firebase Auth + Firestore, live dashboards, wallet transaction logic, the live pill classifier, MoveNet motion detection, and genuine FCM push alerts delivered through a free serverless relay.</p></div>
+      <div class="rs sim"><h4>&#9888; Scoped</h4><p>The ₹10 penalty is a virtual wallet (no payment gateway). Server-scheduled background reminders need the paid Blaze plan &mdash; code ready to deploy when billing is enabled. Web push is used (WhatsApp Business API documented upgrade).</p></div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="sec">
+    <h2><span class="num">8</span> SCALABILITY &amp; ROADMAP</h2>
+    <p class="sub">&bull; <b>Channel-agnostic</b> &mdash; WhatsApp / SMS can be added beside FCM with one config change.</p>
+    <p class="sub">&bull; <b>Multi-medicine &amp; multi-patient</b> &mdash; data model already supports multiple profiles, medicines and care takers.</p>
+    <p class="sub">&bull; <b>Real payments</b> &mdash; swap the virtual wallet for UPI / a payment gateway.</p>
+    <p class="sub">&bull; <b>Cloud scheduling</b> &mdash; enable Firebase Blaze for server-side reminders.</p>
+  </div>
+
+  <!-- 9 -->
+  <div class="sec">
+    <h2><span class="num">9</span> LIVE LINKS</h2>
+    <div class="links">
+      <p><b>Web App</b>   https://verimed-6b92d.web.app</p>
+      <p><b>Care-Taker</b>  https://verimed-6b92d.web.app/care-taker.html</p>
+      <p><b>Push Relay</b>  https://medicare-alerts.vercel.app</p>
+    </div>
+  </div>
+
+  <div class="foot">MediCare &mdash; Built for a hackathon. Every core flow works on the free tier: AI verification, wallet penalties, and real push alerts.</div>
+
+</div>
+</body>
+</html>

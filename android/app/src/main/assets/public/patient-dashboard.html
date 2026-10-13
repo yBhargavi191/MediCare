@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MediCare — Patient Dashboard</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/app-shell.css"><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#60a5fa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MediCare">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  .alerts-head{ display:flex; align-items:center; gap:12px; }
+  .alerts-icon{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#eef1f6; font-size:20px; flex:0 0 auto; }
+  .alerts-copy{ flex:1; min-width:0; }
+  .alerts-copy strong{ display:block; font-size:15px; }
+  .alerts-copy span{ display:block; font-size:12px; color:var(--muted); margin-top:2px; }
+  .alerts-status{ margin:12px 0 0; font-size:12px; color:var(--muted); }
+  .switch{ position:relative; display:inline-block; width:50px; height:30px; flex:0 0 auto; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch-slider{ position:absolute; inset:0; background:#cbd0db; border-radius:999px; transition:.2s; cursor:pointer; }
+  .switch-slider::before{ content:""; position:absolute; height:24px; width:24px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+  .switch input:checked + .switch-slider{ background:var(--primary); }
+  .switch input:checked + .switch-slider::before{ transform:translateX(20px); }
+  .switch input:disabled + .switch-slider{ opacity:.5; cursor:not-allowed; }
+  .patient-dashboard .card{padding:clamp(16px,2.5vw,22px);margin-bottom:16px;border-radius:16px;box-shadow:0 5px 18px rgba(25, 42, 79,.045);}
+  .patient-dashboard .topbar{margin-bottom:20px;}
+  .daily-overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px;}
+  .daily-overview-panel{min-width:0;padding:13px;border:1px solid var(--border);border-radius:12px;background:#fbfcfd;}
+  .daily-overview-label{color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+  .daily-overview-value{display:block;margin-top:5px;color:var(--primary-dark);font-size:20px;font-weight:800;}
+  .daily-overview-copy{margin:6px 0 0;color:var(--muted);font-size:13px;}
+  .daily-diet-list{display:grid;gap:5px;margin:9px 0 0;padding:0;list-style:none;}
+  .daily-diet-list li{padding-top:5px;border-top:1px solid #edeff3;font-size:12px;overflow-wrap:anywhere;}
+  .daily-diet-list strong{color:var(--primary-dark);}
+  .patient-dashboard .wallet-box{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding:15px 18px;border-radius:15px;box-shadow:0 6px 18px rgba(16, 40, 91,.1);}
+  .patient-dashboard .wallet-box .bal{margin:0;font-size:25px;white-space:nowrap;}
+  .patient-dashboard .wallet-box .row{margin:0;text-align:right;}
+  @media(max-width:480px){.patient-dashboard .wallet-box{align-items:flex-start;flex-direction:column}.patient-dashboard .wallet-box .row{text-align:left}}
+  @media(max-width:620px){.daily-overview-grid{grid-template-columns:1fr;}.daily-overview-panel{padding:12px;}}
+</style>
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dashboard-body">
+  <button class="drawer-trigger" id="drawerTrigger" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+
+  <aside class="drawer" id="appDrawer" aria-label="Main menu" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-brand">
+        <div class="drawer-logo">M</div>
+        <div>
+          <strong>MediCare</strong>
+          <small>Patient menu</small>
+        </div>
+      </div>
+      <button class="drawer-close" id="drawerClose" type="button" aria-label="Close menu">×</button>
+    </div>
+
+    <nav class="drawer-nav" aria-label="Main navigation">
+      <button class="drawer-item active" type="button" data-target="dashboard">
+        <span>🏠</span>
+        <div><strong>Dashboard</strong><small>Overview</small></div>
+      </button>
+      <a class="drawer-item" href="medication-reminders.html" style="text-decoration:none;">
+        <span>⏰</span>
+        <div><strong>Medication Reminders</strong><small>Today's schedule and alerts</small></div>
+      </a>
+      <a class="drawer-item" href="caremate.html" style="text-decoration:none;">
+        <span>🤖</span>
+        <div><strong>AI Assistant</strong></div>
+      </a>
+      <a class="drawer-item" href="nearby-hospitals.html" style="text-decoration:none;">
+        <span>🏥</span>
+        <div><strong>Nearby Hospitals</strong><small>Search health facilities</small></div>
+      </a>
+      <a class="drawer-item" href="fitness-checking.html" style="text-decoration:none;">
+        <span>🌿</span>
+        <div><strong>Fitness &amp; Wellness</strong><small>Overview</small></div>
+      </a>
+      <a class="drawer-item" href="appointments.html" style="text-decoration:none;">
+        <span>📅</span>
+        <div><strong>Appointments</strong><small>Plan a care visit</small></div>
+      </a>
+      <a class="drawer-item" href="health-records.html" style="text-decoration:none;">
+        <span>📋</span>
+        <div><strong>Health Records</strong><small>Medicines and dose history</small></div>
+      </a>
+      <a class="drawer-item" href="emergency-contacts.html" style="text-decoration:none;">
+        <span>🆘</span>
+        <div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div>
+      </a>
+      <a class="drawer-item" href="profile.html" style="text-decoration:none;">
+        <span>👤</span>
+        <div><strong>Profile</strong><small>Your patient information</small></div>
+      </a>
+      <a class="drawer-item" href="settings.html" style="text-decoration:none;">
+        <span>⚙️</span>
+        <div><strong>Settings</strong><small>Notifications and account</small></div>
+      </a>
+    </nav>
+
+    <div class="drawer-footer">
+      <p>Medication support that keeps every dose on track.</p>
+    </div>
+  </aside>
+
+  <script src="js/loading.js"></script>
+  <main class="container patient-dashboard" id="dashboard">
+    <header class="topbar dashboard-topbar">
+      <div class="welcome">
+        <p class="dashboard-kicker" id="dashboardDate">YOUR CARE, TODAY</p>
+        <h1>Good <span id="timeOfDay">Evening</span>, <span id="patientName">Bhargavi</span></h1>
+        <p class="welcome-copy">A clear view of your care plan, one dose at a time.</p>
+      </div>
+      <div class="dashboard-topbar-actions">
+        <a class="notification-shortcut" href="caremate.html" aria-label="Open AI Assistant"><span aria-hidden="true">🤖</span><span>AI Assistant</span></a>
+        <a class="notification-shortcut" href="settings.html" aria-label="Open notification settings"><span aria-hidden="true">🔔</span><span>Notifications</span></a>
+        <a class="profile-chip" href="profile.html"><span class="profile-avatar" id="profileInitials" aria-hidden="true">B</span><span class="profile-chip-copy"><small>PROFILE</small><strong id="profileDisplayName">Bhargavi</strong></span></a>
+        <button class="icon-btn" type="button" onclick="logout()">Log out</button>
+      </div>
+    </header>
+
+    <section class="dashboard-hero" aria-labelledby="doseProgressTitle">
+      <div>
+        <p class="hero-eyebrow">DAILY MEDICATION PROGRESS</p>
+        <h2 id="doseProgressTitle">Your health, in rhythm.</h2>
+        <p class="hero-copy" id="todayDoseProgress">Your scheduled doses will appear here.</p>
+        <a class="hero-link" href="medication-reminders.html">View medication schedule <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="dose-ring" id="dashboardDoseRing" role="progressbar" aria-label="Medication doses completed today" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="--ring-angle:0deg">
+        <div class="dose-ring-center"><strong id="dashboardDosePercent">0%</strong><span>completed</span></div>
+      </div>
+      <span id="todayDoseCount" hidden>0 doses scheduled</span>
+    </section>
+
+    <section class="dashboard-quick-grid" aria-label="Quick health actions">
+      <a class="quick-action emergency-action" id="dashboardSosLink" href="emergency-contacts.html" aria-label="Open emergency contacts">
+        <span class="quick-icon" aria-hidden="true">SOS</span>
+        <span class="quick-action-copy"><strong>Emergency contacts</strong><small id="dashboardSosLabel">View your trusted contacts</small></span>
+      </a>
+      <a class="quick-action fitness-action" href="fitness-checking.html">
+        <span class="quick-icon" aria-hidden="true">🌿</span>
+        <span class="quick-action-copy"><strong>Move a little</strong><small>A short walk can support your daily wellbeing. <b>Explore fitness</b></small></span>
+      </a>
+      <a class="quick-action hospital-action" id="maps" href="nearby-hospitals.html">
+        <span class="quick-icon" aria-hidden="true">📍</span>
+        <span class="quick-action-copy"><strong>Nearby hospitals</strong><small>Search by place or use your location.</small></span>
+        <span class="map-preview" aria-hidden="true"><span class="map-pin map-pin-one">📍</span><span class="map-pin map-pin-two">📍</span></span>
+      </a>
+    </section>
+
+    <section class="dashboard-grid" aria-label="Today's care details">
+      <section class="dashboard-panel" aria-labelledby="timelineTitle">
+        <div class="panel-heading"><div><h2 id="timelineTitle">Today's medication</h2><p>Your scheduled doses and status</p></div><a class="icon-btn" href="medication-reminders.html">Full schedule</a></div>
+        <ol class="dose-timeline" id="dashboardMedicationTimeline" aria-live="polite"><li class="timeline-empty">Loading today's schedule…</li></ol>
+      </section>
+
+      <div class="dashboard-side-column">
+        <section class="dashboard-panel" aria-labelledby="streakTitle">
+          <div class="panel-heading"><div><h2 id="streakTitle">Consistency streak</h2><p>Earn badges by verifying a dose each day</p></div></div>
+          <div class="streak-count"><strong id="streakCount">0</strong><span id="streakUnit">days streak</span></div>
+          <p class="streak-caption" id="streakCaption">Verify a dose today to begin your streak.</p>
+          <ul class="streak-badges" aria-label="Consistency badges">
+            <li class="streak-badge" data-streak-badge="3"><span class="streak-badge-icon" aria-hidden="true">3</span><strong>3 days</strong></li>
+            <li class="streak-badge" data-streak-badge="7"><span class="streak-badge-icon" aria-hidden="true">7</span><strong>7 days</strong></li>
+            <li class="streak-badge" data-streak-badge="30"><span class="streak-badge-icon" aria-hidden="true">30</span><strong>30 days</strong></li>
+          </ul>
+        </section>
+
+        <section class="dashboard-panel" aria-labelledby="dietTitle">
+          <div class="panel-heading"><div><h2 id="dietTitle">Wellness plan</h2><p>Today's saved nutrition plan</p></div><a class="icon-btn" href="diet-plan.html" aria-label="Open diet plan">Open</a></div>
+          <strong class="diet-calories" id="todayDietCalories">Today's meal ideas</strong>
+          <ul class="dashboard-diet-list" id="todayDietPlan"><li>Loading your saved plan…</li></ul>
+        </section>
+
+        <section class="balance-strip" aria-label="Accountability balance">
+          <div><small>Care balance</small><strong>₹<span id="walletBalance">--</span></strong></div>
+          <small class="balance-note">Missed-dose adjustments appear here.</small>
+        </section>
+      </div>
+    </section>
+  </main>
+  <div class="modal-overlay" id="addMedicineModal" style="display:none;"><div class="modal-sheet caregiver-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="addMedicineTitle"><button class="close-x" onclick="closeAddMed()" aria-label="Close">×</button><h3 id="addMedicineTitle">Add medicine</h3><p>Add a medicine and the time you need to take it.</p><input type="text" id="newMedName" placeholder="Medicine name (e.g. Vitamin D)"><input type="text" id="newMedDosage" placeholder="Dosage (e.g. 1 tablet)"><div class="time-row"><select id="newMedHour" aria-label="Hour"></select><select id="newMedMinute" class="time-fixed" aria-label="Minute"></select><select id="newMedPeriod" class="time-fixed" aria-label="AM or PM"><option value="AM">AM</option><option value="PM">PM</option></select></div><div style="margin-top:8px;"><select id="newMedFrequency" aria-label="Repeat" onchange="toggleWeeklyDays()" style="width:100%;"><option value="daily">Every day</option><option value="weekly">Specific days of the week</option></select></div><div id="newMedDays" style="display:none;margin-top:8px;"><div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">Repeat on</div><div style="display:flex;flex-wrap:wrap;gap:8px;"><label style="display:flex;align-items:center;gap:4px;font-size:13px;"><input type="checkbox" value="Sun">Sun</label><label style="display:flex;align-items:center;gap:4px;font-size:13px;"><input type="checkbox" value="Mon">Mon</label><label style="display:flex;align-items:center;gap:4px;font-size:13px;"><input type="checkbox" value="Tue">Tue</label><label style="display:flex;align-items:center;gap:4px;font-size:13px;"><input type="checkbox" value="Wed">Wed</label><label style="display:flex;align-items:center;gap:4px;font-size:13px;"><input type="checkbox" value="Thu">Thu</label><label style="display:flex;align-items:center;gap:4px;font-size:13px;"><input type="checkbox" value="Fri">Fri</label><label style="display:flex;align-items:center;gap:4px;font-size:13px;"><input type="checkbox" value="Sat">Sat</label></div></div><div class="error-msg" id="addMedError"></div><button class="primary" onclick="addMedicine()">Save medicine</button></div></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const drawer = document.getElementById('appDrawer');
+      const trigger = document.getElementById('drawerTrigger');
+      const backdrop = document.getElementById('drawerBackdrop');
+      const closeBtn = document.getElementById('drawerClose');
+      const drawerItems = document.querySelectorAll('.drawer-item');
+
+      function updateDrawerState(isOpen) {
+        drawer.classList.toggle('open', isOpen);
+        backdrop.hidden = !isOpen;
+        trigger.setAttribute('aria-expanded', String(isOpen));
+        drawer.setAttribute('aria-hidden', String(!isOpen));
+      }
+
+      trigger.addEventListener('click', function () {
+        updateDrawerState(!drawer.classList.contains('open'));
+      });
+
+      closeBtn.addEventListener('click', function () {
+        updateDrawerState(false);
+      });
+
+      backdrop.addEventListener('click', function () {
+        updateDrawerState(false);
+      });
+
+      drawerItems.forEach(function (item) {
+        item.addEventListener('click', function () {
+          drawerItems.forEach(function (button) {
+            button.classList.toggle('active', button === item);
+          });
+
+          const target = item.dataset.target;
+          const section = document.getElementById(target);
+          if (section) {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+
+          updateDrawerState(false);
+        });
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          updateDrawerState(false);
+        }
+      });
+    });
+  </script>
+
+  <script src="js/theme.js"></script><script src="js/vendor/firebase-app-compat.js"></script><script src="js/vendor/firebase-auth-compat.js"></script><script src="js/vendor/firebase-firestore-compat.js"></script><script src="js/vendor/firebase-messaging-compat.js"></script><script src="js/firebase-config.js"></script><script src="js/app-shell.js"></script><script src="js/notifications.js"></script><script src="js/push-notifications.js"></script><script src="js/patient.js"></script><script src="js/pwa.js"></script>
+<script src="js/i18n.js"></script>
+</body>
+</html>

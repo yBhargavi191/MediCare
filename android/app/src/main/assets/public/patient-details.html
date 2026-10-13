@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediCare — Patient Details</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/app-shell.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#60a5fa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MediCare">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+</head>
+<body>
+  <script src="js/loading.js"></script>
+
+<div class="container admin-container">
+  <div class="topbar">
+    <div>
+      <button class="icon-btn" onclick="goBack()">← Back</button>
+    </div>
+    <button class="icon-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <!-- Profile -->
+  <div class="card patient-profile-card">
+    <div class="profile-head">
+      <div class="profile-avatar" id="patientInitial">P</div>
+      <div>
+        <h2 id="patientTitle" style="margin:0;">Loading...</h2>
+        <div class="greet" id="patientSubtitle">Patient profile and care plan</div>
+      </div>
+    </div>
+    <div id="patientName" style="display:none;"></div>
+    <p style="font-size:13px;color:var(--muted);margin-top:12px;" id="patientContact">—</p>
+    <p style="font-size:13px;">💰 Wallet Balance: <strong id="patientWallet">₹--</strong></p>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="patient-actions">
+    <button class="action-btn" onclick="openAddMedicineModal()">💊 Add Medicine</button>
+    <button class="action-btn" onclick="openScanModal()">📷 Scan Rx</button>
+    <button class="action-btn" onclick="openCaregiverModal()">👤 Care Taker</button>
+    <button class="action-btn" onclick="exportPatientHistory()">⬇ Export CSV</button>
+    <button class="action-btn action-archive" id="archivePatientBtn" onclick="archivePatient()">Archive patient</button>
+  </div>
+
+  <!-- Medicines -->
+  <div class="card">
+    <div class="section-heading"><div><strong>Active Medicines</strong><span id="medicineCount">Loading…</span></div></div>
+    <div id="medicineList" style="margin-top:6px;">
+      <div class="empty-state">Loading medicines...</div>
+    </div>
+  </div>
+
+  <!-- Caregivers -->
+  <div class="card">
+    <strong>👨‍👩‍👧 Care Takers</strong>
+    <div id="caregiverList" style="margin-top:6px;">
+      <div class="empty-state">Loading care takers...</div>
+    </div>
+    <button class="primary caregiver-add-btn" onclick="openCaregiverModal()">+ Add care taker</button>
+  </div>
+
+  <!-- Alert channel (ntfy) -->
+  <div class="card">
+    <strong>🔔 Care taker alert channel</strong>
+    <p class="section-desc" style="margin-top:6px;">Share this code with the care taker. They open the <b>ntfy</b> app, subscribe to this topic, and get only this patient's missed-dose alerts.</p>
+    <div class="alert-topic-row">
+      <code id="alertTopicCode">—</code>
+      <button class="icon-btn" id="alertTopicCopyBtn" onclick="copyAlertTopic(this)">Copy</button>
+    </div>
+    <a class="alert-subscribe-link" id="alertSubscribeLink" href="#" target="_blank" rel="noopener">Open in ntfy →</a>
+  </div>
+
+  <!-- Dose History -->
+  <div class="card">
+    <div class="section-heading"><div><strong>Dose History</strong><span>Most recent 10 doses</span></div></div>
+    <div id="doseHistory" style="margin-top:6px;">
+      <div class="empty-state">Loading dose history...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Medicine modal -->
+<div class="modal-overlay" id="addMedSheet" style="display:none;" onclick="if(event.target===this)closeAddMedicineModal()">
+  <div class="modal-sheet patient-sheet" role="dialog" aria-modal="true" aria-labelledby="addMedSheetTitle">
+    <button class="close-x" onclick="closeAddMedicineModal()" aria-label="Close">×</button>
+    <h3 id="addMedSheetTitle">Add medicine</h3>
+    <div class="section-body">
+      <input type="text" id="medName" placeholder="Medicine name">
+      <input type="text" id="medDosage" placeholder="Dosage (e.g. 1 tablet)">
+
+      <select id="medFrequency" onchange="toggleWeekDays()">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly (specific days)</option>
+      </select>
+
+      <div id="weekDays" class="day-chip-row" style="display:none;">
+        <label class="day-chip"><input type="checkbox" value="Sun"><span>Sun</span></label>
+        <label class="day-chip"><input type="checkbox" value="Mon"><span>Mon</span></label>
+        <label class="day-chip"><input type="checkbox" value="Tue"><span>Tue</span></label>
+        <label class="day-chip"><input type="checkbox" value="Wed"><span>Wed</span></label>
+        <label class="day-chip"><input type="checkbox" value="Thu"><span>Thu</span></label>
+        <label class="day-chip"><input type="checkbox" value="Fri"><span>Fri</span></label>
+        <label class="day-chip"><input type="checkbox" value="Sat"><span>Sat</span></label>
+      </div>
+
+      <div class="scan-field-label">Take at — select one or more</div>
+      <div id="scheduleTimes" class="schedule-times">
+        <label class="custom-schedule-time"><input type="checkbox" value="08:00"><span>8:00 AM</span></label>
+        <label class="custom-schedule-time"><input type="checkbox" value="13:00"><span>1:00 PM</span></label>
+        <label class="custom-schedule-time"><input type="checkbox" value="20:00"><span>8:00 PM</span></label>
+      </div>
+
+      <div class="scan-field-label">Add a custom time</div>
+      <div class="scan-custom-time">
+        <select id="customMedHour"></select>
+        <span>:</span>
+        <select id="customMedMinute"></select>
+        <select id="customMedPeriod"><option>AM</option><option>PM</option></select>
+        <button type="button" class="icon-btn" onclick="addCustomScheduleTime()">+ Add time</button>
+      </div>
+
+      <div class="error-msg" id="medError"></div>
+      <button class="primary" onclick="addMedicine()">Save medicine</button>
+    </div>
+  </div>
+</div>
+
+<!-- Prescription Scanner modal -->
+<div class="modal-overlay" id="scanSheet" style="display:none;" onclick="if(event.target===this)closeScanModal()">
+  <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="scanSheetTitle">
+    <button class="close-x" onclick="closeScanModal()" aria-label="Close">×</button>
+    <h3 id="scanSheetTitle" style="margin:0 28px 4px 0;">Scan prescription</h3>
+    <div class="section-body">
+      <p class="section-desc">Upload a clear prescription photo. Medicine names are extracted and checked against the current plan before import.</p>
+      <input type="file" id="prescriptionFile" accept="image/*" onchange="prescriptionSelected()">
+      <button class="primary" id="scanReadBtn" onclick="scanPrescription()">Read prescription</button>
+      <div class="error-msg" id="scanStatus" style="color:var(--muted);"></div>
+      <div id="scanTextWrap" style="display:none;">
+        <div class="scan-field-label">Raw detected text</div>
+        <pre id="scanText" class="scan-raw-text"></pre>
+      </div>
+      <div id="scanResults"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Care taker modal -->
+<div class="modal-overlay" id="caregiverModal" style="display:none;">
+  <div class="modal-sheet caregiver-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="caregiverModalTitle">
+    <button class="close-x" onclick="closeCaregiverModal()" aria-label="Close">×</button>
+    <h3 id="caregiverModalTitle">Add care taker</h3>
+    <p>Add a trusted person who should receive missed-dose alerts.</p>
+    <input type="text" id="caregiverName" placeholder="Care taker name" autocomplete="name">
+    <input type="tel" id="caregiverPhone" placeholder="WhatsApp / mobile number" autocomplete="tel">
+    <div class="error-msg" id="caregiverError"></div>
+    <button class="primary" onclick="saveCaregiverFromModal()">Save care taker</button>
+  </div>
+</div>
+
+<style>
+  .patient-actions{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:4px 0 16px;
+  }
+  .action-btn{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:13px 10px; border-radius:12px; border:1px solid var(--border);
+    background:#fff; color:var(--primary-dark); font-weight:700; font-size:13px;
+    cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,.06);
+  }
+  .action-btn:active{ background:#eff5ff; }
+  .action-archive{ grid-column:1 / -1; color:var(--danger); border-color:#f0c6cb; }
+  .action-btn.restore-btn{ color:#fff; background:var(--success); border-color:var(--success); }
+
+  .profile-head{ display:flex; align-items:center; gap:14px; }
+  .profile-avatar{
+    width:52px; height:52px; border-radius:50%; background:var(--primary); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; flex:0 0 auto;
+  }
+  .archive-btn{ margin-top:14px; }
+  .section-heading{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .section-heading span{ display:block; font-size:12px; color:var(--muted); font-weight:400; }
+
+  .patient-sheet{ max-width:540px; padding:24px; }
+  .patient-sheet h3{ margin:0 28px 10px 0; }
+
+  .section-body{ display:flex; flex-direction:column; gap:14px; }
+  .section-body input,
+  .section-body select{
+    margin-bottom:0;
+    padding:14px 16px;
+    font-size:15px;
+    border-radius:12px;
+  }
+  .section-desc{ font-size:13px; color:var(--muted); line-height:1.5; margin:0; }
+  .section-body .primary{ padding:15px; font-size:15px; }
+  .section-body .scan-field-label{ margin:0 0 -4px; }
+  .section-body .error-msg{ margin:0; }
+
+  .day-chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .day-chip{
+    display:flex; align-items:center; gap:4px; padding:6px 10px; border-radius:20px;
+    border:1px solid var(--border); font-size:12px; cursor:pointer; user-select:none; color:var(--muted);
+  }
+  .day-chip input{ display:none; }
+  .day-chip:has(input:checked){ background:#FBF0CE; border-color:var(--primary-dark); color:var(--primary-dark); font-weight:600; }
+  .schedule-times{ display:flex; flex-wrap:wrap; gap:8px; }
+  .custom-schedule-time{
+    display:flex; align-items:center; gap:6px; padding:8px 12px; border-radius:12px;
+    border:1px solid var(--border); font-size:13px; cursor:pointer; user-select:none; color:var(--muted);
+  }
+  .custom-schedule-time input{ display:none; }
+  .custom-schedule-time:has(input:checked){ background:#FBF0CE; border-color:var(--primary-dark); color:var(--primary-dark); font-weight:700; }
+  .custom-schedule-time small{ display:block; font-size:10px; font-weight:400; color:var(--muted); }
+  .scan-field-label{ font-size:12px; color:var(--muted); margin:10px 0 4px; }
+  .scan-custom-time{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .scan-custom-time select{ width:auto; flex:1; min-width:90px; }
+  .scan-custom-time .icon-btn{ flex:0 0 auto; }
+  .scan-raw-text{ white-space:pre-wrap; background:#FBF9F2; border:1px solid var(--border); border-radius:10px; padding:10px; font-size:12px; max-height:160px; overflow-y:auto; }
+  .scan-medicine-card{ border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:10px; background:#FBF9F2; }
+  .scan-medicine-card.is-duplicate{ opacity:0.6; }
+  .scan-card-head{ display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .scan-times{ display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 8px; }
+  .scan-times label{ display:flex; align-items:center; gap:4px; font-size:12px; }
+  .scan-weekly-toggle{ display:flex; align-items:center; gap:6px; font-size:12px; margin-top:6px; }
+  .scan-days{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:8px; }
+  .scan-days label{ display:flex; align-items:center; gap:4px; font-size:11px; }
+  .scan-import-btn{ margin-top:4px; }
+  .contact-line{ display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .contact-line:last-child{ border-bottom:none; }
+  .contact-line strong{ display:block; }
+  .contact-line span{ color:var(--muted); font-size:12px; }
+  .remove-med-btn, .remove-contact{
+    background:transparent; border:1px solid var(--border); border-radius:8px; padding:5px 10px;
+    font-size:11px; color:var(--danger); cursor:pointer;
+  }
+  .med-item-photo{ align-items:center; }
+  .med-body{ flex:1; min-width:0; }
+  .med-thumb{ width:40px; height:40px; border-radius:10px; object-fit:cover; flex:0 0 auto; background:#eff5ff; }
+  .med-thumbs{ display:flex; gap:4px; flex:0 0 auto; flex-wrap:wrap; max-width:88px; }
+  .med-thumb-empty{ display:flex; align-items:center; justify-content:center; font-size:18px; color:var(--muted); border:1px dashed var(--border); }
+  .med-actions{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+  .mini-btn{ background:#fff; border:1px solid var(--border); border-radius:8px; padding:5px 10px; font-size:11px; color:var(--primary-dark); cursor:pointer; font-weight:700; white-space:nowrap; }
+  .mini-btn.is-enrolled{ background:#e7f6ef; border-color:#9fd9bd; color:#0f7a4f; }
+  .mini-clear{ padding:5px 8px; color:var(--danger); }
+  .caregiver-add-btn{ margin-top:14px; }
+  .caregiver-modal-sheet{ max-width:460px; padding:26px; }
+  .caregiver-modal-sheet h3{ margin:0 28px 4px 0; }
+  .caregiver-modal-sheet p{ margin:0 0 20px; color:var(--muted); font-size:13px; }
+  .alert-topic-row{ display:flex; align-items:center; gap:8px; margin-top:12px; }
+  .alert-topic-row code{ flex:1; min-width:0; overflow:auto; padding:10px 12px; border:1px dashed var(--border); border-radius:10px; background:#f7fbff; font-size:13px; white-space:nowrap; }
+  .alert-subscribe-link{ display:inline-block; margin-top:10px; color:var(--primary-dark); font-weight:700; font-size:13px; text-decoration:none; }
+</style>
+
+<script>
+  function openAddMedicineModal() {
+    document.getElementById('addMedSheet').style.display = 'flex';
+    document.getElementById('medError').textContent = '';
+    setTimeout(() => document.getElementById('medName').focus(), 0);
+  }
+  function closeAddMedicineModal() {
+    document.getElementById('addMedSheet').style.display = 'none';
+  }
+  function openScanModal() {
+    document.getElementById('scanSheet').style.display = 'flex';
+  }
+  function closeScanModal() {
+    document.getElementById('scanSheet').style.display = 'none';
+  }
+  function openCaregiverModal() {
+    document.getElementById('caregiverModal').style.display = 'flex';
+    document.getElementById('caregiverError').textContent = '';
+    setTimeout(() => document.getElementById('caregiverName').focus(), 0);
+  }
+  function closeCaregiverModal() {
+    document.getElementById('caregiverModal').style.display = 'none';
+  }
+  async function saveCaregiverFromModal() {
+    const saved = await addCaregiver();
+    if (saved) closeCaregiverModal();
+  }
+  async function renderAlertChannel() {
+    if (!selectedPatient) return;
+    let topic = selectedPatient.alertTopic;
+    if (!topic && typeof makeAlertTopic === 'function') {
+      topic = makeAlertTopic(selectedPatient.name || selectedPatientId);
+      selectedPatient.alertTopic = topic;
+      try { await db.collection('users').doc(selectedPatientId).update({ alertTopic: topic }); } catch (e) { console.warn('Could not save alert topic:', e); }
+    }
+    document.getElementById('alertTopicCode').textContent = topic || '—';
+    const link = document.getElementById('alertSubscribeLink');
+    if (link && topic) link.href = 'https://ntfy.sh/' + encodeURIComponent(topic);
+  }
+  function copyAlertTopic(btn) {
+    const topic = document.getElementById('alertTopicCode').textContent.trim();
+    if (!topic || topic === '—' || !navigator.clipboard) return;
+    navigator.clipboard.writeText(topic).then(() => {
+      const old = btn.textContent; btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = old; }, 1500);
+    }).catch(() => {});
+  }
+</script>
+<script src="js/theme.js"></script>
+<script src="js/vendor/firebase-app-compat.js"></script>
+<script src="js/vendor/firebase-auth-compat.js"></script>
+<script src="js/vendor/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/app-shell.js"></script>
+<script src="js/ml-loader.js"></script><script src="js/medicine-match.js"></script>
+<script src="js/patient-details.js"></script><script src="js/pwa.js"></script>
+<script src="js/i18n.js"></script>
+</body>
+</html>

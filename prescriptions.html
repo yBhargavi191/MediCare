@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCare — Prescriptions</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/app-shell.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#60a5fa">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MediCare">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <style>
+    body{visibility:hidden}.records-list{display:grid;gap:9px}.record-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:13px;border:1px solid var(--border);border-radius:12px;background:#fbfdff}.record-row strong{display:block;color:var(--primary-dark)}.record-row small,.record-row p{display:block;margin:4px 0 0;color:var(--muted);font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}.record-status{flex:0 0 auto;padding:4px 8px;border-radius:999px;background:#eef5ff;color:var(--primary-dark);font-size:10px;font-weight:700}.records-empty{padding:18px;text-align:center;border-radius:12px;background:#f7faf9;color:var(--muted);font-size:13px}.records-note{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.5}.prescription-import{margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:12px;background:#f8fbfa}.prescription-import-actions{display:flex;flex-wrap:wrap;gap:8px}.prescription-import-actions button{width:auto}.prescription-import textarea{width:100%;min-height:110px;margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;resize:vertical}.prescription-import-status{min-height:18px;margin:8px 0 0;color:var(--muted);font-size:12px}@media(max-width:480px){.record-row{flex-direction:column}.record-status{align-self:flex-start}.prescription-import-actions{display:grid;grid-template-columns:1fr}.prescription-import-actions button{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="fitness-page">
+    <header class="topbar"><div><h1>Prescriptions</h1><div class="greet">Prescriptions, OCR import &amp; saved list</div></div><div><button class="icon-btn" id="fitnessBackButton" type="button">⏎ Back</button><button class="icon-btn" type="button" onclick="auth.signOut().then(function(){location.href='index.html';})">Log out</button></div></header>
+    <section class="card">
+      <div class="section-heading"><strong>Prescriptions</strong><a class="icon-btn" href="health-records.html" style="text-decoration:none;">Health Records</a></div>
+      <div id="recordPrescriptions" class="records-list" style="margin-top:12px;"><div class="records-empty">Loading prescriptions...</div></div>
+      <div class="prescription-import">
+        <strong>Upload prescription (image/PDF photo)</strong>
+        <p class="records-note">Clear prescription photo lo text extract chestam. Original image server lo upload avvadu (on-device OCR).</p>
+        <input id="prescriptionImage" type="file" accept="image/*" aria-label="Choose prescription image">
+        <div class="prescription-import-actions">
+          <button class="icon-btn" id="readPrescriptionBtn" type="button">Read prescription</button>
+          <button class="icon-btn" id="savePrescriptionBtn" type="button" hidden>Save to Prescriptions</button>
+        </div>
+        <p id="prescriptionImportStatus" class="prescription-import-status" aria-live="polite"></p>
+        <textarea id="prescriptionTextPreview" aria-label="Recognized prescription text" placeholder="Recognized prescription text will appear here for review." hidden></textarea>
+      </div>
+    </section>
+  </main>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/ml-loader.js"></script>
+  <script src="js/app-shell.js"></script>
+  <script src="js/fitness-page-nav.js"></script>
+  <script>
+    var prescriptionsUser=null,lastImportedPrescription=null;
+    function addRecordRow(host,title,detail,status,notes){var row=document.createElement('article');row.className='record-row';var info=document.createElement('div');var h=document.createElement('strong');h.textContent=title;info.appendChild(h);if(detail){var t=document.createElement('small');t.textContent=detail;info.appendChild(t);}if(notes){var n=document.createElement('p');n.textContent=notes;info.appendChild(n);}var b=document.createElement('span');b.className='record-status';b.textContent=status;row.append(info,b);host.appendChild(row);}
+    function displayRecordDate(v){if(!v)return '';var d=(v&&typeof v.toDate==='function')?v.toDate():new Date(v);return isNaN(d.getTime())?'':d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});}
+    function setImportStatus(m){var el=document.getElementById('prescriptionImportStatus');if(el)el.textContent=m||'';}
+    async function readPrescriptionImage(){try{var fi=document.getElementById('prescriptionImage');if(!fi||!fi.files||!fi.files.length){setImportStatus('Prescription image select cheyandi first.');return;}if(!window.MLMLOADER||typeof window.MLMLOADER.init!=='function'){setImportStatus('OCR engine loading... try again shortly.');return;}await window.MLMLOADER.init({modelNames:['prescription-ocr']});var w=window.MLMLOADER.getWorker('prescription-ocr');if(!w||typeof w.predict!=='function'){setImportStatus('OCR not ready. Try again.');return;}var f=fi.files[0];var bm=await createImageBitmap(f);var c=document.createElement('canvas');c.width=bm.width;c.height=bm.height;c.getContext('2d').drawImage(bm,0,0);var pred=await w.predict(c);var lines=[];if(pred&&pred.texts){lines=pred.texts.filter(x=>x&&x.trim());}else if(Array.isArray(pred)){pred.forEach(p=>{if(p&&p.text&&p.text.trim())lines.push(p.text.trim());});}var ocrText=lines.join('\n');lastImportedPrescription={ocrText:ocrText,medicineNames:[],source:'prescription-ocr',createdAt:new Date()};var pr=document.getElementById('prescriptionTextPreview');var sb=document.getElementById('savePrescriptionBtn');if(ocrText){pr.value=ocrText;pr.hidden=false;sb.hidden=false;setImportStatus('Text recognized. Review chesi Save cheyandi.');}else{pr.value='';pr.hidden=true;sb.hidden=true;setImportStatus('Text identify avvaledu. Clear photo try cheyandi.');}}catch(e){setImportStatus('Prescription read avvaledu. Clear image try cheyandi.');}}
+    async function saveImportedPrescription(){if(!lastImportedPrescription||!prescriptionsUser)return;var pr=document.getElementById('prescriptionTextPreview');var ocrText=(pr&&!pr.hidden)?pr.value:(lastImportedPrescription.ocrText||'');var rec={patientId:prescriptionsUser.uid,type:'prescription',title:'Prescription',ocrText:ocrText,medicineNames:lastImportedPrescription.medicineNames||[],date:new Date(),createdAt:new Date(),source:'prescription-ocr'};try{await db.collection('healthRecords').add(rec);setImportStatus('Prescription saved successfully.');var fi=document.getElementById('prescriptionImage');if(fi)fi.value='';var pr2=document.getElementById('prescriptionTextPreview');if(pr2){pr2.value='';pr2.hidden=true;}var sb=document.getElementById('savePrescriptionBtn');if(sb)sb.hidden=true;lastImportedPrescription=null;loadPrescriptions();}catch(e){setImportStatus('Save failed. Try again.');}}
+    async function loadPrescriptions(){if(!prescriptionsUser)return;var host=document.getElementById('recordPrescriptions');if(host)host.replaceChildren();var r=await db.collection('healthRecords').where('patientId','==',prescriptionsUser.uid).get();var all=r.docs.map(d=>Object.assign({id:d.id},d.data()));var list=all.filter(x=>x.type==='prescription').sort((a,b)=>(b.date||'').localeCompare(a.date||''));if(host&&list.length){list.forEach(rec=>{var medTxt=(rec.medicineNames||[]).map(m=>[m.name,m.dosage].filter(Boolean).join(' – ')).filter(Boolean).join(', ');addRecordRow(host,rec.title||'Prescription',displayRecordDate(rec.date||rec.createdAt),rec.source==='prescription-ocr'?'Scanned':'Record',medTxt||rec.ocrText||rec.notes||'');});}else if(host){host.innerHTML='<div class="records-empty">No prescriptions saved yet.</div>';}}
+    document.getElementById('readPrescriptionBtn')?.addEventListener('click',readPrescriptionImage);
+    document.getElementById('savePrescriptionBtn')?.addEventListener('click',saveImportedPrescription);
+    auth.onAuthStateChanged(async function(u){if(!u){location.href='index.html';return;}try{var acc=await db.collection('users').doc(u.uid).get();if(!acc.exists||acc.data().role!=='patient'||acc.data().status==='archived'){location.href='index.html';return;}document.body.style.visibility='visible';prescriptionsUser=u;loadPrescriptions();}catch(e){location.href='index.html';}});
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.web.verimed_6b92d.twa",
+    "sha256_cert_fingerprints": ["DC:8B:28:BC:A3:7B:6B:FA:A9:A8:17:B0:EA:0C:92:1F:87:5A:DD:74:67:17:68:33:78:9C:C1:73:4A:4D:FF:7B"]
+  }
+}]

@@ -1,0 +1,547 @@
+body {
+  min-height: 100svh;
+  overflow: hidden;
+  background: #eaf5ff;
+}
+
+.login-shell {
+  position: fixed;
+  inset: 0;
+  display: block;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.login-reference-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.login-hero {
+  display: none;
+}
+
+.login-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+.login-card {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.login-card::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 11.3%;
+  left: 58.8%;
+  width: 28.4%;
+  height: 80.8%;
+  border: 1px solid rgba(222, 234, 245, .9);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 18px 55px -35px rgba(35, 81, 126, .34);
+  pointer-events: none;
+}
+
+.login-card > * {
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.card-head {
+  position: absolute;
+  top: 17.2%;
+  left: 60.7%;
+  width: 24.6%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  overflow: visible;
+  text-align: center;
+}
+
+.card-head h1 {
+  margin: 0;
+  color: #3283e8;
+  font: 800 clamp(20px, 2.1vw, 28px)/1.2 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -.035em;
+}
+
+.card-head p {
+  margin: 0;
+  color: #71849a;
+  font-size: clamp(9px, .95vw, 12px);
+  line-height: 1.35;
+}
+
+.role-toggle {
+  position: absolute;
+  top: 32.3%;
+  left: 60.7%;
+  width: 24.6%;
+  height: 7.5%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  padding: 0;
+  border-radius: 11px;
+  background: rgba(238, 241, 246, .95);
+}
+
+.role-toggle button {
+  min-height: 0;
+  gap: 7px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: clamp(10px, 1.1vw, 13px);
+}
+
+.role-toggle button.active {
+  border-color: #c8def5;
+  background: rgba(237, 246, 255, .96);
+  box-shadow: none;
+}
+
+.role-icon {
+  width: clamp(13px, 1.5vw, 17px);
+  height: clamp(13px, 1.5vw, 17px);
+}
+
+.form-grid {
+  display: contents;
+}
+
+.field {
+  position: absolute;
+  left: 60.7%;
+  width: 24.6%;
+  height: 7.5%;
+}
+
+.field .input-wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.field .input-wrap input {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0 38px 0 42px;
+  border: 1px solid rgba(224, 233, 242, .97);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .98);
+  font-size: clamp(10px, 1.05vw, 13px);
+}
+
+.field .input-wrap input::placeholder {
+  color: #91a1b3;
+  opacity: 1;
+}
+
+.field .input-icon {
+  left: 13px;
+  width: clamp(14px, 1.45vw, 17px);
+  height: clamp(14px, 1.45vw, 17px);
+}
+
+form > .field:nth-child(2) {
+  top: 42.6%;
+}
+
+form > .field:nth-child(3) {
+  top: 53%;
+}
+
+.password-toggle {
+  right: 8px;
+  width: 30px;
+  height: 30px;
+}
+
+.row-between {
+  position: absolute;
+  top: 63.8%;
+  left: 60.7%;
+  width: 24.6%;
+  min-height: 4.3%;
+  font-size: clamp(9px, 1vw, 12px);
+}
+
+.check {
+  gap: 8px;
+  color: #71849a;
+}
+
+.check input {
+  width: clamp(15px, 1.7vw, 18px);
+  height: clamp(15px, 1.7vw, 18px);
+}
+
+.link {
+  font-size: inherit;
+}
+
+.error-msg {
+  position: absolute;
+  top: 67.8%;
+  left: 60.7%;
+  width: 24.6%;
+  font-size: 11px;
+}
+
+#submitBtn {
+  position: absolute;
+  top: 69.6%;
+  left: 60.7%;
+  width: 24.6%;
+  height: 7.3%;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: clamp(11px, 1.2vw, 14px);
+}
+
+.divider {
+  position: absolute;
+  top: 82.2%;
+  left: 60.7%;
+  width: 24.6%;
+  height: 1px;
+  display: block;
+  background: var(--border);
+}
+
+.divider::before,
+.divider::after {
+  display: none;
+}
+
+.divider span {
+  display: none;
+}
+
+.alt-actions {
+  position: absolute;
+  top: 81.5%;
+  left: 60.7%;
+  width: 24.6%;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.alt-caption {
+  color: #71849a;
+  font-size: clamp(9px, 1vw, 12px);
+}
+
+#toggleModeBtn {
+  padding: 0;
+  font-size: clamp(10px, 1.08vw, 13px);
+}
+
+#signupFields {
+  display: none !important;
+}
+
+.login-card.is-signup {
+  inset: 11.3% auto auto 58.8%;
+  width: 28.4%;
+  height: 80.8%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(20px, 3vw, 40px);
+  border: 1px solid rgba(222, 234, 245, .9);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 18px 55px -35px rgba(35, 81, 126, .34);
+  pointer-events: auto;
+}
+
+.login-card.is-signup::before {
+  display: none;
+}
+
+.login-card.is-signup > * {
+  position: static;
+  width: 100%;
+  height: auto;
+}
+
+.login-card.is-signup .card-head {
+  display: flex;
+  position: static;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+.login-card.is-signup .role-toggle {
+  min-height: 40px;
+}
+
+.login-card.is-signup form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-card.is-signup #signupFields {
+  position: static;
+  display: flex !important;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-card.is-signup .field {
+  position: static;
+  width: 100%;
+  height: auto;
+}
+
+.login-card.is-signup .field .input-wrap,
+.login-card.is-signup .field .input-wrap input {
+  height: 46px;
+}
+
+.login-card.is-signup .row-between,
+.login-card.is-signup .error-msg,
+.login-card.is-signup #submitBtn,
+.login-card.is-signup .divider,
+.login-card.is-signup .alt-actions {
+  position: static;
+  width: 100%;
+  height: auto;
+}
+
+.login-card.is-signup .alt-actions {
+  align-items: center;
+}
+
+.login-card.is-signup .divider {
+  display: flex;
+}
+
+.login-card.is-signup .divider::before,
+.login-card.is-signup .divider::after {
+  display: block;
+}
+
+@media (max-width: 760px) {
+  body {
+    overflow: auto;
+  }
+
+  .login-shell {
+    position: relative;
+    inset: auto;
+    min-height: 100svh;
+    height: auto;
+    overflow: visible;
+    background: #eaf5ff;
+  }
+
+  .login-reference-art {
+    display: none;
+  }
+
+  .login-panel {
+    position: relative;
+    inset: auto;
+    min-height: 100svh;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    pointer-events: auto;
+  }
+
+  .login-card,
+  .login-card.is-signup {
+    position: relative;
+    inset: auto;
+    width: min(460px, 100%);
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: auto;
+    padding: 26px 22px;
+    border: 1px solid rgba(222, 234, 245, .9);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 18px 55px -35px rgba(35, 81, 126, .34);
+    pointer-events: auto;
+  }
+
+  .login-card::before,
+  .login-card.is-signup::before {
+    display: none;
+  }
+
+  .login-card > * {
+    position: static;
+    width: 100%;
+    height: auto;
+  }
+
+  .card-head,
+  .login-card.is-signup .card-head {
+    display: flex;
+    top: auto;
+    left: auto;
+    position: static;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  .role-toggle,
+  .login-card.is-signup .role-toggle {
+    min-height: 40px;
+  }
+
+  .form-grid,
+  .login-card.is-signup form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #signupFields,
+  .login-card.is-signup #signupFields {
+    position: static;
+    width: 100%;
+    display: none !important;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .login-card.is-signup #signupFields {
+    display: flex !important;
+  }
+
+  .field,
+  .login-card.is-signup .field {
+    position: static;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .field label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .field .input-wrap,
+  .login-card.is-signup .field .input-wrap {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  .field .input-wrap input,
+  .login-card.is-signup .field .input-wrap input {
+    width: 100%;
+    height: 46px;
+    min-height: 46px;
+    padding: 10px 40px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    font-size: 14px;
+  }
+
+  .field .input-icon {
+    left: 13px;
+    width: 17px;
+    height: 17px;
+  }
+
+  .row-between,
+  .error-msg,
+  #submitBtn,
+  .divider,
+  .alt-actions,
+  .login-card.is-signup .row-between,
+  .login-card.is-signup .error-msg,
+  .login-card.is-signup #submitBtn,
+  .login-card.is-signup .divider,
+  .login-card.is-signup .alt-actions {
+    position: static;
+    width: 100%;
+    height: auto;
+  }
+
+  .row-between,
+  .login-card.is-signup .row-between {
+    min-height: 0;
+    font-size: 12px;
+  }
+
+  #submitBtn,
+  .login-card.is-signup #submitBtn {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .divider,
+  .login-card.is-signup .divider {
+    display: flex;
+  }
+
+  .divider::before,
+  .divider::after,
+  .login-card.is-signup .divider::before,
+  .login-card.is-signup .divider::after {
+    display: block;
+  }
+
+  .divider span {
+    display: inline;
+  }
+
+  .alt-actions,
+  .login-card.is-signup .alt-actions {
+    align-items: center;
+  }
+
+  .alt-caption {
+    font-size: 12px;
+  }
+
+  #toggleModeBtn {
+    font-size: 13px;
+  }
+}

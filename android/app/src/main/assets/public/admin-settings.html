@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#60a5fa">
+  <title>MediCare Admin — Settings</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin-pages.css">
+  <link rel="stylesheet" href="css/app-shell.css">
+</head>
+<body data-admin-page="settings">
+  <main class="admin-page-shell">
+    <header class="topbar admin-page-topbar">
+      <div><h1>Admin Settings</h1><p id="adminName">Loading admin profile…</p></div>
+      <div class="admin-page-actions"><button class="icon-btn" type="button" onclick="logout()">Log out</button></div>
+    </header>
+    <nav class="admin-page-nav" aria-label="Admin navigation">
+      <a href="admin-dashboard.html">Dashboard</a>
+      <a href="admin-alerts.html">Alert Center</a>
+      <a href="admin-reports.html">Reports</a>
+      <a href="admin-settings.html" aria-current="page">Settings</a>
+    </nav>
+    <p class="admin-page-intro">Personalize the admin workspace on this device.</p>
+    <div class="admin-page-grid">
+      <section class="admin-page-card" aria-labelledby="appearanceTitle">
+        <h2 id="appearanceTitle">Appearance &amp; language</h2>
+        <p>Preferences are saved on this device and follow you across MediCare pages.</p>
+        <div class="admin-settings-list settings-list">
+          <div class="admin-settings-item">
+            <div class="admin-settings-copy"><strong>Dark appearance</strong><small>Use a darker color scheme across the app.</small></div>
+            <label class="admin-switch"><input type="checkbox" id="themeToggle" aria-label="Enable dark appearance"><span class="admin-switch-track" aria-hidden="true"></span></label>
+          </div>
+        </div>
+      </section>
+      <section class="admin-page-card" aria-labelledby="accountTitle">
+        <h2 id="accountTitle">Admin account</h2>
+        <p>Signed-in account details.</p>
+        <div class="admin-profile-row"><span class="admin-settings-copy"><strong>Name</strong></span><span class="admin-profile-value" id="adminProfileName">Loading…</span></div>
+        <div class="admin-profile-row" style="margin-top:10px;"><span class="admin-settings-copy"><strong>Email</strong></span><span class="admin-profile-value" id="adminProfileEmail">Loading…</span></div>
+      </section>
+    </div>
+    <p class="admin-status-message" id="adminSettingsStatus" role="status" aria-live="polite"></p>
+  </main>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app-shell.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/admin-pages.js"></script>
+<script src="js/i18n.js"></script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#60a5fa">
+  <title>MediCare — Nearby Hospitals</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/fitness-pages.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous">
+  <style>
+    body{visibility:hidden;--hospital-ink:var(--text);--hospital-muted:var(--muted);--hospital-paper:var(--bg);--hospital-line:var(--border);--hospital-blue:var(--primary)}
+    .hospital-page{width:min(1180px,100%);max-width:1180px;padding-top:clamp(82px,10vw,104px)}
+    .hospital-page h1{margin:0;font:800 clamp(30px,4vw,40px)/1.1 'Plus Jakarta Sans','DM Sans',sans-serif;color:var(--primary-dark);letter-spacing:-.04em}
+    .hospital-eyebrow{margin:0 0 8px;color:var(--hospital-blue);font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase}
+    .hospital-intro{max-width:680px;margin:10px 0 23px;color:var(--hospital-muted);font-size:13px;line-height:1.65}
+    .hospital-controls{display:flex;align-items:stretch;gap:9px;flex-wrap:wrap;margin-bottom:13px;min-width:0}
+    #hospitalApp button,#hospitalApp input{min-height:42px;border-radius:10px;font:inherit}
+    #hospitalApp button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;border:1px solid var(--hospital-blue);color:white;background:var(--hospital-blue);font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 5px 12px rgba(59,130,246,.12)}
+    #hospitalApp button:hover{background:var(--primary-dark)}#hospitalApp button:disabled{opacity:.65;cursor:wait}
+    #hospitalLocate{flex:0 0 auto;height:42px;margin:0;white-space:nowrap}
+    #hospitalApp form{display:flex;align-items:stretch;flex:1 1 360px;gap:8px;min-width:0;min-height:42px;margin:0}
+    #hospitalApp input{display:block;flex:1;width:100%;height:42px;min-height:42px;min-width:0;margin:0;padding:0 12px;border:1px solid var(--hospital-line);border-radius:10px;color:var(--hospital-ink);background:#fff;font-size:12px;line-height:normal}
+    #hospitalApp input:focus{outline:2px solid rgba(96,165,250,.45);outline-offset:1px}
+    #hospitalApp form button{flex:0 0 auto;height:42px;min-height:42px;margin:0;white-space:nowrap}
+    .hospital-status{min-height:21px;margin:0 0 12px;color:var(--hospital-muted);font-size:11px;line-height:1.5}
+    .hospital-workspace{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.8fr);gap:13px;align-items:start}
+    .hospital-map-column,.hospital-results{min-width:0}
+    #hospitalMap{width:100%;height:min(65vh,570px);min-height:360px;border:1px solid var(--hospital-line);border-radius:14px;background:#eef5ff;z-index:0;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    .hospital-attribution{margin:7px 0 0;color:var(--hospital-muted);font-size:10px}
+    .hospital-results{max-height:min(65vh,570px);overflow-y:auto;border:1px solid var(--hospital-line);border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    .hospital-results-heading{position:sticky;top:0;z-index:1;margin:0;padding:14px 15px;border-bottom:1px solid var(--hospital-line);background:#fff;color:var(--primary-dark);font:700 17px 'Plus Jakarta Sans','DM Sans',sans-serif}
+    .hospital-empty{margin:0;padding:16px;color:var(--hospital-muted);font-size:12px;line-height:1.6}
+    .hospital-empty a,.hospital-result a{display:inline-block;margin-top:8px;color:var(--hospital-blue);font-size:11px;font-weight:700;text-decoration:none}
+    .hospital-result{padding:13px 15px;border-bottom:1px solid var(--hospital-line);cursor:pointer}
+    .hospital-result h2{margin:0 0 5px;font:700 15px/1.3 'Plus Jakarta Sans','DM Sans',sans-serif;color:var(--primary-dark)}
+    .hospital-result p{margin:0;color:var(--hospital-muted);font-size:11px;line-height:1.55}
+    .hospital-result:hover{background:#f5f9ff}
+    .hospital-safety{margin:17px 0 0;padding:13px 15px;border:1px solid #eadbb8;border-radius:12px;color:#695426;background:#fff9e9;font-size:11px;line-height:1.55}
+    @media(max-width:720px){.hospital-page{padding-top:26px}.hospital-workspace{grid-template-columns:1fr}#hospitalMap{height:52vh;min-height:280px}.hospital-results{max-height:360px}#hospitalLocate,#hospitalApp form{flex:1 1 100%;width:100%}}
+    @media(max-width:430px){.hospital-controls{gap:8px}.hospital-controls>#hospitalLocate{width:100%}#hospitalApp form{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}#hospitalApp form button{width:100%}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <button class="drawer-trigger" id="fitnessMenuTrigger" type="button" aria-label="Open navigation menu" aria-expanded="false">☰</button>
+  <div class="drawer-backdrop" id="fitnessMenuBackdrop" hidden></div>
+  <aside class="drawer" id="fitnessPageDrawer" aria-label="Patient pages" aria-hidden="true">
+    <div class="drawer-header"><div class="drawer-brand"><div class="drawer-logo">M</div><div><strong>MediCare</strong><small>Patient menu</small></div></div><button class="drawer-close" id="fitnessMenuClose" type="button" aria-label="Close menu">×</button></div>
+    <nav class="drawer-nav" aria-label="Page navigation">
+      <a class="drawer-item" href="patient-dashboard.html"><span>🏠</span><div><strong>Dashboard</strong><small>Patient overview</small></div></a>
+      <a class="drawer-item" href="medication-reminders.html"><span>💊</span><div><strong>Medication Reminders</strong><small>Today's doses and alerts</small></div></a>
+      <a class="drawer-item active" href="nearby-hospitals.html"><span>🏥</span><div><strong>Nearby Hospitals</strong><small>Search by place or location</small></div></a>
+      <a class="drawer-item" href="fitness-checking.html"><span>🌿</span><div><strong>Fitness &amp; Wellness</strong><small>Guided wellness plan</small></div></a>
+      <a class="drawer-item" href="appointments.html"><span>📅</span><div><strong>Appointments</strong><small>Plan a care visit</small></div></a>
+      <a class="drawer-item" href="health-records.html"><span>📋</span><div><strong>Health Records</strong><small>Medicines and dose history</small></div></a>
+      <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
+      <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
+      <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+      <a class="drawer-item" href="caremate.html"><span>🤖</span><div><strong>AI Assistant</strong></div></a>
+    </nav>
+  </aside>
+  <main class="fitness-page hospital-page" id="hospitalApp">
+    <header class="topbar"><div><p class="hospital-eyebrow">MediCare · location search</p><h1>Nearby hospitals</h1><div class="greet">Find mapped hospitals near a place you enter or your current location.</div></div><div><button class="icon-btn" id="fitnessBackButton" type="button">← Back</button><button class="icon-btn" type="button" onclick="auth.signOut().then(function(){location.href='index.html';})">Log out</button></div></header>
+    <p class="hospital-intro">Search a city, address or postcode, or choose “Use my location” to search nearby. Your device location is only requested when you tap the location button.</p>
+    <div class="hospital-controls">
+      <button id="hospitalLocate" type="button"><span aria-hidden="true">⌖</span> Use my location</button>
+      <form id="hospitalSearchForm"><input id="hospitalPlace" name="place" type="search" autocomplete="street-address" placeholder="City, address, or postcode" aria-label="City, address, or postcode" required><button type="submit">Search location</button></form>
+    </div>
+    <p class="hospital-status" id="hospitalStatus" role="status" aria-live="polite">Your location is not being accessed. Search a place or choose “Use my location.”</p>
+    <section class="hospital-workspace" aria-label="Map and nearby hospital results">
+      <div class="hospital-map-column"><div id="hospitalMap" role="application" aria-label="Map showing hospitals"></div><p class="hospital-attribution">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>.</p></div>
+      <div class="hospital-results" id="hospitalResults" aria-live="polite"><h2 class="hospital-results-heading">Hospital results</h2><p class="hospital-empty">Search for a location to show nearby hospitals.</p></div>
+    </section>
+    <p class="hospital-safety"><strong>Emergency:</strong> This page does not verify hospital availability or provide emergency dispatch. If you may be experiencing an emergency, call your local emergency number now.</p>
+  </main>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/fitness-page-nav.js"></script>
+  <script>
+    function loadLeafletScript(url) {
+      return new Promise(function(resolve, reject) {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = function() { window.L ? resolve() : reject(new Error('Map library did not initialize.')); };
+        script.onerror = function() { reject(new Error('Map library could not be downloaded.')); };
+        document.head.appendChild(script);
+      });
+    }
+
+    async function ensureLeaflet() {
+      if (window.L) return;
+      try {
+        await loadLeafletScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js');
+      } catch (firstError) {
+        await loadLeafletScript('https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js');
+      }
+    }
+
+    window.initializeNearbyHospitals = function() {
+      const map = window.L.map('hospitalMap').setView([20, 0], 2);
+      const hospitalMarkers = L.layerGroup().addTo(map);
+      let locationMarker;
+      const tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Sources: Esri, USGS, NOAA, and OpenStreetMap contributors'
+      }).addTo(map);
+      tileLayer.on('tileerror', function() {
+        setStatus('The map tiles could not load. Check your internet connection; you can still search a place and use the hospital results.');
+      });
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+      }
+      function setStatus(message) { document.getElementById('hospitalStatus').textContent = message; }
+      async function searchHospitals(latitude, longitude, locationName) {
+        const results = document.getElementById('hospitalResults');
+        results.innerHTML = '<h2 class="hospital-results-heading">Hospital results</h2><p class="hospital-empty">Searching nearby hospitals…</p>';
+        setStatus('Searching near ' + locationName + '…');
+        map.setView([latitude, longitude], 13);
+        hospitalMarkers.clearLayers();
+        if (locationMarker) map.removeLayer(locationMarker);
+        locationMarker = L.marker([latitude, longitude]).addTo(map).bindPopup('Search location');
+        try {
+          const params = new URLSearchParams({ q: 'hospital', lat: String(latitude), lon: String(longitude), limit: '50', osm_tag: 'amenity:hospital' });
+          const response = await fetch('https://photon.komoot.io/api/?' + params.toString());
+          if (!response.ok) throw new Error('Hospital search service is unavailable.');
+          const data = await response.json();
+          const hospitals = (data.features || []).map(feature => ({
+            name: feature.properties && feature.properties.name,
+            latitude: feature.geometry.coordinates[1],
+            longitude: feature.geometry.coordinates[0],
+            properties: feature.properties || {}
+          })).filter(hospital => hospital.name && map.distance([latitude, longitude], [hospital.latitude, hospital.longitude]) <= 10000)
+            .sort((first, second) => map.distance([latitude, longitude], [first.latitude, first.longitude]) - map.distance([latitude, longitude], [second.latitude, second.longitude]));
+          results.innerHTML = '<h2 class="hospital-results-heading">Hospital results</h2>';
+          if (!hospitals.length) {
+            results.insertAdjacentHTML('beforeend', '<p class="hospital-empty">No mapped hospitals found within 10 km. Try another location.</p>');
+            setStatus('No mapped hospitals found nearby.');
+            return;
+          }
+          hospitals.slice(0, 30).forEach((hospital, index) => {
+            const distance = map.distance([latitude, longitude], [hospital.latitude, hospital.longitude]) / 1000;
+            const address = [hospital.properties.housenumber, hospital.properties.street, hospital.properties.city].filter(Boolean).join(' ') || 'Address not listed';
+            const directions = 'https://www.google.com/maps/dir/?api=1&destination=' + hospital.latitude + ',' + hospital.longitude;
+            const marker = L.marker([hospital.latitude, hospital.longitude]).addTo(hospitalMarkers).bindPopup('<strong>' + escapeHtml(hospital.name) + '</strong><br>' + distance.toFixed(1) + ' km away');
+            const item = document.createElement('article');
+            item.className = 'hospital-result';
+            const heading = document.createElement('h2');
+            heading.textContent = (index + 1) + '. ' + hospital.name;
+            const details = document.createElement('p');
+            details.textContent = distance.toFixed(1) + ' km away · ' + address + (hospital.properties.phone ? ' · ' + hospital.properties.phone : '');
+            const directionsLink = document.createElement('a');
+            directionsLink.href = directions;
+            directionsLink.target = '_blank';
+            directionsLink.rel = 'noopener noreferrer';
+            directionsLink.textContent = 'Get directions ↗';
+            item.append(heading, details, directionsLink);
+            item.addEventListener('click', event => {
+              if (event.target.closest('a')) return;
+              map.setView([hospital.latitude, hospital.longitude], 16);
+              marker.openPopup();
+            });
+            results.appendChild(item);
+          });
+          setStatus('Found ' + hospitals.length + ' mapped hospital' + (hospitals.length === 1 ? '' : 's') + ' within 10 km of ' + locationName + '.');
+        } catch (error) {
+          const mapsSearch = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('hospitals near ' + latitude + ',' + longitude);
+          results.innerHTML = '<h2 class="hospital-results-heading">Hospital results</h2>';
+          const message = document.createElement('p');
+          message.className = 'hospital-empty';
+          message.textContent = 'Could not load mapped results right now. ';
+          const fallback = document.createElement('a');
+          fallback.href = mapsSearch;
+          fallback.target = '_blank';
+          fallback.rel = 'noopener noreferrer';
+          fallback.textContent = 'Search hospitals in Google Maps ↗';
+          message.appendChild(fallback);
+          results.appendChild(message);
+          setStatus('Map centered on your search. Hospital data is unavailable; use the Google Maps link for nearby results.');
+        }
+      }
+
+      document.getElementById('hospitalSearchForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        const place = document.getElementById('hospitalPlace').value.trim();
+        if (!place) return;
+        setStatus('Finding ' + place + '…');
+        try {
+          const response = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=' + encodeURIComponent(place));
+          if (!response.ok) throw new Error('Location search failed.');
+          const places = await response.json();
+          if (!places.length) throw new Error('Location not found.');
+          await searchHospitals(Number(places[0].lat), Number(places[0].lon), place);
+        } catch (error) {
+          setStatus('Could not find that location. Check the spelling or try another search.');
+        }
+      });
+      document.getElementById('hospitalLocate').addEventListener('click', event => {
+        const button = event.currentTarget;
+        if (!navigator.geolocation) {
+          setStatus('Location is unavailable in this browser. Search by city, address, or postcode instead.');
+          return;
+        }
+        button.disabled = true;
+        setStatus('Waiting for permission to use device location…');
+        navigator.geolocation.getCurrentPosition(async position => {
+          await searchHospitals(position.coords.latitude, position.coords.longitude, 'your location');
+          button.disabled = false;
+        }, error => {
+          setStatus(error.code === error.PERMISSION_DENIED ? 'Location permission was declined. Search by city, address, or postcode instead.' : 'Could not get your location. Search by city, address, or postcode instead.');
+          button.disabled = false;
+        }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
+      });
+      window.setTimeout(() => map.invalidateSize(), 0);
+    };
+
+    auth.onAuthStateChanged(async function(user) {
+      if (!user) { location.href = 'index.html'; return; }
+      try {
+        const snapshot = await db.collection('users').doc(user.uid).get();
+        if (!snapshot.exists || snapshot.data().role !== 'patient' || snapshot.data().status === 'archived') { location.href = 'index.html'; return; }
+      } catch (error) {
+        console.error('Unable to verify patient account for hospital search:', error);
+        document.body.style.visibility = 'visible';
+        document.getElementById('hospitalStatus').textContent = 'Could not verify your account. Refresh the page or return to the dashboard.';
+        return;
+      }
+
+      document.body.style.visibility = 'visible';
+      try {
+        await ensureLeaflet();
+        window.initializeNearbyHospitals();
+      } catch (error) {
+        console.error('Unable to initialize hospital map:', error);
+        document.getElementById('hospitalStatus').textContent = 'The map library could not load. Check your internet connection or try again later.';
+        document.getElementById('hospitalMap').textContent = 'Map could not load. You can still search by city or address.';
+      }
+    });
+  </script>
+<script src="js/i18n.js"></script>
+</body>
+</html>

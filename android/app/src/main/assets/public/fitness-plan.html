@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#60a5fa">
+  <title>Fitness &amp; Wellness — Fitness Plan</title>
+  <script>window.location.replace('fitness-checking.html#fitness');</script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>body{visibility:hidden}.fitness-page{max-width:900px;margin:0 auto;padding:28px 18px 60px}.fitness-page .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.fitness-page .card{padding:20px;border-radius:18px;background:#fff;box-shadow:var(--shadow)}@media(min-width:768px){.fitness-page{padding-top:40px}}</style>
+  <link rel="stylesheet" href="css/fitness-pages.css">
+</head>
+<body>
+  <button class="drawer-trigger" id="fitnessMenuTrigger" type="button" aria-label="Open navigation menu" aria-expanded="false">☰</button>
+  <div class="drawer-backdrop" id="fitnessMenuBackdrop" hidden></div>
+  <aside class="drawer" id="fitnessPageDrawer" aria-label="Fitness and patient pages" aria-hidden="true">
+    <div class="drawer-header"><div class="drawer-brand"><div class="drawer-logo">M</div><div><strong>MediCare</strong><small>Page navigation</small></div></div><button class="drawer-close" id="fitnessMenuClose" type="button" aria-label="Close menu">×</button></div>
+    <nav class="drawer-nav" aria-label="Page navigation">
+      <a class="drawer-item" href="patient-dashboard.html"><span>🏠</span><div><strong>Dashboard</strong><small>Patient overview</small></div></a>
+      <a class="drawer-item" href="medication-reminders.html"><span>💊</span><div><strong>Medication Reminders</strong><small>Today's doses and alerts</small></div></a>
+      <a class="drawer-item" href="nearby-hospitals.html"><span>🏥</span><div><strong>Nearby Hospitals</strong><small>Search health facilities</small></div></a>
+      <a class="drawer-item" href="fitness-checking.html"><span>🌿</span><div><strong>Fitness &amp; Wellness</strong><small>Overview</small></div></a>
+      <a class="drawer-item" href="fitness-details.html"><span>📝</span><div><strong>Your Details</strong><small>Fitness profile</small></div></a>
+      <a class="drawer-item" href="diet-plan.html"><span>🥗</span><div><strong>Diet Plan</strong><small>Daily meal guidance</small></div></a>
+      <a class="drawer-item active" href="fitness-plan.html"><span>🏃</span><div><strong>Fitness Plan</strong><small>Weekly activity plan</small></div></a>
+      <a class="drawer-item" href="fitness-reminders.html"><span>⏰</span><div><strong>Wellbeing Reminders</strong><small>Meals, water and activity</small></div></a>
+      <a class="drawer-item" href="appointments.html"><span>📅</span><div><strong>Appointments</strong><small>Plan a care visit</small></div></a>
+      <a class="drawer-item" href="health-records.html"><span>📋</span><div><strong>Health Records</strong><small>Medicines and dose history</small></div></a>
+      <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
+      <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
+      <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+      <a class="drawer-item" href="caremate.html"><span>🤖</span><div><strong>AI Assistant</strong></div></a>
+    </nav>
+  </aside>
+  <main class="fitness-page">
+    <header class="topbar"><div><h1>Fitness Plan</h1><div class="greet">Weekly activity plan</div></div><div><button class="icon-btn" id="fitnessBackButton" type="button">← Back</button> <button class="icon-btn" type="button" onclick="auth.signOut().then(function(){location.href='index.html';})">Log out</button></div></header>
+    <section class="card"><div id="fitnessAssistant" data-page="fitness"></div></section>
+  </main>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script>
+    auth.onAuthStateChanged(async function (user) {
+      if (!user) { location.href = 'index.html'; return; }
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (!userDoc.exists || userDoc.data().role !== 'patient' || userDoc.data().status === 'archived') { location.href = 'index.html'; return; }
+      document.body.style.visibility = 'visible';
+    });
+  </script>
+  <script src="js/fitness-page-nav.js"></script>
+  <script src="js/fitness-assistant.js"></script>
+<script src="js/i18n.js"></script>
+</body>
+</html>

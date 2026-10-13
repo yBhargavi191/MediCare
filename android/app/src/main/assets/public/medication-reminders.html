@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#60a5fa">
+  <title>MediCare — Medication Reminders</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/fitness-pages.css">
+  <style>
+    .dose-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}.dose-summary .stat-box{min-width:0}
+    .alerts-head{display:flex;align-items:center;gap:12px}.alerts-icon{display:grid;place-items:center;width:44px;height:44px;flex:0 0 auto;border-radius:12px;background:#eff5ff;font-size:20px}
+    .alerts-copy{flex:1;min-width:0}.alerts-copy strong{display:block}.alerts-copy span{display:block;margin-top:2px;color:var(--muted);font-size:12px}.alerts-status{margin:12px 0;color:var(--muted);font-size:12px}
+    .switch{position:relative;display:inline-block;width:50px;height:30px;flex:0 0 auto}.switch input{position:absolute;opacity:0;width:1px;height:1px}.switch-slider{position:absolute;inset:0;border-radius:999px;background:#cbd5db;cursor:pointer;transition:.2s}.switch-slider:before{position:absolute;content:"";width:24px;height:24px;left:3px;top:3px;border-radius:50%;background:white;box-shadow:0 1px 3px #0004;transition:.2s}.switch input:checked+.switch-slider{background:var(--primary)}.switch input:checked+.switch-slider:before{transform:translateX(20px)}
+    .time-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.time-row select{margin-bottom:0}.day-choices{display:flex;flex-wrap:wrap;gap:8px}.day-choices label{display:flex;align-items:center;gap:5px;padding:6px 9px;border-radius:8px;background:#f1f5f9;font-size:13px}
+    #addMedicineModal{z-index:100}.caregiver-list{display:grid;gap:8px}.contact-line{padding:10px;border:1px solid var(--border);border-radius:10px}.contact-line strong,.contact-line span{display:block}.contact-line span{margin-top:3px;color:var(--muted);font-size:13px}
+    @media(max-width:420px){.dose-summary{grid-template-columns:1fr}.alerts-head{align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <button class="drawer-trigger" id="fitnessMenuTrigger" type="button" aria-label="Open navigation menu" aria-expanded="false">☰</button>
+  <div class="drawer-backdrop" id="fitnessMenuBackdrop" hidden></div>
+  <aside class="drawer" id="fitnessPageDrawer" aria-label="Patient pages" aria-hidden="true">
+    <div class="drawer-header"><div class="drawer-brand"><div class="drawer-logo">M</div><div><strong>MediCare</strong><small>Patient menu</small></div></div><button class="drawer-close" id="fitnessMenuClose" type="button" aria-label="Close menu">×</button></div>
+    <nav class="drawer-nav" aria-label="Page navigation">
+      <a class="drawer-item" href="patient-dashboard.html"><span>🏠</span><div><strong>Dashboard</strong><small>Patient overview</small></div></a>
+      <a class="drawer-item active" href="medication-reminders.html"><span>💊</span><div><strong>Medication Reminders</strong><small>Today&apos;s doses and alerts</small></div></a>
+      <a class="drawer-item" href="nearby-hospitals.html"><span>🏥</span><div><strong>Nearby Hospitals</strong><small>Search health facilities</small></div></a>
+      <a class="drawer-item" href="fitness-checking.html"><span>🌿</span><div><strong>Fitness &amp; Wellness</strong><small>Guided wellness plan</small></div></a>
+      <a class="drawer-item" href="appointments.html"><span>📅</span><div><strong>Appointments</strong><small>Plan a care visit</small></div></a>
+      <a class="drawer-item" href="health-records.html"><span>📋</span><div><strong>Health Records</strong><small>Medicines and dose history</small></div></a>
+      <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
+      <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
+      <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+      <a class="drawer-item" href="caremate.html"><span>🤖</span><div><strong>AI Assistant</strong></div></a>
+    </nav>
+  </aside>
+  <main class="fitness-page">
+    <header class="topbar"><div><h1>Medication Reminders</h1><div class="greet">Good <span id="timeOfDay">day</span>, <span id="patientName">loading…</span></div></div><div><button class="icon-btn" id="fitnessBackButton" type="button">← Back</button><button class="icon-btn" type="button" onclick="logout()">Log out</button></div></header>
+    <section class="card"><h2 style="margin:0 0 12px;">Today&apos;s dose progress</h2><div class="dose-summary"><div class="stat-box"><div class="num" id="statVerified">0</div><div class="lbl">Taken</div></div><div class="stat-box"><div class="num" id="statMissed">0</div><div class="lbl">Missed</div></div><div class="stat-box"><div class="num" id="statUpcoming">0</div><div class="lbl">Remaining</div></div></div><div class="progress-bar-bg"><div class="progress-bar-fill" id="adherenceFill" style="width:0%"></div></div><div style="text-align:right;margin-top:5px;color:var(--muted);font-size:12px;" id="adherenceText">0%</div></section>
+    <section class="card" id="reminders" aria-labelledby="medicationAlertsTitle"><div class="alerts-head"><div class="alerts-icon">🔔</div><div class="alerts-copy"><strong id="medicationAlertsTitle">Medication alerts</strong><span>Manage notification permissions and alarm access in Settings.</span></div><a class="icon-btn" href="settings.html">Open Settings</a></div></section>
+    <section class="card" id="medications"><div class="section-heading"><strong>Today&apos;s medicines</strong><button class="icon-btn" type="button" onclick="toggleAddMed()">+ Add medicine</button></div><div id="medList" style="margin-top:10px;"><div class="empty-state">Loading medicines…</div></div></section>
+    <section class="card"><strong>Caregiver contacts</strong><div class="caregiver-list" id="caregiverList" style="margin-top:10px;"></div></section>
+    <div id="alertList" hidden></div>
+  </main>
+  <div class="modal-overlay" id="addMedicineModal" style="display:none;">
+    <div class="modal-sheet caregiver-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="addMedicineTitle">
+      <button class="close-x" type="button" onclick="closeAddMed()" aria-label="Close">×</button><h3 id="addMedicineTitle">Add medicine</h3><p>Add a medicine and the time you need to take it.</p>
+      <div id="addMedError" class="error-msg" role="alert"></div>
+      <input type="text" id="newMedName" placeholder="Medicine name (e.g. Vitamin D)">
+      <input type="text" id="newMedDosage" placeholder="Dosage (e.g. 1 tablet)">
+      <div class="time-row"><select id="newMedHour" aria-label="Hour"></select><select id="newMedMinute" aria-label="Minute"></select><select id="newMedPeriod" aria-label="AM or PM"><option value="AM">AM</option><option value="PM">PM</option></select></div>
+      <div style="margin-top:10px;"><select id="newMedFrequency" aria-label="Repeat" onchange="toggleWeeklyDays()"><option value="daily">Every day</option><option value="weekly">Specific days of the week</option></select></div>
+      <div id="newMedDays" style="display:none;margin-top:8px;"><div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Repeat on</div><div class="day-choices"><label><input type="checkbox" value="Sun">Sun</label><label><input type="checkbox" value="Mon">Mon</label><label><input type="checkbox" value="Tue">Tue</label><label><input type="checkbox" value="Wed">Wed</label><label><input type="checkbox" value="Thu">Thu</label><label><input type="checkbox" value="Fri">Fri</label><label><input type="checkbox" value="Sat">Sat</label></div></div>
+      <button class="primary" type="button" onclick="addMedicine()">Save medicine</button>
+    </div>
+  </div>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/vendor/firebase-messaging-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/push-notifications.js"></script>
+  <script src="js/fitness-page-nav.js"></script>
+  <script src="js/patient.js"></script>
+<script src="js/i18n.js"></script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+/* Fluid layout for the standalone Fitness Assistant pages. */
+.fitness-page {
+  width: min(100%, 960px);
+  min-width: 0;
+  min-height: 100vh;
+  margin-inline: auto;
+  padding: clamp(82px, 10vw, 104px) clamp(12px, 3vw, 28px) clamp(24px, 6vw, 56px);
+}
+
+.fitness-page .topbar {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: clamp(16px, 3vw, 26px);
+}
+
+.fitness-page .topbar > div:first-child {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.fitness-page .topbar h1 {
+  margin: 0 0 4px;
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.fitness-page .topbar > div:last-child {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fitness-page .topbar .icon-btn {
+  min-height: 42px;
+}
+
+.fitness-page .card {
+  width: 100%;
+  min-width: 0;
+  padding: clamp(13px, 3vw, 24px);
+  overflow: hidden;
+}
+
+#fitnessAssistant {
+  width: 100%;
+  min-width: 0;
+}
+
+#fitnessAssistant .fa-head h2 {
+  font-size: clamp(1.25rem, 3.8vw, 1.75rem);
+  line-height: 1.25;
+}
+
+#fitnessAssistant .fa-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+}
+
+#fitnessAssistant .fa-table {
+  table-layout: fixed;
+}
+
+#fitnessAssistant .fa-table td {
+  overflow-wrap: anywhere;
+}
+
+#fitnessAssistant .fa-btn,
+#fitnessAssistant .fa-delete {
+  min-height: 42px;
+}
+
+.fitness-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: clamp(12px, 2.5vw, 20px);
+}
+
+.fitness-hub-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  min-height: 132px;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  color: var(--text);
+  text-decoration: none;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.fitness-hub-card:hover {
+  transform: translateY(-2px);
+  border-color: #a9b7d5;
+  box-shadow: 0 16px 36px rgba(25, 42, 79, .12);
+}
+
+.fitness-hub-card > span {
+  display: grid;
+  place-items: center;
+  width: clamp(44px, 8vw, 58px);
+  aspect-ratio: 1;
+  border-radius: 16px;
+  background: var(--primary-soft);
+  font-size: clamp(22px, 4vw, 30px);
+}
+
+.fitness-hub-card h2 {
+  margin: 0 0 5px;
+  color: var(--primary-dark);
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+}
+
+.fitness-hub-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(.82rem, 2vw, .95rem);
+}
+
+.fitness-hub-card > b {
+  color:var(--primary-dark);
+  font-size: 22px;
+}
+
+.drawer-nav {
+  max-height: calc(100dvh - 112px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.drawer-nav a.drawer-item,
+.drawer-nav a.drawer-item:link,
+.drawer-nav a.drawer-item:visited,
+.drawer-nav a.drawer-item:hover,
+.drawer-nav a.drawer-item:active,
+.drawer-nav a.drawer-item:focus,
+.drawer-nav a.drawer-item:focus-visible,
+.drawer-nav a.drawer-item * {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  -webkit-text-decoration: none !important;
+}
+
+@media (max-width: 520px) {
+  .fitness-page .topbar > div:last-child {
+    flex: 1 1 100%;
+  }
+
+  .fitness-page .topbar .icon-btn {
+    flex: 1 1 auto;
+  }
+
+  #fitnessAssistant .fa-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 360px) {
+  .fitness-page {
+    padding-inline: 10px;
+  }
+
+  .fitness-page .card {
+    border-radius: 14px;
+  }
+
+  #fitnessAssistant .fa-table td {
+    padding: 7px 5px;
+  }
+
+  .fitness-hub-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .fitness-hub-card > b {
+    display: none;
+  }
+}

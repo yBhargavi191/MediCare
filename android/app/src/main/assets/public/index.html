@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCare — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #edf6ff;
+      --panel: #ffffff;
+      --text: #183653;
+      --muted: #71849a;
+      --border: #e0e9f2;
+      --primary: #3485ed;
+      --primary-2: #2675e0;
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body { margin: 0; font: 400 14px/1.6 'DM Sans', sans-serif; color: var(--text); background: var(--bg); }
+    a { color: inherit; }
+    .login-shell { min-height: 100svh; display: grid; grid-template-columns: 1fr 1fr; }
+    .login-hero { position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 24px; padding: clamp(32px, 5vw, 72px); overflow: hidden; background: radial-gradient(ellipse at 10% 0%, rgba(160,210,255,.28), transparent 28%), linear-gradient(140deg,#f7fbff 0%,#e8f4ff 100%); }
+    .login-hero::before, .login-hero::after { content: "+"; position: absolute; z-index: -1; color: #c7e2ff; font: 700 54px/1 'DM Sans',sans-serif; }
+    .login-hero::before { top: 8%; left: 13%; }
+    .login-hero::after { right: 12%; bottom: 13%; font-size: 38px; }
+    .hero-brand { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .hero-brand-mark { width: clamp(76px, 10vw, 112px); height: clamp(76px, 10vw, 112px); margin-bottom: 2px; }
+    .hero-brand-name { color: #173d70; font-family: 'Plus Jakarta Sans',sans-serif; font-weight: 800; font-size: clamp(38px,5vw,56px); line-height: 1.15; letter-spacing: -.055em; }
+    .hero-tagline { margin: 4px 0 0; color: #395875; font-size: clamp(14px,1.4vw,17px); }
+    .hero-content { width: min(340px,100%); display: flex; flex-direction: column; gap: 18px; }
+    .hero-kicker { display: none; }
+    .hero-title { display: none; }
+    .hero-subtitle { display: none; }
+    .hero-feature { display: flex; align-items: center; gap: 16px; color: #29496a; font-size: 14px; line-height: 1.35; }
+    .hero-feature-icon { width: 36px; height: 36px; flex: 0 0 36px; color: #3286ed; }
+    .hero-foot { position: absolute; left: 0; right: 0; bottom: 0; height: 12%; min-height: 58px; display: flex; align-items: center; justify-content: center; color: #5687b5; font-size: 12px; background: linear-gradient(transparent,rgba(195,224,250,.42)); }
+    .hero-foot::before { content: ""; position: absolute; left: 0; right: 0; top: 47%; height: 1px; background: linear-gradient(90deg,transparent,#a9d8f1 18%,#74a9eb 42%,#a9d8f1 65%,transparent); }
+    .login-panel { display: flex; align-items: center; justify-content: center; padding: clamp(22px, 4vw, 64px); background: #eaf5ff; }
+    .login-card { width: min(460px, 100%); display: flex; flex-direction: column; gap: 18px; padding: clamp(28px, 4vw, 48px); border: 1px solid rgba(222,234,245,.9); border-radius: 16px; background: var(--panel); box-shadow: 0 18px 55px -35px rgba(35,81,126,.34); }
+    .card-head { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+    .card-head h1 { margin: 0; color: #3283e8; font-family: 'Plus Jakarta Sans',sans-serif; font-weight: 800; font-size: clamp(25px,3vw,31px); letter-spacing: -.035em; }
+    .card-head p { margin: 0; max-width: 285px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+    .role-toggle { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 4px; border-radius: 11px; background: #eef1f6; }
+    .role-toggle button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; border: 1px solid transparent; border-radius: 9px; background: transparent; color: #64758a; font: inherit; font-weight: 700; cursor: pointer; }
+    .role-toggle button.active { border-color: #c5def9; background: #edf6ff; color: #2878dc; box-shadow: 0 2px 5px rgba(44,112,185,.08); }
+    .role-icon { width: 17px; height: 17px; }
+    .form-grid { display: flex; flex-direction: column; gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 0; }
+    .field label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-icon { position: absolute; left: 13px; width: 17px; height: 17px; color: #71879c; pointer-events: none; }
+    .input-wrap input { width: 100%; min-height: 43px; padding: 10px 14px 10px 40px; border: 1px solid var(--border); border-radius: 10px; color: var(--text); font: inherit; font-size: 13px; background: #fff; }
+    .input-wrap input::placeholder { color: #91a1b3; }
+    .input-wrap input:focus { outline: 3px solid rgba(52,133,237,.14); outline-offset: 1px; border-color: rgba(52,133,237,.58); }
+    .password-toggle { position: absolute; right: 10px; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 6px; color: #71879c; background: transparent; cursor: pointer; }
+    .password-toggle svg { width: 17px; height: 17px; }
+    .row-between { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
+    .check { display: flex; align-items: center; gap: 8px; color: var(--muted); cursor: pointer; }
+    .check input { width: 17px; height: 17px; margin: 0; accent-color: var(--primary); }
+    .link { padding: 0; border: 0; color: var(--primary); font: inherit; font-weight: 700; text-decoration: none; background: transparent; cursor: pointer; }
+    .link:hover { text-decoration: underline; }
+    .btn { border: 0; border-radius: 9px; padding: 11px 18px; font: inherit; font-weight: 700; cursor: pointer; }
+    .btn:disabled { opacity: .65; cursor: wait; }
+    .btn-primary { color: #fff; background: linear-gradient(110deg, #398bed, #2878e8); box-shadow: 0 8px 16px -9px rgba(37,99,235,.85); }
+    .btn-primary:hover { background: linear-gradient(110deg, #287de0, #206bd5); }
+    .btn-ghost { background: transparent; color: var(--primary); }
+    .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; }
+    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+    .alt-actions { display: flex; flex-direction: column; gap: 4px; }
+    .alt-caption { color: var(--muted); font-size: 12px; text-align: center; }
+    .error-msg { color: #dc2626; font-weight: 600; min-height: 0; font-size: 12px; }
+    .error-msg:not(:empty) { min-height: 18px; }
+    #signupFields .field + .field { margin-top: 10px; }
+    @media (min-width: 1500px) { .login-shell { max-width: 1800px; margin: 0 auto; } }
+    @media (max-width: 760px) {
+      .login-shell { min-height: 100svh; grid-template-columns: 1fr; }
+      .login-hero { min-height: 290px; gap: 14px; padding: 28px 22px 52px; }
+      .hero-brand-mark { width: 70px; height: 70px; }
+      .hero-brand-name { font-size: 36px; }
+      .hero-tagline { font-size: 13px; }
+      .hero-content { width: min(380px,100%); gap: 9px; }
+      .hero-feature { gap: 10px; font-size: 12px; }
+      .hero-feature-icon { width: 28px; height: 28px; flex-basis: 28px; }
+      .hero-foot { min-height: 35px; height: 35px; font-size: 10px; }
+      .login-panel { padding: 22px 16px 30px; }
+      .login-card { width: min(460px,100%); padding: 26px 22px; gap: 15px; }
+    }
+    @media (max-width: 380px) { .login-hero { min-height: 270px; } .hero-feature { font-size: 11px; } .row-between { font-size: 11px; } }
+  </style>
+  <link rel="stylesheet" href="css/login-reference.css">
+</head>
+<body>
+  <div class="login-shell">
+    <img class="login-reference-art" src="icons/login-reference.png" alt="">
+    <aside class="login-hero">
+      <div class="hero-brand">
+        <svg class="hero-brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+          <defs>
+            <linearGradient id="m" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#36d4b6"/>
+              <stop offset=".52" stop-color="#28a8df"/>
+              <stop offset="1" stop-color="#1c73dc"/>
+            </linearGradient>
+          </defs>
+          <path d="M32 56S7 40 7 22C7 10 22 5 32 17 42 5 57 10 57 22c0 18-25 34-25 34Z" fill="none" stroke="url(#m)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13 31h10l5-11 7 23 5-12h11" fill="none" stroke="#258bdc" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="hero-brand-name">MediCare</span>
+        <p class="hero-tagline">Smarter Technology, Healthier Lives</p>
+      </div>
+      <div class="hero-content">
+        <div class="hero-feature">
+          <svg class="hero-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5V3h6v1.5M12 9v7m-3.5-3.5h7"/></svg>
+          <span>Access Your<br>Health Records</span>
+        </div>
+        <div class="hero-feature">
+          <svg class="hero-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 13.5 7 17a3.5 3.5 0 0 1-5-5l5-5a3.5 3.5 0 0 1 5 0M13.5 10.5 17 7a3.5 3.5 0 0 1 5 5l-5 5a3.5 3.5 0 0 1-5 0M8 16l8-8"/></svg>
+          <span>Track Medications<br>&amp; Get Reminders</span>
+        </div>
+        <div class="hero-feature">
+          <svg class="hero-feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9h2l1.5 5 3-8 1.5 5H17M8 2v2m8-2v2"/></svg>
+          <span>AI-Powered<br>Health Insights</span>
+        </div>
+      </div>
+      <div class="hero-foot" aria-hidden="true"></div>
+    </aside>
+    <main class="login-panel">
+      <div class="login-card">
+        <header class="card-head">
+          <h1>MediCare</h1>
+          <p>Medication support that keeps every<br>dose on track.</p>
+        </header>
+        <div class="role-toggle" role="tablist" aria-label="Choose account type">
+          <button type="button" class="active" id="roleP" role="tab" aria-selected="true" onclick="setRole('patient')"><svg class="role-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"/></svg>Patient</button>
+          <button type="button" id="roleA" role="tab" aria-selected="false" onclick="setRole('admin')"><svg class="role-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 9 4v5c0 5.55-3.84 10.74-9 12-5.16-1.26-9-6.45-9-12V6l9-4Zm-1 5v4H8l4 6v-4h3l-4-6Z"/></svg>Admin</button>
+        </div>
+        <form class="form-grid" onsubmit="handleSubmit(); return false;">
+          <div id="signupFields" style="display:none; flex-direction:column; gap:12px;">
+            <div class="field">
+              <label for="name">Full name</label>
+              <div class="input-wrap"><svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></svg><input id="name" type="text" autocomplete="name" placeholder="Full name"></div>
+            </div>
+            <div class="field">
+              <label for="phone">Mobile number</label>
+              <div class="input-wrap"><svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm4 15h2"/></svg><input id="phone" type="tel" autocomplete="tel" placeholder="Mobile number"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="email">Email address</label>
+            <div class="input-wrap"><svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg><input id="email" type="email" autocomplete="email" placeholder="Email address" required></div>
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap"><svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3m-4 5v2"/></svg><input id="password" type="password" autocomplete="current-password" placeholder="Password" required><button type="button" class="password-toggle" id="passwordToggle" aria-label="Show password" aria-pressed="false" onclick="togglePasswordVisibility()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
+          </div>
+          <div class="row-between">
+            <label class="check"><input type="checkbox" id="rememberMe"> Remember me</label>
+            <button type="button" class="link" onclick="openResetPassword()">Forgot password?</button>
+          </div>
+          <div class="error-msg" id="errorMsg" aria-live="polite"></div>
+          <button class="btn btn-primary" id="submitBtn" type="submit"><span aria-hidden="true">↪</span> &nbsp;Log in</button>
+        </form>
+        <div class="divider" aria-hidden="true"></div>
+        <div class="alt-actions">
+          <span class="alt-caption">New here?</span>
+          <button class="btn btn-ghost" id="toggleModeBtn" type="button" onclick="toggleMode()">Create an account &nbsp;→</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="resetPasswordModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); align-items:center; justify-content:center; padding:20px;">
+    <div class="modal-sheet reset-modal" role="dialog" aria-modal="true" aria-labelledby="resetPasswordTitle" style="width:min(420px,100%); background:#fff; border-radius:18px; box-shadow:0 40px 70px -40px rgba(15,23,42,.8); padding:26px; display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <h3 id="resetPasswordTitle" style="margin:0; font-family:'Plus Jakarta Sans',sans-serif;">Reset your password</h3>
+        <button type="button" onclick="closeResetPassword()" aria-label="Close" style="border:0; background:transparent; font-size:20px; cursor:pointer;">×</button>
+      </div>
+      <p style="margin:0; color:var(--muted);">Enter your email to receive a secure reset link.</p>
+      <div class="input-wrap"><input type="email" id="resetEmail" placeholder="name@example.com" autocomplete="email"></div>
+      <div class="error-msg" id="resetError" aria-live="polite"></div>
+      <button class="btn btn-primary" id="resetSubmitBtn" type="button" onclick="sendPasswordReset()">Send reset link</button>
+    </div>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/vendor/firebase-app-compat.js"></script>
+  <script src="js/vendor/firebase-auth-compat.js"></script>
+  <script src="js/vendor/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/i18n.js"></script>
+</body>
+</html>

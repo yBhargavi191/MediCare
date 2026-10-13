@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#60a5fa">
+  <title>MediCare — Health Records</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/fitness-pages.css">
+  <style>
+    body{visibility:hidden}.records-list{display:grid;gap:9px}.record-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:13px;border:1px solid var(--border);border-radius:12px;background:#fbfdff}.record-row strong{display:block;color:var(--primary-dark)}.record-row small,.record-row p{display:block;margin:4px 0 0;color:var(--muted);font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}.record-status{flex:0 0 auto;padding:4px 8px;border-radius:999px;background:#eef5ff;color:var(--primary-dark);font-size:10px;font-weight:700}.records-empty{padding:18px;text-align:center;border-radius:12px;background:#f7faf9;color:var(--muted);font-size:13px}.records-note{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.5}.test-record-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:14px}.test-record-field{min-width:0}.test-record-field.full{grid-column:1/-1}.test-record-field label{display:block;margin-bottom:5px;color:var(--primary-dark);font-size:12px;font-weight:700}.test-record-field input,.test-record-field textarea{width:100%;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font:inherit}.test-record-field textarea{min-height:76px;resize:vertical}.test-record-form button{grid-column:1/-1;justify-self:start;width:auto}.prescription-import{margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:12px;background:#f8fbfa}.prescription-import-actions{display:flex;flex-wrap:wrap;gap:8px}.prescription-import-actions button{width:auto}.prescription-import textarea{width:100%;min-height:110px;margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;resize:vertical}.prescription-import-status{min-height:18px;margin:8px 0 0;color:var(--muted);font-size:12px}@media(max-width:480px){.record-row{flex-direction:column}.record-status{align-self:flex-start}.test-record-form{grid-template-columns:1fr}.test-record-field.full,.test-record-form button{grid-column:auto}.prescription-import-actions{display:grid;grid-template-columns:1fr}.prescription-import-actions button{width:100%}}
+  </style>
+</head>
+<body>
+  <script src="js/loading.js"></script>
+  <button class="drawer-trigger" id="fitnessMenuTrigger" type="button" aria-label="Open navigation menu" aria-expanded="false">☰</button><div class="drawer-backdrop" id="fitnessMenuBackdrop" hidden></div>
+  <aside class="drawer" id="fitnessPageDrawer" aria-label="Patient pages" aria-hidden="true">
+    <div class="drawer-header"><div class="drawer-brand"><div class="drawer-logo">M</div><div><strong>MediCare</strong><small>Patient menu</small></div></div><button class="drawer-close" id="fitnessMenuClose" type="button" aria-label="Close menu">×</button></div>
+    <nav class="drawer-nav" aria-label="Page navigation">
+      <a class="drawer-item" href="patient-dashboard.html"><span>🏠</span><div><strong>Dashboard</strong><small>Patient overview</small></div></a>
+      <a class="drawer-item" href="medication-reminders.html"><span>💊</span><div><strong>Medication Reminders</strong><small>Today's doses and alerts</small></div></a>
+      <a class="drawer-item" href="nearby-hospitals.html"><span>🏥</span><div><strong>Nearby Hospitals</strong><small>Search health facilities</small></div></a>
+      <a class="drawer-item" href="fitness-checking.html"><span>🌿</span><div><strong>Fitness &amp; Wellness</strong><small>Guided wellness plan</small></div></a>
+      <a class="drawer-item" href="appointments.html"><span>📅</span><div><strong>Appointments</strong><small>Plan a care visit</small></div></a>
+      <a class="drawer-item active" href="health-records.html"><span>📋</span><div><strong>Health Records</strong><small>Medicines and dose history</small></div></a>
+      <a class="drawer-item" href="emergency-contacts.html"><span>🆘</span><div><strong>Emergency Contacts</strong><small>Caregiver phone numbers</small></div></a>
+      <a class="drawer-item" href="profile.html"><span>👤</span><div><strong>Profile</strong><small>Your patient information</small></div></a>
+      <a class="drawer-item" href="settings.html"><span>⚙️</span><div><strong>Settings</strong><small>Notifications and account</small></div></a>
+      <a class="drawer-item" href="caremate.html"><span>🤖</span><div><strong>AI Assistant</strong></div></a>
+    </nav>
+  </aside>
+  <main class="fitness-page">
+    <header class="topbar"><div><h1>Health Records</h1><div class="greet">Prescriptions, test results and current medicines.</div></div><div><button class="icon-btn" id="fitnessBackButton" type="button">← Back</button><button class="icon-btn" type="button" onclick="auth.signOut().then(function(){location.href='index.html';})">Log out</button></div></header>
+    <section class="card"><div class="section-heading"><strong>Prescriptions</strong><a class="icon-btn" href="medication-reminders.html" style="text-decoration:none;">Current medicines</a></div><div id="recordPrescriptions" class="records-list" style="margin-top:12px;"><div class="records-empty">Loading prescriptions…</div></div>
+      <div class="prescription-import"><strong>Import prescription</strong><p class="records-note">Choose a clear prescription image. Text is recognized on this device; the original image is not uploaded.</p><input id="prescriptionImage" type="file" accept="image/*" aria-label="Choose prescription image"><div class="prescription-import-actions"><button class="icon-btn" id="readPrescriptionBtn" type="button">Read prescription</button><button class="icon-btn" id="savePrescriptionBtn" type="button" hidden>Save to Health Records</button></div><p id="prescriptionImportStatus" class="prescription-import-status" aria-live="polite"></p><textarea id="prescriptionTextPreview" aria-label="Recognized prescription text" placeholder="Recognized prescription text will appear here for review…" hidden></textarea></div>
+    </section>
+    <section class="card"><div class="section-heading"><strong>Test reports</strong></div><div id="recordTests" class="records-list" style="margin-top:12px;"><div class="records-empty">Loading test reports…</div></div>
+      <form id="testRecordForm" class="test-record-form">
+        <div class="test-record-field"><label for="testRecordName">Test name</label><input id="testRecordName" required maxlength="100" placeholder="e.g. Blood test"></div>
+        <div class="test-record-field"><label for="testRecordDate">Test date</label><input id="testRecordDate" type="date" required></div>
+        <div class="test-record-field full"><label for="testRecordResult">Result or summary</label><input id="testRecordResult" required maxlength="300" placeholder="Enter the result as shown on your report"></div>
+        <div class="test-record-field full"><label for="testRecordNotes">Notes (optional)</label><textarea id="testRecordNotes" maxlength="500" placeholder="Clinic, reference, or extra notes"></textarea></div>
+        <button class="primary" id="saveTestRecord" type="submit">Save test record</button>
+      </form><p id="testRecordMessage" class="records-note" aria-live="polite">Test details are patient-entered and are not verified by MediCare.</p>
+    </section>
+    <section class="card"><div class="section-heading"><strong>Current medicines</strong><a class="icon-btn" href="medication-reminders.html" style="text-decoration:none;">Manage</a></div><div id="recordMedicines" class="records-list" style="margin-top:12px;"><div class="records-empty">Loading medicines…</div></div></section>
+  </main>
+  <script src="js/vendor/firebase-app-compat.js"></script><script src="js/vendor/firebase-auth-compat.js"></script><script src="js/vendor/firebase-firestore-compat.js"></script><script src="js/firebase-config.js"></script><script src="js/ml-loader.js"></script><script src="js/fitness-page-nav.js"></script>
+  <script>
+    var healthRecordsUser=null;
+    function addRecordRow(host,title,detail,status,notes){var row=document.createElement('article');row.className='record-row';var info=document.createElement('div');var heading=document.createElement('strong');heading.textContent=title;info.appendChild(heading);if(detail){var text=document.createElement('small');text.textContent=detail;info.appendChild(text);}if(notes){var note=document.createElement('p');note.textContent=notes;info.appendChild(note);}var badge=document.createElement('span');badge.className='record-status';badge.textContent=status;row.append(info,badge);host.appendChild(row);}
+    function displayRecordDate(value){if(!value)return '';var date=value&&typeof value.toDate==='function'?value.toDate():new Date(value);return Number.isNaN(date.getTime())?'':date.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});}
+    auth.onAuthStateChanged(async function(user){
+      if(!user){location.href='index.html';return;}
+      try{
+        var account=await db.collection('users').doc(user.uid).get();if(!account.exists||account.data().role!=='patient'||account.data().status==='archived'){location.href='index.html';return;}
+        document.body.style.visibility='visible';
+        healthRecordsUser=user;
+        var medicines=await db.collection('medicines').where('patientId','==',user.uid).get();var medicineHost=document.getElementById('recordMedicines');medicineHost.replaceChildren();
+        if(medicines.empty)medicineHost.innerHTML='<div class="records-empty">No medicine records are available yet.</div>';
+        medicines.forEach(function(doc){var medicine=doc.data();var times=(medicine.times||(medicine.time?[medicine.time]:[])).join(', ');addRecordRow(medicineHost,medicine.name||'Medicine',[medicine.dosage,times].filter(Boolean).join(' · '),medicine.frequency==='weekly'?'Weekly':'Daily');});
+        var records=await db.collection('healthRecords').where('patientId','==',user.uid).get();var allRecords=records.docs.map(function(doc){return {id:doc.id,...doc.data()};});
+        var prescriptionRecords=allRecords.filter(function(record){return record.type==='prescription';}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});var prescriptionHost=document.getElementById('recordPrescriptions');prescriptionHost.replaceChildren();
+        if(prescriptionRecords.length){prescriptionRecords.forEach(function(record){var medicinesText=(record.medicineNames||[]).map(function(item){return [item.name,item.dosage].filter(Boolean).join(' — ');}).filter(Boolean).join(', ');addRecordRow(prescriptionHost,record.title||'Prescription',displayRecordDate(record.date||record.createdAt),record.source==='prescription-ocr'?'Scanned':'Record',medicinesText||record.ocrText||record.notes||'Prescription record');});}
+        else{var imported=medicines.docs.map(function(doc){return doc.data();}).filter(function(medicine){return medicine.source==='prescription-ocr';});if(imported.length){imported.forEach(function(medicine){addRecordRow(prescriptionHost,medicine.name||'Prescription medicine',[medicine.dosage,(medicine.times||[]).join(', '),displayRecordDate(medicine.createdAt)].filter(Boolean).join(' · '),'Imported');});}else prescriptionHost.innerHTML='<div class="records-empty">No prescription records have been imported yet.</div>';}
+        var tests=allRecords.filter(function(record){return record.type==='test';}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});var testHost=document.getElementById('recordTests');testHost.replaceChildren();
+        if(tests.length)tests.forEach(function(record){addRecordRow(testHost,record.title||'Test report',displayRecordDate(record.date)+(record.provider?' · '+record.provider:''),'Patient-entered',record.result||record.notes||'');});else testHost.innerHTML='<div class="records-empty">No test reports have been added yet. Add a summary from your report below.</div>';
+      }catch(error){console.error('Unable to load health records:',error);document.getElementById('recordMedicines').innerHTML='<div class="records-empty">Health records are temporarily unavailable. Please try again.</div>';document.body.style.visibility='visible';}
+    });
+    document.getElementById('testRecordForm').addEventListener('submit',async function(event){event.preventDefault();if(!healthRecordsUser||!event.currentTarget.reportValidity())return;var button=document.getElementById('saveTestRecord');button.disabled=true;document.getElementById('testRecordMessage').textContent='Saving test record…';var record={patientId:healthRecordsUser.uid,type:'test',title:document.getElementById('testRecordName').value.trim(),date:document.getElementById('testRecordDate').value,result:document.getElementById('testRecordResult').value.trim(),notes:document.getElementById('testRecordNotes').value.trim(),createdAt:firebase.firestore.FieldValue.serverTimestamp()};try{await db.collection('healthRecords').add(record);var testHost=document.getElementById('recordTests');if(testHost.querySelector('.records-empty'))testHost.replaceChildren();addRecordRow(testHost,record.title,displayRecordDate(record.date),'Patient-entered',record.result+(record.notes?' · '+record.notes:''));event.currentTarget.reset();document.getElementById('testRecordMessage').textContent='Test record saved. It is patient-entered and has not been verified.';}catch(error){console.error('Unable to save test record:',error);document.getElementById('testRecordMessage').textContent='Could not save test record. Please check your connection and retry.';}finally{button.disabled=false;}});
+    document.getElementById('readPrescriptionBtn').addEventListener('click',async function(){
+      var file=document.getElementById('prescriptionImage').files[0];var status=document.getElementById('prescriptionImportStatus');var preview=document.getElementById('prescriptionTextPreview');var saveButton=document.getElementById('savePrescriptionBtn');
+      if(!file){status.textContent='Choose a prescription image first.';return;}if(!file.type.startsWith('image/')){status.textContent='Please select an image file.';return;}
+      var button=this;button.disabled=true;saveButton.hidden=true;status.textContent='Loading text reader…';
+      try{await MediCareML.loadOcrLibs();status.textContent='Reading prescription…';var result=await Tesseract.recognize(file,'eng',{logger:function(message){if(message.status==='recognizing text')status.textContent='Reading prescription… '+Math.round(message.progress*100)+'%';}});var text=(result.data.text||'').trim();if(!text){preview.hidden=true;status.textContent='No text was detected. Try a clear, well-lit image.';return;}preview.value=text;preview.hidden=false;saveButton.hidden=false;status.textContent='Review the recognized text, then save it to your records.';}
+      catch(error){console.error('Prescription OCR failed:',error);status.textContent='Could not read this image. Check your internet connection and try a clearer photo.';}
+      finally{button.disabled=false;}
+    });
+    document.getElementById('prescriptionImage').addEventListener('change',function(){document.getElementById('prescriptionImportStatus').textContent=this.files&&this.files[0]?'Selected: '+this.files[0].name+'. Choose Read prescription to continue.':'';document.getElementById('prescriptionTextPreview').hidden=true;document.getElementById('savePrescriptionBtn').hidden=true;});
+    document.getElementById('savePrescriptionBtn').addEventListener('click',async function(){
+      if(!healthRecordsUser)return;var text=document.getElementById('prescriptionTextPreview').value.trim();var status=document.getElementById('prescriptionImportStatus');if(!text){status.textContent='There is no recognized prescription text to save.';return;}
+      var button=this;button.disabled=true;
+      try{var now=new Date();var localDate=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,10);var record={patientId:healthRecordsUser.uid,type:'prescription',title:'Imported prescription',date:localDate,ocrText:text,source:'patient-image-ocr',createdAt:firebase.firestore.FieldValue.serverTimestamp()};await db.collection('healthRecords').add(record);var host=document.getElementById('recordPrescriptions');if(host.querySelector('.records-empty'))host.replaceChildren();addRecordRow(host,record.title,displayRecordDate(record.date),'Imported',record.ocrText);document.getElementById('prescriptionImage').value='';document.getElementById('prescriptionTextPreview').value='';document.getElementById('prescriptionTextPreview').hidden=true;button.hidden=true;status.textContent='Prescription text saved to Health Records.';}
+      catch(error){console.error('Unable to save prescription record:',error);status.textContent='Could not save this prescription. Please retry.';}
+      finally{button.disabled=false;}
+    });
+  </script>
+<script src="js/i18n.js"></script>
+</body>
+</html>
